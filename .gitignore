@@ -19,11 +19,21 @@ organizations/fabric-ca/*/tls-cert.pem
 organizations/peerOrganizations
 organizations/ordererOrganizations
 
+/channel-artifacts/*.tx
+/channel-artifacts/*.block
+/ledgers
+/ledgers-backup
+/channel-artifacts/*.json
+/org3-artifacts/crypto-config/*
+organizations
+system-genesis-block/*
+*.tar.gz
+log.txt
+bin
+builders
+channel-artifacts
+
 #Go
 */vendor
-*/go.mod
-*/go.sum
 chaincode/*/vendor
-chaincode/*/go.mod
-chaincode/*/go.sum
 *.tar.gz
