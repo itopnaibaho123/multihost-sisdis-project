@@ -5,7 +5,6 @@ const registerUser = async(req, res) => {
     try{
 
         const data = req.body;
-        console.log(data);
         const username = data.username;
         const orgName = data.organizationName;
         const role = data.role;

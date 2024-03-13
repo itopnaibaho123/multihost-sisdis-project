@@ -127,11 +127,12 @@ const loginUser = async(username, password) => {
 
     const user1 = await walletKemdikbud.get(username);
     const user2 = await walletHe.get(username);
+    let organizationName = '';
     if (user1) {
-        const organizationName = 'org1'
+        organizationName = 'org1'
     }
     else if (user2) {
-        const organizationName = 'he1'
+        organizationName = 'he1'
     }
     else {
         throw new Error(`User ${username} is not registered yet`);
@@ -160,13 +161,11 @@ const loginUser = async(username, password) => {
     else{
         throw new Error("Password Not Correct");
     }
-
     return response
-
 }
 
 
-const updateUser = async(organizationName, username, password, role,dataUser) => {
+const updateUser = async(organizationName, username, password, role, dataUser) => {
 
     const ccp = await fabric.getCcp(organizationName)
     const wallet = await fabric.getWallet(organizationName)
