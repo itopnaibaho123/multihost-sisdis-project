@@ -11,5 +11,8 @@ app.use(cors())
 app.use('/', router)
 
 app.get('/test', (req, res) => res.send('Hello World!'));
+app.post('/test-post', async(req, res) => {
+    console.log('Received data:', req.body);
+});
 
 app.listen(PORT, () => console.log(`Express app running on host ${HOST}:${PORT}`));
