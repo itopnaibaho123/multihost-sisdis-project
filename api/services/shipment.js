@@ -4,7 +4,7 @@ const iResp = require('../utils/response.interface.js')
 const getShipments = async () => {
     try {
         let result = {};
-        return iResp.buildSuccessResponse(201, `Successfully get all shipment`, result);
+        return iResp.buildSuccessResponse(200, `Successfully get all shipment`, result);
     } catch (error) {
         return iResp.buildErrorResponse(500, 'Something wrong', error);
     }
@@ -13,7 +13,7 @@ const getShipments = async () => {
 const getShipmentById = async (shipmentId) => {
     try {
         let result = {};
-        return iResp.buildSuccessResponse(201, `Successfully get shipment ${shipmentId}`, result);
+        return iResp.buildSuccessResponse(200, `Successfully get shipment ${shipmentId}`, result);
     } catch (error) {
         return iResp.buildErrorResponse(500, 'Something wrong', error);
     }
@@ -40,7 +40,7 @@ const updateShipment = async (shipmentId, body) => {
 const deleteShipment = async (shipmentId) => {
     try {
         let result = {};
-        return iResp.buildSuccessResponse(201, `Successfully delete shipment ${shipmentId}`, result);
+        return iResp.buildSuccessResponse(200, `Successfully delete shipment ${shipmentId}`, result);
     } catch (error) {
         return iResp.buildErrorResponse(500, 'Something wrong', error);
     }

@@ -8,7 +8,7 @@ const router = require('./routes/index.js');
 
 app.use(express.json())
 app.use(cors())
-app.use('/', router)
+app.use('/api/v1/', router)
 
 app.get('/test', (req, res) => res.send('Hello World!'));
 app.post('/test-post', (req, res) => res.send('Received data:', req.body));
