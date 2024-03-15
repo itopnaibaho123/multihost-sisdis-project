@@ -1,5 +1,5 @@
 const vehicleRouter = require('express').Router()
-const vehicleController = require('../controllers/vehicle.js')
+const vehicleController = require('../../controllers/company/vehicle.js')
 
 vehicleRouter.get('/', vehicleController.getVehicles)
 vehicleRouter.get('/:vehicleId', vehicleController.getVehicleById)

@@ -1,10 +1,10 @@
-const iResp = require('../utils/response.interface.js');
+const iResp = require('../../utils/response.interface.js');
 
-const carbonEmissionService = require('../services/carbonEmission.js');
+const shipmentService = require('../../services/company/shipment.js');
 
-const getCarbonEmissions = async (req, res) => {
+const getShipments = async (req, res) => {
     try {
-        const result = await carbonEmissionService.getCarbonEmissions();
+        const result = await shipmentService.getShipments();
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -16,10 +16,10 @@ const getCarbonEmissions = async (req, res) => {
     }
 }
 
-const getCarbonEmissionById = async (req, res) => {
+const getShipmentById = async (req, res) => {
     try {
-        console.log(req.params.carbonEmissionId)
-        const result = await carbonEmissionService.getCarbonEmissionById(req.params.carbonEmissionId);
+        console.log(req.params.shipmentId)
+        const result = await shipmentService.getShipmentById(req.params.shipmentId);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -31,25 +31,25 @@ const getCarbonEmissionById = async (req, res) => {
     }
 }
 
-const createCarbonEmission = async (req, res) => {
+const createShipment = async (req, res) => {
     try {
         console.log(req.body)
-        const result = await carbonEmissionService.createCarbonEmission(req.body);
+        const result = await shipmentService.createShipment(req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
         }
-
+        
         res.status(result.code).send(result)
     } catch (error) {
         res.status(500).send(iResp.buildErrorResponse(500, 'Something wrong', error));
     }
 }
 
-const updateCarbonEmission = async (req, res) => {
+const updateShipment = async (req, res) => {
     try {
-        console.log(req.params.carbonEmissionId, req.body)
-        const result = await carbonEmissionService.updateCarbonEmission(req.params.carbonEmissionId, req.body);
+        console.log(req.params.shipmentId, req.body)
+        const result = await shipmentService.updateShipment(req.params.shipmentId, req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -61,10 +61,10 @@ const updateCarbonEmission = async (req, res) => {
     }
 }
 
-const deleteCarbonEmission = async (req, res) => {
+const deleteShipment = async (req, res) => {
     try {
-        const result = await carbonEmissionService.deleteCarbonEmission(req.params.carbonEmissionId);
-        console.log(req.params.carbonEmissionId)
+        const result = await shipmentService.deleteShipment(req.params.shipmentId);
+        console.log(req.params.shipmentId)
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -76,4 +76,4 @@ const deleteCarbonEmission = async (req, res) => {
     }
 }
 
-module.exports = { getCarbonEmissions, getCarbonEmissionById, createCarbonEmission, updateCarbonEmission, deleteCarbonEmission }
+module.exports = { getShipments, getShipmentById, createShipment, updateShipment, deleteShipment }

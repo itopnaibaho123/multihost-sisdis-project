@@ -1,10 +1,10 @@
-const iResp = require('../utils/response.interface.js');
+const iResp = require('../../utils/response.interface.js');
 
-const divisionService = require('../services/division.js');
+const companyService = require('../../services/company/company.js')
 
-const getDivisions = async (req, res) => {
+const getCompanies = async (req, res) => {
     try {
-        const result = await divisionService.getDivisions();
+        const result = await companyService.getCompanies();
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -16,10 +16,10 @@ const getDivisions = async (req, res) => {
     }
 }
 
-const getDivisionById = async (req, res) => {
+const getCompanyById = async (req, res) => {
     try {
-        console.log(req.params.divisionId)
-        const result = await divisionService.getDivisionById(req.params.divisionId);
+        console.log(req.params.companyId)
+        const result = await companyService.getCompanyById(req.params.companyId);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -31,10 +31,10 @@ const getDivisionById = async (req, res) => {
     }
 }
 
-const createDivision = async (req, res) => {
+const createCompany = async (req, res) => {
     try {
         console.log(req.body)
-        const result = await divisionService.createDivision(req.body);
+        const result = await companyService.createCompany(req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -46,10 +46,10 @@ const createDivision = async (req, res) => {
     }
 }
 
-const updateDivision = async (req, res) => {
+const updateCompany = async (req, res) => {
     try {
-        console.log(req.params.divisionId, req.body)
-        const result = await divisionService.updateDivision(req.params.divisionId, req.body);
+        console.log(req.params.companyId, req.body)
+        const result = await companyService.updateCompany(req.params.companyId, req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -61,10 +61,10 @@ const updateDivision = async (req, res) => {
     }
 }
 
-const deleteDivision = async (req, res) => {
+const deleteCompany = async (req, res) => {
     try {
-        const result = await divisionService.deleteDivision(req.params.divisionId);
-        console.log(req.params.divisionId)
+        const result = await companyService.deleteCompany(req.params.companyId);
+        console.log(req.params.companyId)
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -76,4 +76,4 @@ const deleteDivision = async (req, res) => {
     }
 }
 
-module.exports = { getDivisions, getDivisionById, createDivision, updateDivision, deleteDivision }
+module.exports = { getCompanies, getCompanyById, createCompany, updateCompany, deleteCompany }

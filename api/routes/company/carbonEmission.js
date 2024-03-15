@@ -1,5 +1,5 @@
 const carbonEmissionRouter = require('express').Router()
-const carbonEmissionController = require('../controllers/carbonEmission.js')
+const carbonEmissionController = require('../../controllers/company/carbonEmission.js')
 
 carbonEmissionRouter.get('/', carbonEmissionController.getCarbonEmissions)
 carbonEmissionRouter.get('/:carbonEmissionId', carbonEmissionController.getCarbonEmissionById)

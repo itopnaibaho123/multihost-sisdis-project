@@ -1,10 +1,10 @@
-const iResp = require('../utils/response.interface.js');
+const iResp = require('../../utils/response.interface.js');
 
-const carbonEmissionService = require('../services/carbonEmission.js');
+const vehicleService = require('../../services/company/vehicle.js');
 
-const getCarbonEmissions = async (req, res) => {
+const getVehicles = async (req, res) => {
     try {
-        const result = await carbonEmissionService.getCarbonEmissions();
+        const result = await vehicleService.getVehicles();
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -16,10 +16,10 @@ const getCarbonEmissions = async (req, res) => {
     }
 }
 
-const getCarbonEmissionById = async (req, res) => {
+const getVehicleById = async (req, res) => {
     try {
-        console.log(req.params.carbonEmissionId)
-        const result = await carbonEmissionService.getCarbonEmissionById(req.params.carbonEmissionId);
+        console.log(req.params.vehicleId)
+        const result = await vehicleService.getVehicleById(req.params.vehicleId);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -31,10 +31,10 @@ const getCarbonEmissionById = async (req, res) => {
     }
 }
 
-const createCarbonEmission = async (req, res) => {
+const createVehicle = async (req, res) => {
     try {
         console.log(req.body)
-        const result = await carbonEmissionService.createCarbonEmission(req.body);
+        const result = await vehicleService.createVehicle(req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -46,10 +46,10 @@ const createCarbonEmission = async (req, res) => {
     }
 }
 
-const updateCarbonEmission = async (req, res) => {
+const updateVehicle = async (req, res) => {
     try {
-        console.log(req.params.carbonEmissionId, req.body)
-        const result = await carbonEmissionService.updateCarbonEmission(req.params.carbonEmissionId, req.body);
+        console.log(req.params.vehicleId, req.body)
+        const result = await vehicleService.updateVehicle(req.params.vehicleId, req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -61,10 +61,10 @@ const updateCarbonEmission = async (req, res) => {
     }
 }
 
-const deleteCarbonEmission = async (req, res) => {
+const deleteVehicle = async (req, res) => {
     try {
-        const result = await carbonEmissionService.deleteCarbonEmission(req.params.carbonEmissionId);
-        console.log(req.params.carbonEmissionId)
+        const result = await vehicleService.deleteVehicle(req.params.vehicleId);
+        console.log(req.params.vehicleId)
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -76,4 +76,4 @@ const deleteCarbonEmission = async (req, res) => {
     }
 }
 
-module.exports = { getCarbonEmissions, getCarbonEmissionById, createCarbonEmission, updateCarbonEmission, deleteCarbonEmission }
+module.exports = { getVehicles, getVehicleById, createVehicle, updateVehicle, deleteVehicle }

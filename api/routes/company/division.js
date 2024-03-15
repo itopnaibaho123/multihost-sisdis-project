@@ -1,5 +1,5 @@
 const divisionRouter = require('express').Router()
-const divisionController = require('../controllers/division.js')
+const divisionController = require('../../controllers/company/division.js')
 
 divisionRouter.get('/', divisionController.getDivisions)
 divisionRouter.get('/:divisionId', divisionController.getDivisionById)

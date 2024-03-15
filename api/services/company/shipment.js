@@ -1,5 +1,5 @@
 'use strict';
-const iResp = require('../utils/response.interface.js')
+const iResp = require('../../utils/response.interface.js')
 
 const getShipments = async () => {
     try {

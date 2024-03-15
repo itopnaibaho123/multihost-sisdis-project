@@ -1,10 +1,10 @@
-const iResp = require('../utils/response.interface.js');
+const iResp = require('../../utils/response.interface.js');
 
-const vehicleService = require('../services/vehicle.js');
+const divisionService = require('../../services/division.js');
 
-const getVehicles = async (req, res) => {
+const getDivisions = async (req, res) => {
     try {
-        const result = await vehicleService.getVehicles();
+        const result = await divisionService.getDivisions();
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -16,10 +16,10 @@ const getVehicles = async (req, res) => {
     }
 }
 
-const getVehicleById = async (req, res) => {
+const getDivisionById = async (req, res) => {
     try {
-        console.log(req.params.vehicleId)
-        const result = await vehicleService.getVehicleById(req.params.vehicleId);
+        console.log(req.params.divisionId)
+        const result = await divisionService.getDivisionById(req.params.divisionId);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -31,10 +31,10 @@ const getVehicleById = async (req, res) => {
     }
 }
 
-const createVehicle = async (req, res) => {
+const createDivision = async (req, res) => {
     try {
         console.log(req.body)
-        const result = await vehicleService.createVehicle(req.body);
+        const result = await divisionService.createDivision(req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -46,10 +46,10 @@ const createVehicle = async (req, res) => {
     }
 }
 
-const updateVehicle = async (req, res) => {
+const updateDivision = async (req, res) => {
     try {
-        console.log(req.params.vehicleId, req.body)
-        const result = await vehicleService.updateVehicle(req.params.vehicleId, req.body);
+        console.log(req.params.divisionId, req.body)
+        const result = await divisionService.updateDivision(req.params.divisionId, req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -61,10 +61,10 @@ const updateVehicle = async (req, res) => {
     }
 }
 
-const deleteVehicle = async (req, res) => {
+const deleteDivision = async (req, res) => {
     try {
-        const result = await vehicleService.deleteVehicle(req.params.vehicleId);
-        console.log(req.params.vehicleId)
+        const result = await divisionService.deleteDivision(req.params.divisionId);
+        console.log(req.params.divisionId)
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -76,4 +76,4 @@ const deleteVehicle = async (req, res) => {
     }
 }
 
-module.exports = { getVehicles, getVehicleById, createVehicle, updateVehicle, deleteVehicle }
+module.exports = { getDivisions, getDivisionById, createDivision, updateDivision, deleteDivision }
