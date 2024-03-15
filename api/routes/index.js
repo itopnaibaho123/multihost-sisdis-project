@@ -2,28 +2,39 @@ const router = require('express').Router()
 
 const userRouter = require('./user.js')
 
-const companyController = require('./company/company.js')
-const carbonEmissionController = require('./company/carbonEmission.js')
-const divisionController = require('./company/division.js')
-const shipmentController = require('./company/shipment.js')
-const vehicleController = require('./company/vehicle.js')
+const ministryRouter = require('./user/ministry.js')
+const scStaffRouter = require('./user/supplyChainStaff.js')
+const scManagerRouter = require('./user/supplyChainManager.js')
+const scAdminRouter = require('./user/supplyChainAdmin.js')
 
-router.use('/auth', )
-router.use('/auth/ministry', )
-router.use('/auth/sc-staff', )
-router.use('/auth/sc-manager', )
-router.use('/auth/sc-admin', )
+const companyRouter = require('./company/company.js')
+const carbonEmissionRouter = require('./company/carbonEmission.js')
+const divisionRouter = require('./company/division.js')
+const shipmentRouter = require('./company/shipment.js')
+const vehicleRouter = require('./company/vehicle.js')
 
-router.use('/company', companyController)
-router.use('/company/carbon_emission', carbonEmissionController)
-router.use('/company/division', divisionController)
-router.use('/company/shipment', shipmentController)
-router.use('/company/vehicle', vehicleController)
+const salesProposalRouter = require('./carbonTrading/carbonSalesProposal.js')
+const transactionRouter = require('./carbonTrading/carbonTransaction.js')
 
-router.use('/carbon_trading/sales/proposal', )
-router.use('/carbon_trading/transactions', )
+const scProcessRouter = require('./supplyChainProcess/supplyChain.js')
+const scProposalRouter = require('./supplyChainProcess/supplyChainProposal.js')
 
-router.use('/supply_chain', )
-router.use('/supply_chain/proposal', )
+router.use('/auth', userRouter)
+router.use('/auth/ministry', ministryRouter)
+router.use('/auth/sc-staff', scStaffRouter)
+router.use('/auth/sc-manager', scManagerRouter)
+router.use('/auth/sc-admin', scAdminRouter)
+
+router.use('/company', companyRouter)
+router.use('/company/carbon_emission', carbonEmissionRouter)
+router.use('/company/division', divisionRouter)
+router.use('/company/shipment', shipmentRouter)
+router.use('/company/vehicle', vehicleRouter)
+
+router.use('/carbon_trading/sales/proposal', salesProposalRouter)
+router.use('/carbon_trading/transactions', transactionRouter)
+
+router.use('/supply_chain', scProcessRouter)
+router.use('/supply_chain/proposal', scProposalRouter)
 
 module.exports = router;
