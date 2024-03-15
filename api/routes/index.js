@@ -21,11 +21,12 @@ const scProcessRouter = require('./supplyChainProcess/supplyChain.js')
 const scProposalRouter = require('./supplyChainProcess/supplyChainProposal.js')
 
 router.use('/auth', userRouter)
-router.use('/auth/ministry-staff', ministryStaffRouter)
-router.use('/auth/ministry-admin', ministryAdminRouter)
-router.use('/auth/sc-staff', scStaffRouter)
-router.use('/auth/sc-manager', scManagerRouter)
-router.use('/auth/sc-admin', scAdminRouter)
+
+router.use('/user/ministry-staff', ministryStaffRouter)
+router.use('/user/ministry-admin', ministryAdminRouter)
+router.use('/user/sc-staff', scStaffRouter)
+router.use('/user/sc-manager', scManagerRouter)
+router.use('/user/sc-admin', scAdminRouter)
 
 router.use('/company', companyRouter)
 router.use('/company/carbon_emission', carbonEmissionRouter)
