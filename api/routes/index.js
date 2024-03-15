@@ -2,7 +2,8 @@ const router = require('express').Router()
 
 const userRouter = require('./user.js')
 
-const ministryRouter = require('./user/ministry.js')
+const ministryStaffRouter = require('./user/ministryStaff.js')
+const ministryAdminRouter = require('./user/ministryAdmin.js')
 const scStaffRouter = require('./user/supplyChainStaff.js')
 const scManagerRouter = require('./user/supplyChainManager.js')
 const scAdminRouter = require('./user/supplyChainAdmin.js')
@@ -20,7 +21,8 @@ const scProcessRouter = require('./supplyChainProcess/supplyChain.js')
 const scProposalRouter = require('./supplyChainProcess/supplyChainProposal.js')
 
 router.use('/auth', userRouter)
-router.use('/auth/ministry', ministryRouter)
+router.use('/auth/ministry-staff', ministryStaffRouter)
+router.use('/auth/ministry-admin', ministryAdminRouter)
 router.use('/auth/sc-staff', scStaffRouter)
 router.use('/auth/sc-manager', scManagerRouter)
 router.use('/auth/sc-admin', scAdminRouter)
@@ -31,7 +33,7 @@ router.use('/company/division', divisionRouter)
 router.use('/company/shipment', shipmentRouter)
 router.use('/company/vehicle', vehicleRouter)
 
-router.use('/carbon_trading/sales/proposal', salesProposalRouter)
+router.use('/carbon_trading/sales-proposal', salesProposalRouter)
 router.use('/carbon_trading/transactions', transactionRouter)
 
 router.use('/supply_chain', scProcessRouter)
