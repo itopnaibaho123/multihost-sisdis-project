@@ -1,79 +1,51 @@
-const iResp = require('../../utils/response.interface.js');
+'use strict';
+const iResp = require('../../utils/response.interface.js')
 
-const carbonEmissionService = require('./carbonEmission.js');
-
-const getCarbonEmissions = async (req, res) => {
+const getCarbonEmissions = async () => {
     try {
-        const result = await carbonEmissionService.getCarbonEmissions();
-
-        if (!result.success) {
-            res.status(result.code).send(result)
-        }
-
-        res.status(result.code).send(result)
+        let result = {};
+        return iResp.buildSuccessResponse(200, `Successfully get all carbonEmission`, result);
     } catch (error) {
-        res.status(500).send(iResp.buildErrorResponse(500, 'Something wrong', error));
+        return iResp.buildErrorResponse(500, 'Something wrong', error);
     }
 }
 
-const getCarbonEmissionById = async (req, res) => {
+const getCarbonEmissionById = async (carbonEmissionId) => {
     try {
-        console.log(req.params.carbonEmissionId)
-        const result = await carbonEmissionService.getCarbonEmissionById(req.params.carbonEmissionId);
-
-        if (!result.success) {
-            res.status(result.code).send(result)
-        }
-
-        res.status(result.code).send(result)
+        let result = {};
+        return iResp.buildSuccessResponse(200, `Successfully get carbonEmission ${carbonEmissionId}`, result);
     } catch (error) {
-        res.status(500).send(iResp.buildErrorResponse(500, 'Something wrong', error));
+        return iResp.buildErrorResponse(500, 'Something wrong', error);
     }
 }
 
-const createCarbonEmission = async (req, res) => {
+const createCarbonEmission = async (body) => {
     try {
-        console.log(req.body)
-        const result = await carbonEmissionService.createCarbonEmission(req.body);
-
-        if (!result.success) {
-            res.status(result.code).send(result)
-        }
-
-        res.status(result.code).send(result)
+        let result = {};
+        return iResp.buildSuccessResponse(201, 'Successfully  create a carbonEmission', result);
     } catch (error) {
-        res.status(500).send(iResp.buildErrorResponse(500, 'Something wrong', error));
+        return iResp.buildErrorResponse(500, 'Something wrong', error);
     }
 }
 
-const updateCarbonEmission = async (req, res) => {
+const updateCarbonEmission = async (carbonEmissionId, body) => {
     try {
-        console.log(req.params.carbonEmissionId, req.body)
-        const result = await carbonEmissionService.updateCarbonEmission(req.params.carbonEmissionId, req.body);
-
-        if (!result.success) {
-            res.status(result.code).send(result)
-        }
-
-        res.status(result.code).send(result)
+        let result = {};
+        return iResp.buildSuccessResponse(201, `Successfully update carbonEmission ${carbonEmissionId}`, result);
     } catch (error) {
-        res.status(500).send(iResp.buildErrorResponse(500, 'Something wrong', error));
+        return iResp.buildErrorResponse(500, 'Something wrong', error);
     }
 }
 
-const deleteCarbonEmission = async (req, res) => {
+const deleteCarbonEmission = async (carbonEmissionId) => {
     try {
-        const result = await carbonEmissionService.deleteCarbonEmission(req.params.carbonEmissionId);
-        console.log(req.params.carbonEmissionId)
-
-        if (!result.success) {
-            res.status(result.code).send(result)
-        }
-
-        res.status(result.code).send(result)
+        let result = {};
+        return iResp.buildSuccessResponse(200, `Successfully delete carbonEmission ${carbonEmissionId}`, result);
     } catch (error) {
-        res.status(500).send(iResp.buildErrorResponse(500, 'Something wrong', error));
+        return iResp.buildErrorResponse(500, 'Something wrong', error);
     }
 }
+
 
 module.exports = { getCarbonEmissions, getCarbonEmissionById, createCarbonEmission, updateCarbonEmission, deleteCarbonEmission }
+

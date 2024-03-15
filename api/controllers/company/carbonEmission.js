@@ -1,6 +1,6 @@
 const iResp = require('../../utils/response.interface.js');
 
-const carbonEmissionService = require('../../services/carbonEmission.js');
+const carbonEmissionService = require('../../services/company/carbonEmission.js');
 
 const getCarbonEmissions = async (req, res) => {
     try {

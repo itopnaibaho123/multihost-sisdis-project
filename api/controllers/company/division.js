@@ -1,6 +1,6 @@
 const iResp = require('../../utils/response.interface.js');
 
-const divisionService = require('../../services/division.js');
+const divisionService = require('../../services/company/division.js');
 
 const getDivisions = async (req, res) => {
     try {
