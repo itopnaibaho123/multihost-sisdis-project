@@ -1,10 +1,10 @@
 const scAdminRouter = require('express').Router()
-const scStaffController = require('../../controllers/user/supplyChainManager.js')
+const scAdminController = require('../../controllers/user/supplyChainManager.js')
 
-scAdminRouter.get('/', scStaffController.getList)
-scAdminRouter.get('/:scAdminId', scStaffController.getById)
-scAdminRouter.post('/', scStaffController.create)
-scAdminRouter.put('/:scAdminId', scStaffController.update)
-scAdminRouter.delete('/:scAdminId', scStaffController.remove)
+scAdminRouter.get('/', scAdminController.getList)
+scAdminRouter.get('/:scAdminId', scAdminController.getById)
+scAdminRouter.post('/', scAdminController.create)
+scAdminRouter.put('/:scAdminId', scAdminController.update)
+scAdminRouter.delete('/:scAdminId', scAdminController.remove)
 
 module.exports = scAdminRouter;
