@@ -1,7 +1,7 @@
 'use strict';
 const iResp = require('../../utils/response.interface.js')
 
-const getCompanies = async () => {
+const getList = async () => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully get all company`, result);
@@ -10,7 +10,7 @@ const getCompanies = async () => {
     }
 }
 
-const getCompanyById = async (companyId) => {
+const getById = async (companyId) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully get company ${companyId}`, result);
@@ -19,7 +19,7 @@ const getCompanyById = async (companyId) => {
     }
 }
 
-const createCompany = async (body) => {
+const create = async (body) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(201, 'Successfully  create a company', result);
@@ -28,7 +28,7 @@ const createCompany = async (body) => {
     }
 }
 
-const updateCompany = async (companyId, body) => {
+const update = async (companyId, body) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(201, `Successfully update company ${companyId}`, result);
@@ -37,7 +37,7 @@ const updateCompany = async (companyId, body) => {
     }
 }
 
-const deleteCompany = async (companyId) => {
+const remove = async (companyId) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully delete company ${companyId}`, result);
@@ -47,5 +47,5 @@ const deleteCompany = async (companyId) => {
 }
 
 
-module.exports = { getCompanies, getCompanyById, createCompany, updateCompany, deleteCompany }
+module.exports = { getList, getById, create, update, remove }
 

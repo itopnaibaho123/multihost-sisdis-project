@@ -1,7 +1,7 @@
 'use strict';
 const iResp = require('../../utils/response.interface.js')
 
-const getCarbonEmissions = async () => {
+const getList = async () => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully get all carbonEmission`, result);
@@ -10,7 +10,7 @@ const getCarbonEmissions = async () => {
     }
 }
 
-const getCarbonEmissionById = async (carbonEmissionId) => {
+const getById = async (carbonEmissionId) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully get carbonEmission ${carbonEmissionId}`, result);
@@ -19,7 +19,7 @@ const getCarbonEmissionById = async (carbonEmissionId) => {
     }
 }
 
-const createCarbonEmission = async (body) => {
+const create = async (body) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(201, 'Successfully  create a carbonEmission', result);
@@ -28,7 +28,7 @@ const createCarbonEmission = async (body) => {
     }
 }
 
-const updateCarbonEmission = async (carbonEmissionId, body) => {
+const update = async (carbonEmissionId, body) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(201, `Successfully update carbonEmission ${carbonEmissionId}`, result);
@@ -37,7 +37,7 @@ const updateCarbonEmission = async (carbonEmissionId, body) => {
     }
 }
 
-const deleteCarbonEmission = async (carbonEmissionId) => {
+const remove = async (carbonEmissionId) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully delete carbonEmission ${carbonEmissionId}`, result);
@@ -47,5 +47,5 @@ const deleteCarbonEmission = async (carbonEmissionId) => {
 }
 
 
-module.exports = { getCarbonEmissions, getCarbonEmissionById, createCarbonEmission, updateCarbonEmission, deleteCarbonEmission }
+module.exports = { getList, getById, create, update, remove }
 

@@ -1,7 +1,7 @@
 'use strict';
 const iResp = require('../../utils/response.interface.js')
 
-const getShipments = async () => {
+const getList = async () => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully get all shipment`, result);
@@ -10,7 +10,7 @@ const getShipments = async () => {
     }
 }
 
-const getShipmentById = async (shipmentId) => {
+const getById = async (shipmentId) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully get shipment ${shipmentId}`, result);
@@ -19,7 +19,7 @@ const getShipmentById = async (shipmentId) => {
     }
 }
 
-const createShipment = async (body) => {
+const create = async (body) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(201, 'Successfully  create a shipment', result);
@@ -28,7 +28,7 @@ const createShipment = async (body) => {
     }
 }
 
-const updateShipment = async (shipmentId, body) => {
+const update = async (shipmentId, body) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(201, `Successfully update shipment ${shipmentId}`, result);
@@ -37,7 +37,7 @@ const updateShipment = async (shipmentId, body) => {
     }
 }
 
-const deleteShipment = async (shipmentId) => {
+const remove = async (shipmentId) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully delete shipment ${shipmentId}`, result);
@@ -47,5 +47,4 @@ const deleteShipment = async (shipmentId) => {
 }
 
 
-module.exports = { getShipments, getShipmentById, createShipment, updateShipment, deleteShipment }
-
+module.exports = { getList, getById, create, update, remove }

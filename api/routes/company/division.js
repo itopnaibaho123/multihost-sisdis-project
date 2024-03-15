@@ -1,10 +1,10 @@
 const divisionRouter = require('express').Router()
 const divisionController = require('../../controllers/company/division.js')
 
-divisionRouter.get('/', divisionController.getDivisions)
-divisionRouter.get('/:divisionId', divisionController.getDivisionById)
-divisionRouter.post('/', divisionController.createDivision)
-divisionRouter.put('/:divisionId', divisionController.updateDivision)
-divisionRouter.delete('/:divisionId', divisionController.deleteDivision)
+divisionRouter.get('/', divisionController.getList)
+divisionRouter.get('/:divisionId', divisionController.getById)
+divisionRouter.post('/', divisionController.create)
+divisionRouter.put('/:divisionId', divisionController.update)
+divisionRouter.delete('/:divisionId', divisionController.remove)
 
 module.exports = divisionRouter;

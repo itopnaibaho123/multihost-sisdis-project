@@ -2,9 +2,9 @@ const iResp = require('../../utils/response.interface.js');
 
 const shipmentService = require('../../services/company/shipment.js');
 
-const getShipments = async (req, res) => {
+const getList = async (req, res) => {
     try {
-        const result = await shipmentService.getShipments();
+        const result = await shipmentService.getList();
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -16,10 +16,10 @@ const getShipments = async (req, res) => {
     }
 }
 
-const getShipmentById = async (req, res) => {
+const getById = async (req, res) => {
     try {
         console.log(req.params.shipmentId)
-        const result = await shipmentService.getShipmentById(req.params.shipmentId);
+        const result = await shipmentService.getById(req.params.shipmentId);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -31,10 +31,10 @@ const getShipmentById = async (req, res) => {
     }
 }
 
-const createShipment = async (req, res) => {
+const create = async (req, res) => {
     try {
         console.log(req.body)
-        const result = await shipmentService.createShipment(req.body);
+        const result = await shipmentService.create(req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -46,10 +46,10 @@ const createShipment = async (req, res) => {
     }
 }
 
-const updateShipment = async (req, res) => {
+const update = async (req, res) => {
     try {
         console.log(req.params.shipmentId, req.body)
-        const result = await shipmentService.updateShipment(req.params.shipmentId, req.body);
+        const result = await shipmentService.update(req.params.shipmentId, req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -61,9 +61,9 @@ const updateShipment = async (req, res) => {
     }
 }
 
-const deleteShipment = async (req, res) => {
+const remove = async (req, res) => {
     try {
-        const result = await shipmentService.deleteShipment(req.params.shipmentId);
+        const result = await shipmentService.remove(req.params.shipmentId);
         console.log(req.params.shipmentId)
 
         if (!result.success) {
@@ -76,4 +76,4 @@ const deleteShipment = async (req, res) => {
     }
 }
 
-module.exports = { getShipments, getShipmentById, createShipment, updateShipment, deleteShipment }
+module.exports = { getList, getById, create, update, remove }

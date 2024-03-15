@@ -1,7 +1,7 @@
 'use strict';
 const iResp = require('../../utils/response.interface.js')
 
-const getVehicles = async () => {
+const getList = async () => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully get all vehicle`, result);
@@ -10,7 +10,7 @@ const getVehicles = async () => {
     }
 }
 
-const getVehicleById = async (vehicleId) => {
+const getById = async (vehicleId) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully get vehicle ${vehicleId}`, result);
@@ -19,7 +19,7 @@ const getVehicleById = async (vehicleId) => {
     }
 }
 
-const createVehicle = async (body) => {
+const create = async (body) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(201, 'Successfully  create a vehicle', result);
@@ -28,7 +28,7 @@ const createVehicle = async (body) => {
     }
 }
 
-const updateVehicle = async (vehicleId, body) => {
+const update = async (vehicleId, body) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(201, `Successfully update vehicle ${vehicleId}`, result);
@@ -37,7 +37,7 @@ const updateVehicle = async (vehicleId, body) => {
     }
 }
 
-const deleteVehicle = async (vehicleId) => {
+const remove = async (vehicleId) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully delete vehicle ${vehicleId}`, result);
@@ -47,5 +47,4 @@ const deleteVehicle = async (vehicleId) => {
 }
 
 
-module.exports = { getVehicles, getVehicleById, createVehicle, updateVehicle, deleteVehicle }
-
+module.exports = { getList, getById, create, update, remove }

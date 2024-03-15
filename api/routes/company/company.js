@@ -1,10 +1,10 @@
 const companyRouter = require('express').Router()
 const companyController = require('../../controllers/company/company.js')
 
-companyRouter.get('/', companyController.getCompanies)
-companyRouter.get('/:companyId', companyController.getCompanyById)
-companyRouter.post('/', companyController.createCompany)
-companyRouter.put('/:companyId', companyController.updateCompany)
-companyRouter.delete('/:companyId', companyController.deleteCompany)
+companyRouter.get('/', companyController.getList)
+companyRouter.get('/:companyId', companyController.getById)
+companyRouter.post('/', companyController.create)
+companyRouter.put('/:companyId', companyController.update)
+companyRouter.delete('/:companyId', companyController.remove)
 
 module.exports = companyRouter;

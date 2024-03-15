@@ -1,7 +1,7 @@
 'use strict';
 const iResp = require('../../utils/response.interface.js')
 
-const getDivisions = async () => {
+const getList = async () => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully get all division`, result);
@@ -10,7 +10,7 @@ const getDivisions = async () => {
     }
 }
 
-const getDivisionById = async (divisionId) => {
+const getById = async (divisionId) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully get division ${divisionId}`, result);
@@ -19,7 +19,7 @@ const getDivisionById = async (divisionId) => {
     }
 }
 
-const createDivision = async (body) => {
+const create = async (body) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(201, 'Successfully  create a division', result);
@@ -28,7 +28,7 @@ const createDivision = async (body) => {
     }
 }
 
-const updateDivision = async (divisionId, body) => {
+const update = async (divisionId, body) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(201, `Successfully update division ${divisionId}`, result);
@@ -37,7 +37,7 @@ const updateDivision = async (divisionId, body) => {
     }
 }
 
-const deleteDivision = async (divisionId) => {
+const remove = async (divisionId) => {
     try {
         let result = {};
         return iResp.buildSuccessResponse(200, `Successfully delete division ${divisionId}`, result);
@@ -47,5 +47,4 @@ const deleteDivision = async (divisionId) => {
 }
 
 
-module.exports = { getDivisions, getDivisionById, createDivision, updateDivision, deleteDivision }
-
+module.exports = { getList, getById, create, update, remove }

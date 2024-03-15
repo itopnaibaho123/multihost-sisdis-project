@@ -2,9 +2,9 @@ const iResp = require('../../utils/response.interface.js');
 
 const divisionService = require('../../services/company/division.js');
 
-const getDivisions = async (req, res) => {
+const getList = async (req, res) => {
     try {
-        const result = await divisionService.getDivisions();
+        const result = await divisionService.getList();
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -16,10 +16,10 @@ const getDivisions = async (req, res) => {
     }
 }
 
-const getDivisionById = async (req, res) => {
+const getById = async (req, res) => {
     try {
         console.log(req.params.divisionId)
-        const result = await divisionService.getDivisionById(req.params.divisionId);
+        const result = await divisionService.getById(req.params.divisionId);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -31,10 +31,10 @@ const getDivisionById = async (req, res) => {
     }
 }
 
-const createDivision = async (req, res) => {
+const create = async (req, res) => {
     try {
         console.log(req.body)
-        const result = await divisionService.createDivision(req.body);
+        const result = await divisionService.create(req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -46,10 +46,10 @@ const createDivision = async (req, res) => {
     }
 }
 
-const updateDivision = async (req, res) => {
+const update = async (req, res) => {
     try {
         console.log(req.params.divisionId, req.body)
-        const result = await divisionService.updateDivision(req.params.divisionId, req.body);
+        const result = await divisionService.update(req.params.divisionId, req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -61,9 +61,9 @@ const updateDivision = async (req, res) => {
     }
 }
 
-const deleteDivision = async (req, res) => {
+const remove = async (req, res) => {
     try {
-        const result = await divisionService.deleteDivision(req.params.divisionId);
+        const result = await divisionService.remove(req.params.divisionId);
         console.log(req.params.divisionId)
 
         if (!result.success) {
@@ -76,4 +76,4 @@ const deleteDivision = async (req, res) => {
     }
 }
 
-module.exports = { getDivisions, getDivisionById, createDivision, updateDivision, deleteDivision }
+module.exports = { getList, getById, create, update, remove }

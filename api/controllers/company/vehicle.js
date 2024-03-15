@@ -2,9 +2,9 @@ const iResp = require('../../utils/response.interface.js');
 
 const vehicleService = require('../../services/company/vehicle.js');
 
-const getVehicles = async (req, res) => {
+const getList = async (req, res) => {
     try {
-        const result = await vehicleService.getVehicles();
+        const result = await vehicleService.getList();
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -16,10 +16,10 @@ const getVehicles = async (req, res) => {
     }
 }
 
-const getVehicleById = async (req, res) => {
+const getById = async (req, res) => {
     try {
         console.log(req.params.vehicleId)
-        const result = await vehicleService.getVehicleById(req.params.vehicleId);
+        const result = await vehicleService.getById(req.params.vehicleId);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -31,10 +31,10 @@ const getVehicleById = async (req, res) => {
     }
 }
 
-const createVehicle = async (req, res) => {
+const create = async (req, res) => {
     try {
         console.log(req.body)
-        const result = await vehicleService.createVehicle(req.body);
+        const result = await vehicleService.create(req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -46,10 +46,10 @@ const createVehicle = async (req, res) => {
     }
 }
 
-const updateVehicle = async (req, res) => {
+const update = async (req, res) => {
     try {
         console.log(req.params.vehicleId, req.body)
-        const result = await vehicleService.updateVehicle(req.params.vehicleId, req.body);
+        const result = await vehicleService.update(req.params.vehicleId, req.body);
 
         if (!result.success) {
             res.status(result.code).send(result)
@@ -61,9 +61,9 @@ const updateVehicle = async (req, res) => {
     }
 }
 
-const deleteVehicle = async (req, res) => {
+const remove = async (req, res) => {
     try {
-        const result = await vehicleService.deleteVehicle(req.params.vehicleId);
+        const result = await vehicleService.remove(req.params.vehicleId);
         console.log(req.params.vehicleId)
 
         if (!result.success) {
@@ -76,4 +76,4 @@ const deleteVehicle = async (req, res) => {
     }
 }
 
-module.exports = { getVehicles, getVehicleById, createVehicle, updateVehicle, deleteVehicle }
+module.exports = { getList, getById, create, update, remove }
