@@ -1,5 +1,6 @@
 'use strict'
 const iResp = require('../../utils/response.interface.js')
+const { enrollAdmin } = require('../user.js')
 
 const getList = async () => {
   try {
@@ -29,10 +30,14 @@ const getById = async (ministryAdminId) => {
 
 const create = async (body) => {
   try {
-    let result = {}
+    const username = body.username
+    const password = body.password
+    const orgName = body.organizationName
+
+    let result = enrollAdmin(username, password, orgName)
     return iResp.buildSuccessResponse(
       201,
-      'Successfully  create a ministry admin',
+      'Successfully create a ministry admin',
       result
     )
   } catch (error) {

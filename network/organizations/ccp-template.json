@@ -37,7 +37,7 @@
     "certificateAuthorities": {
         "ca.${ORG}.example.com": {
             "url": "https://localhost:${CAPORT}",
-            "caName": "ca.${ORG}.example.com",
+            "caName": "ca-${ORG}",
             "tlsCACerts": {
                 "pem": ["${CAPEM}"]
             },

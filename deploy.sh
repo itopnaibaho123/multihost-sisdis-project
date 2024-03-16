@@ -1,3 +1,5 @@
+ARG=$1
+
 cd network
 
-./network.sh deployCC -ccn basic -ccp ../chaincode/atcontract -ccl go
+./network.sh deployCC -ccn basic -ccp ../chaincode/$ARG -ccl go

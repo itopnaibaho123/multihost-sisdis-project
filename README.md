@@ -18,8 +18,21 @@
 ## Invoking the chaincode
 
 ```bash
-./invoke-chaincode.sh
+./invoke.sh
 ```
+
+## Redeploy the chaincode after editing
+
+```bash
+./deploy.sh chaincode_folder_name
+```
+
+Replace `chaincode_folder_name` with actual folder name, for example:
+
+```bash
+./deploy.sh atcontract
+```
+
 
 ## Bring down the network
 

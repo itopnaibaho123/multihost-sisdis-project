@@ -28,22 +28,22 @@ function yaml_ccp {
         organizations/ccp-template.yaml | sed -e $'s/\\\\n/\\\n          /g'
 }
 
-ORG=supplychain
-ORGCAP=SupplyChain
-P0PORT=7051
-CAPORT=7054
-PEERPEM=organizations/peerOrganizations/supplychain.example.com/tlsca/tlsca.supplychain.example.com-cert.pem
-CAPEM=organizations/peerOrganizations/supplychain.example.com/ca/ca.supplychain.example.com-cert.pem
-
-echo "$(json_ccp $ORG $ORGCAP $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/supplychain.example.com/connection-supplychain.json
-echo "$(yaml_ccp $ORG $ORGCAP $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/supplychain.example.com/connection-supplychain.yaml
-
 ORG=kementrian
 ORGCAP=Kementrian
-P0PORT=9051
-CAPORT=8054
+P0PORT=7051
+CAPORT=7054
 PEERPEM=organizations/peerOrganizations/kementrian.example.com/tlsca/tlsca.kementrian.example.com-cert.pem
 CAPEM=organizations/peerOrganizations/kementrian.example.com/ca/ca.kementrian.example.com-cert.pem
 
 echo "$(json_ccp $ORG $ORGCAP $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/kementrian.example.com/connection-kementrian.json
 echo "$(yaml_ccp $ORG $ORGCAP $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/kementrian.example.com/connection-kementrian.yaml
+
+ORG=supplychain
+ORGCAP=SupplyChain
+P0PORT=9051
+CAPORT=8054
+PEERPEM=organizations/peerOrganizations/supplychain.example.com/tlsca/tlsca.supplychain.example.com-cert.pem
+CAPEM=organizations/peerOrganizations/supplychain.example.com/ca/ca.supplychain.example.com-cert.pem
+
+echo "$(json_ccp $ORG $ORGCAP $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/supplychain.example.com/connection-supplychain.json
+echo "$(yaml_ccp $ORG $ORGCAP $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/supplychain.example.com/connection-supplychain.yaml

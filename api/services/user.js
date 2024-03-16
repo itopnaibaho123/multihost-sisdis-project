@@ -109,6 +109,7 @@ const enrollAdmin = async (adminId, adminSecret, organizationName) => {
       `ca.${organizationName.toLowerCase()}.example.com`
     ]
   const caTLSCACerts = caInfo.tlsCACerts.pem
+
   const ca = new FabricCAServices(
     caInfo.url,
     { trustedRoots: caTLSCACerts, verify: false },

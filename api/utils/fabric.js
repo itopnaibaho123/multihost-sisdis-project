@@ -60,8 +60,6 @@ const getUserAttrs = async (username, organizationName) => {
   const ccp = getCcp(organizationName)
   const wallet = await getWallet(organizationName)
 
-  console.log(ccp)
-
   // Create a new CA client for interacting with the CA.
   const caURL =
     ccp.certificateAuthorities[`ca.${organizationName}.example.com`].url
