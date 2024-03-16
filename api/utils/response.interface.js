@@ -8,7 +8,7 @@ const buildSuccessResponse = (code, message, data, error = null) => {
     }
 }
 
-const buildErrorResponse = (code, message, error) => {
+const buildErrorResponse = (code, message, error = null) => {
     return {
         success: false,
         code: code,
