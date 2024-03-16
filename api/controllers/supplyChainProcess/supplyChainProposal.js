@@ -1,6 +1,6 @@
 const iResp = require('../../utils/response.interface.js');
 
-const scProposalService = require('../../services/supplyChainProposal/supplyChainProposal.js');
+const scProposalService = require('../../services/supplyChainProcess/supplyChainProposal.js');
 
 const getList = async (req, res) => {
     try {
