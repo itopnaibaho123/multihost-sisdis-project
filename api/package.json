@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon app.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "prepare": "cd .. && husky api/.husky",
+    "format": "prettier -w .",
+    "format:check": "prettier -c ."
   },
   "author": "",
   "license": "ISC",
@@ -23,5 +26,18 @@
     "nodemailer": "^6.9.12",
     "nodemon": "^3.1.0",
     "uuidv4": "^6.2.13"
+  },
+  "devDependencies": {
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5"
+  },
+  "lint-staged": {
+    "**/*.{js,ts}": [
+      "prettier -w"
+    ],
+    "**/*.{json,md}": [
+      "prettier -w"
+    ]
   }
 }
