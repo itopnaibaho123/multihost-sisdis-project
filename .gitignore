@@ -25,3 +25,5 @@ config
 */vendor
 chaincode/*/vendor
 *.tar.gz
+
+sampleconfig

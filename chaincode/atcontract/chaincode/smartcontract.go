@@ -166,7 +166,7 @@ func (s *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterfac
 }
 
 // GetAllAssets returns all assets found in world state
-func (s *SmartContract) GetAllAssets(ctx contractapi.TransactionContextInterface) ([]*Asset, error) {
+func (s *SmartContract) GetAllAssets(ctx contractapi.TransactionContextInterface) (*Asset, error) {
 	// range query with empty string for startKey and endKey does an
 	// open-ended query of all assets in the chaincode namespace.
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
@@ -190,5 +190,7 @@ func (s *SmartContract) GetAllAssets(ctx contractapi.TransactionContextInterface
 		assets = append(assets, &asset)
 	}
 
-	return assets, nil
+	var lastAsset = assets[len(assets)-1]
+
+	return lastAsset, nil
 }

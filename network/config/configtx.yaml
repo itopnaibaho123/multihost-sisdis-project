@@ -36,8 +36,10 @@ Organizations:
       Admins:
         Type: Signature
         Rule: "OR('OrdererMSP.admin')"
+
     OrdererEndpoints:
       - orderer.example.com:7050
+
   - &Kementrian
     # DefaultOrg defines the organization which is used in the sampleconfig
     # of the fabric.git development environment
@@ -61,6 +63,7 @@ Organizations:
       Endorsement:
         Type: Signature
         Rule: "OR('KementrianMSP.peer')"
+
   - &SupplyChain
     # DefaultOrg defines the organization which is used in the sampleconfig
     # of the fabric.git development environment
@@ -257,7 +260,7 @@ Channel: &ChannelDefaults
 #
 ################################################################################
 Profiles:
-  ChannelUsingRaft:
+  CarbonChannelUsingRaft:
     <<: *ChannelDefaults
     Orderer:
       <<: *OrdererDefaults
