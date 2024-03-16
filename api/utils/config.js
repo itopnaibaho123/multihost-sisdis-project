@@ -1,4 +1,3 @@
 const channelName = 'carbonchannel'
 
-
-module.exports = { channelName };
+module.exports = { channelName }

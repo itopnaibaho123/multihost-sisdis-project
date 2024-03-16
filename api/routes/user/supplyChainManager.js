@@ -7,4 +7,4 @@ scManagerRouter.post('/', scManagerController.create)
 scManagerRouter.put('/:scManagerId', scManagerController.update)
 scManagerRouter.delete('/:scManagerId', scManagerController.remove)
 
-module.exports = scManagerRouter;
+module.exports = scManagerRouter

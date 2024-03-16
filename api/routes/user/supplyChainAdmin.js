@@ -7,4 +7,4 @@ scAdminRouter.post('/', scAdminController.create)
 scAdminRouter.put('/:scAdminId', scAdminController.update)
 scAdminRouter.delete('/:scAdminId', scAdminController.remove)
 
-module.exports = scAdminRouter;
+module.exports = scAdminRouter

@@ -7,4 +7,4 @@ vehicleRouter.post('/', vehicleController.create)
 vehicleRouter.put('/:vehicleId', vehicleController.update)
 vehicleRouter.delete('/:vehicleId', vehicleController.remove)
 
-module.exports = vehicleRouter;
+module.exports = vehicleRouter

@@ -7,4 +7,4 @@ shipmentRouter.post('/', shipmentController.create)
 shipmentRouter.put('/:shipmentId', shipmentController.update)
 shipmentRouter.delete('/:shipmentId', shipmentController.remove)
 
-module.exports = shipmentRouter;
+module.exports = shipmentRouter

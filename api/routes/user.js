@@ -6,4 +6,4 @@ userRouter.post('/enroll', userController.enrollAdmin)
 userRouter.post('/login', userController.loginUser)
 userRouter.post('/update', userController.updateUser)
 
-module.exports = userRouter;
+module.exports = userRouter

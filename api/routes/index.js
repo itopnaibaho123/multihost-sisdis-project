@@ -40,4 +40,4 @@ router.use('/carbon_trading/transactions', transactionRouter)
 router.use('/supply_chain', scProcessRouter)
 router.use('/supply_chain/proposal', scProposalRouter)
 
-module.exports = router;
+module.exports = router

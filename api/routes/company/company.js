@@ -7,4 +7,4 @@ companyRouter.post('/', companyController.create)
 companyRouter.put('/:companyId', companyController.update)
 companyRouter.delete('/:companyId', companyController.remove)
 
-module.exports = companyRouter;
+module.exports = companyRouter

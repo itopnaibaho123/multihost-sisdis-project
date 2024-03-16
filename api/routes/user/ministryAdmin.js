@@ -7,4 +7,4 @@ ministryAdminRouter.post('/', ministryAdminController.create)
 ministryAdminRouter.put('/:ministryAdminId', ministryAdminController.update)
 ministryAdminRouter.delete('/:ministryAdminId', ministryAdminController.remove)
 
-module.exports = ministryAdminRouter;
+module.exports = ministryAdminRouter

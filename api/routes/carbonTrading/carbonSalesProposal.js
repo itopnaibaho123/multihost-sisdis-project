@@ -7,4 +7,4 @@ salesProposalRouter.post('/', salesProposalController.create)
 salesProposalRouter.put('/:salesProposalId', salesProposalController.update)
 salesProposalRouter.delete('/:salesProposalId', salesProposalController.remove)
 
-module.exports = salesProposalRouter;
+module.exports = salesProposalRouter

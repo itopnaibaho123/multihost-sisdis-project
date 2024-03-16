@@ -7,4 +7,4 @@ scProposalRouter.post('/', scProposalController.create)
 scProposalRouter.put('/:scProposalId', scProposalController.update)
 scProposalRouter.delete('/:scProposalId', scProposalController.remove)
 
-module.exports = scProposalRouter;
+module.exports = scProposalRouter

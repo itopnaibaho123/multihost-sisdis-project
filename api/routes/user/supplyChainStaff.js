@@ -7,4 +7,4 @@ scStaffRouter.post('/', scStaffController.create)
 scStaffRouter.put('/:scStaffId', scStaffController.update)
 scStaffRouter.delete('/:scStaffId', scStaffController.remove)
 
-module.exports = scStaffRouter;
+module.exports = scStaffRouter
