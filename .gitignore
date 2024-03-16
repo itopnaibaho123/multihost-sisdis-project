@@ -1,3 +1,11 @@
+# Fabric binaries
+fabric/
+fabric/bin/
+
+#node modules
+api/node_modules/
+
+#Artifact
 /channel-artifacts/*.tx
 /channel-artifacts/*.block
 /ledgers
@@ -12,3 +20,8 @@ bin
 builders
 channel-artifacts
 config
+
+#Go
+*/vendor
+chaincode/*/vendor
+*.tar.gz
