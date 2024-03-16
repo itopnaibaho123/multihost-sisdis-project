@@ -237,10 +237,10 @@ ldap:
 # which are always stored in lower case.
 #############################################################################
 affiliations:
-   org1:
+   kementrian:
       - department1
       - department2
-   org2:
+   supplychain:
       - department1
 
 #############################################################################
@@ -303,11 +303,11 @@ signing:
 csr:
    cn: ca.example.com
    names:
-      - C: US
-        ST: "New York"
-        L: "New York"
-        O: example.com
-        OU:
+      - C: ID
+        ST:
+        L:
+        O: Hyperledger
+        OU: Fabric
    hosts:
      - localhost
      - example.com

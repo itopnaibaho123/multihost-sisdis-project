@@ -122,17 +122,17 @@ const loginUser = async(username, password) => {
 
     const response = {}
     // Check to see if we've already registered and enrolled the user in wallet kemdikbud or HE
-    const walletKemdikbud = await fabric.getWallet('org1')
-    const walletHe = await fabric.getWallet('he1')
+    const walletKemdikbud = await fabric.getWallet('kementrian')
+    const walletHe = await fabric.getWallet('supplychain')
 
     const user1 = await walletKemdikbud.get(username);
     const user2 = await walletHe.get(username);
     let organizationName = '';
     if (user1) {
-        organizationName = 'org1'
+        organizationName = 'kementrian'
     }
     else if (user2) {
-        organizationName = 'he1'
+        organizationName = 'supplychain'
     }
     else {
         throw new Error(`User ${username} is not registered yet`);

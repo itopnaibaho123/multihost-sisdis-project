@@ -14,7 +14,7 @@ CHANNEL_NAME="$1"
 DELAY="$2"
 TIMEOUT="$3"
 VERBOSE="$4"
-: ${CHANNEL_NAME:="newchannel"}
+: ${CHANNEL_NAME:="carbonchannel"}
 : ${DELAY:="3"}
 : ${TIMEOUT:="10"}
 : ${VERBOSE:="false"}
@@ -43,7 +43,7 @@ createConfigUpdate ${CHANNEL_NAME} config.json modified_config.json org3_update_
 infoln "Signing config transaction"
 signConfigtxAsPeerOrg 1 org3_update_in_envelope.pb
 
-infoln "Submitting transaction from a different peer (peer0.org2) which also signs it"
+infoln "Submitting transaction from a different peer (peer0.supplychain) which also signs it"
 setGlobals 2
 set -x
 peer channel update -f org3_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.example.com:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA"

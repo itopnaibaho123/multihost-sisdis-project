@@ -15,7 +15,7 @@ CHANNEL_NAME="$1"
 DELAY="$2"
 TIMEOUT="$3"
 VERBOSE="$4"
-: ${CHANNEL_NAME:="newchannel"}
+: ${CHANNEL_NAME:="carbonchannel"}
 : ${DELAY:="3"}
 : ${TIMEOUT:="10"}
 : ${VERBOSE:="false"}
@@ -41,7 +41,7 @@ joinChannel() {
     COUNTER=$(expr $COUNTER + 1)
 	done
 	cat log.txt
-	verifyResult $res "After $MAX_RETRY attempts, peer0.org${ORG} has failed to join channel '$CHANNEL_NAME' "
+	verifyResult $res "After $MAX_RETRY attempts, peer0.${ORG} has failed to join channel '$CHANNEL_NAME' "
 }
 
 setAnchorPeer() {

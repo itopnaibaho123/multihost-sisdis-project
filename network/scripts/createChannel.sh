@@ -10,7 +10,7 @@ DELAY="$2"
 MAX_RETRY="$3"
 VERBOSE="$4"
 BFT="$5"
-: ${CHANNEL_NAME:="newchannel"}
+: ${CHANNEL_NAME:="carbonchannel"}
 : ${DELAY:="3"}
 : ${MAX_RETRY:="5"}
 : ${VERBOSE:="false"}
@@ -85,7 +85,7 @@ joinChannel() {
 		COUNTER=$(expr $COUNTER + 1)
 	done
 	cat log.txt
-	verifyResult $res "After $MAX_RETRY attempts, peer0.org${ORG} has failed to join channel '$CHANNEL_NAME' "
+	verifyResult $res "After $MAX_RETRY attempts, peer0.${ORG} has failed to join channel '$CHANNEL_NAME' "
 }
 
 setAnchorPeer() {
@@ -116,15 +116,15 @@ createChannel $BFT
 successln "Channel '$CHANNEL_NAME' created"
 
 ## Join all the peers to the channel
-infoln "Joining org1 peer to the channel..."
+infoln "Joining kementrian peer to the channel..."
 joinChannel 1
-infoln "Joining org2 peer to the channel..."
+infoln "Joining supplychain peer to the channel..."
 joinChannel 2
 
 ## Set the anchor peers for each org in the channel
-infoln "Setting anchor peer for org1..."
+infoln "Setting anchor peer for kementrian..."
 setAnchorPeer 1
-infoln "Setting anchor peer for org2..."
+infoln "Setting anchor peer for supplychain..."
 setAnchorPeer 2
 
 successln "Channel '$CHANNEL_NAME' joined"

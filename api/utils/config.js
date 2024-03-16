@@ -1,4 +1,4 @@
-const channelName = 'newchannel'
+const channelName = 'carbonchannel'
 
 
 module.exports = { channelName };

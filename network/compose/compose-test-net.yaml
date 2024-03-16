@@ -7,12 +7,12 @@ version: '3.7'
 
 volumes:
   orderer.example.com:
-  peer0.org1.example.com:
-  peer0.org2.example.com:
+  peer0.kementrian.example.com:
+  peer0.supplychain.example.com:
 
 networks:
-  fabric_test:
-    name: fabric_test
+  supply_chain_carbon:
+    name: supply_chain_carbon
 
 services:
 
@@ -56,10 +56,10 @@ services:
       - 7053:7053
       - 9443:9443
     networks:
-      - fabric_test
+      - supply_chain_carbon
 
-  peer0.org1.example.com:
-    container_name: peer0.org1.example.com
+  peer0.kementrian.example.com:
+    container_name: peer0.kementrian.example.com
     image: hyperledger/fabric-peer:2.5.5
     labels:
       service: hyperledger-fabric
@@ -73,32 +73,32 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.org1.example.com
-      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+      - CORE_PEER_ID=peer0.kementrian.example.com
+      - CORE_PEER_ADDRESS=peer0.kementrian.example.com:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.example.com:7052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.kementrian.example.com:7052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.example.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.example.com:7051
-      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.kementrian.example.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.kementrian.example.com:7051
+      - CORE_PEER_LOCALMSPID=KementrianMSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.example.com:9444
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.kementrian.example.com:9444
       - CORE_METRICS_PROVIDER=prometheus
-      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org1"}
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0kementrian"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
-      - ../organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com:/etc/hyperledger/fabric
-      - peer0.org1.example.com:/var/hyperledger/production
+      - ../organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com:/etc/hyperledger/fabric
+      - peer0.kementrian.example.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:
       - 7051:7051
       - 9444:9444
     networks:
-      - fabric_test
+      - supply_chain_carbon
 
-  peer0.org2.example.com:
-    container_name: peer0.org2.example.com
+  peer0.supplychain.example.com:
+    container_name: peer0.supplychain.example.com
     image: hyperledger/fabric-peer:2.5.5
     labels:
       service: hyperledger-fabric
@@ -112,29 +112,29 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.org2.example.com
-      - CORE_PEER_ADDRESS=peer0.org2.example.com:9051
+      - CORE_PEER_ID=peer0.supplychain.example.com
+      - CORE_PEER_ADDRESS=peer0.supplychain.example.com:9051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.example.com:9052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.supplychain.example.com:9052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.example.com:9051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.example.com:9051
-      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.supplychain.example.com:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.supplychain.example.com:9051
+      - CORE_PEER_LOCALMSPID=SupplyChainMSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.example.com:9445
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.supplychain.example.com:9445
       - CORE_METRICS_PROVIDER=prometheus
-      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org2"}
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0supplychain"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
-      - ../organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com:/etc/hyperledger/fabric
-      - peer0.org2.example.com:/var/hyperledger/production
+      - ../organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com:/etc/hyperledger/fabric
+      - peer0.supplychain.example.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:
       - 9051:9051
       - 9445:9445
     networks:
-      - fabric_test
+      - supply_chain_carbon
 
   cli:
     container_name: cli
@@ -154,7 +154,7 @@ services:
       - ../organizations:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
       - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
     depends_on:
-      - peer0.org1.example.com
-      - peer0.org2.example.com
+      - peer0.kementrian.example.com
+      - peer0.supplychain.example.com
     networks:
-      - fabric_test
+      - supply_chain_carbon

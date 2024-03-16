@@ -6,8 +6,8 @@
 version: '3.7'
 
 networks:
-  fabric_test:
-    name: fabric_test
+  supply_chain_carbon:
+    name: supply_chain_carbon
 
 services:
   couchdb0:
@@ -25,9 +25,9 @@ services:
     ports:
       - "5984:5984"
     networks:
-      - fabric_test
+      - supply_chain_carbon
 
-  peer0.org1.example.com:
+  peer0.kementrian.example.com:
     environment:
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
@@ -54,9 +54,9 @@ services:
     ports:
       - "7984:5984"
     networks:
-      - fabric_test
+      - supply_chain_carbon
 
-  peer0.org2.example.com:
+  peer0.supplychain.example.com:
     environment:
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
