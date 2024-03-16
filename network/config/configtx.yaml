@@ -38,52 +38,52 @@ Organizations:
         Rule: "OR('OrdererMSP.admin')"
     OrdererEndpoints:
       - orderer.example.com:7050
-  - &Org1
+  - &Kementrian
     # DefaultOrg defines the organization which is used in the sampleconfig
     # of the fabric.git development environment
-    Name: Org1MSP
+    Name: KementrianMSP
     # ID to load the MSP definition as
-    ID: Org1MSP
-    MSPDir: ../organizations/peerOrganizations/org1.example.com/msp
+    ID: KementrianMSP
+    MSPDir: ../organizations/peerOrganizations/kementrian.example.com/msp
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('Org1MSP.admin', 'Org1MSP.peer', 'Org1MSP.client')"
+        Rule: "OR('KementrianMSP.admin', 'KementrianMSP.peer', 'KementrianMSP.client')"
       Writers:
         Type: Signature
-        Rule: "OR('Org1MSP.admin', 'Org1MSP.client')"
+        Rule: "OR('KementrianMSP.admin', 'KementrianMSP.client')"
       Admins:
         Type: Signature
-        Rule: "OR('Org1MSP.admin')"
+        Rule: "OR('KementrianMSP.admin')"
       Endorsement:
         Type: Signature
-        Rule: "OR('Org1MSP.peer')"
-  - &Org2
+        Rule: "OR('KementrianMSP.peer')"
+  - &SupplyChain
     # DefaultOrg defines the organization which is used in the sampleconfig
     # of the fabric.git development environment
-    Name: Org2MSP
+    Name: SupplyChainMSP
     # ID to load the MSP definition as
-    ID: Org2MSP
-    MSPDir: ../organizations/peerOrganizations/org2.example.com/msp
+    ID: SupplyChainMSP
+    MSPDir: ../organizations/peerOrganizations/supplychain.example.com/msp
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('Org2MSP.admin', 'Org2MSP.peer', 'Org2MSP.client')"
+        Rule: "OR('SupplyChainMSP.admin', 'SupplyChainMSP.peer', 'SupplyChainMSP.client')"
       Writers:
         Type: Signature
-        Rule: "OR('Org2MSP.admin', 'Org2MSP.client')"
+        Rule: "OR('SupplyChainMSP.admin', 'SupplyChainMSP.client')"
       Admins:
         Type: Signature
-        Rule: "OR('Org2MSP.admin')"
+        Rule: "OR('SupplyChainMSP.admin')"
       Endorsement:
         Type: Signature
-        Rule: "OR('Org2MSP.peer')"
+        Rule: "OR('SupplyChainMSP.peer')"
 ################################################################################
 #
 #   SECTION: Capabilities
@@ -274,6 +274,6 @@ Profiles:
     Application:
       <<: *ApplicationDefaults
       Organizations:
-        - *Org1
-        - *Org2
+        - *Kementrian
+        - *SupplyChain
       Capabilities: *ApplicationCapabilities
