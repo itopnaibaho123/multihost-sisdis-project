@@ -5,16 +5,16 @@ const sendEmail = async(email, password) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-            user: 'Carbonchain.pddikti@gmail.com',
+            user: 'carbonsupplychain@gmail.com',
             pass: 'carbonchain123'
             }
         });
 
-        const text = `Berikut ini adalah akun untuk website Carbonchain\n email: ${email}\n Password: ${password}`
+        const text = `Berikut ini adalah akun untuk website Carbon Supply Chain\n email: ${email}\n Password: ${password}`
         const mailOptions = {
-        from: 'Carbonchain@gmail.com',
+        from: 'carbonsupplychain@gmail.com',
         to: 'ssteven075@gmail.com',
-        subject: 'Password Akun Carbonchain',
+        subject: 'Password Akun Carbon Supply Chain',
         text: text
         };
         transporter.sendMail(mailOptions, function(error, info){

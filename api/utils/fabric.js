@@ -94,7 +94,7 @@ const calculateBlockHash = function(header) {
 };
 
 const getSignature = async(txId) => {
-    const network = await connectToNetwork("HE1", "qscc", 'admin')
+    const network = await connectToNetwork("SupplyChain", "qscc", 'admin')
     const transaction = await network.contract.evaluateTransaction('GetTransactionByID', channelName, txId)
     network.gateway.disconnect()
 

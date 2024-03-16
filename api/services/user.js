@@ -121,12 +121,12 @@ const enrollAdmin = async(adminId, adminSecret, organizationName) => {
 const loginUser = async(username, password) => {
 
     const response = {}
-    // Check to see if we've already registered and enrolled the user in wallet kemdikbud or HE
-    const walletKemdikbud = await fabric.getWallet('kementrian')
-    const walletHe = await fabric.getWallet('supplychain')
+    // Check to see if we've already registered and enrolled the user in wallet Kementrian or SupplyChain
+    const walletKementrian = await fabric.getWallet('kementrian')
+    const walletSupplyChain = await fabric.getWallet('supplychain')
 
-    const user1 = await walletKemdikbud.get(username);
-    const user2 = await walletHe.get(username);
+    const user1 = await walletKementrian.get(username);
+    const user2 = await walletSupplyChain.get(username);
     let organizationName = '';
     if (user1) {
         organizationName = 'kementrian'
