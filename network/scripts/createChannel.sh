@@ -25,7 +25,7 @@ if [ ! -d "channel-artifacts" ]; then
 fi
 
 createChannelGenesisBlock() {
-  setGlobals 1
+  setGlobals 'kementrian'
 	which configtxgen
 	if [ "$?" -ne 0 ]; then
 		fatalln "configtxgen tool not found."
@@ -117,14 +117,14 @@ successln "Channel '$CHANNEL_NAME' created"
 
 ## Join all the peers to the channel
 infoln "Joining kementrian peer to the channel..."
-joinChannel 1
+joinChannel 'kementrian'
 infoln "Joining supplychain peer to the channel..."
-joinChannel 2
+joinChannel 'supplychain'
 
 ## Set the anchor peers for each org in the channel
 infoln "Setting anchor peer for kementrian..."
-setAnchorPeer 1
+setAnchorPeer 'kementrian'
 infoln "Setting anchor peer for supplychain..."
-setAnchorPeer 2
+setAnchorPeer 'supplychain'
 
 successln "Channel '$CHANNEL_NAME' joined"

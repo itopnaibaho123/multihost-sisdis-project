@@ -75,44 +75,44 @@ PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid ${CC_NAME}.tar.gz)
 
 ## Install chaincode on peer0.kementrian and peer0.supplychain
 infoln "Installing chaincode on peer0.kementrian..."
-installChaincode 1
+installChaincode 'kementrian'
 infoln "Install chaincode on peer0.supplychain..."
-installChaincode 2
+installChaincode 'supplychain'
 
 resolveSequence
 
 ## query whether the chaincode is installed
-queryInstalled 1
+queryInstalled 'kementrian'
 
 ## approve the definition for kementrian
-approveForMyOrg 1
+approveForMyOrg 'kementrian'
 
 ## check whether the chaincode definition is ready to be committed
 ## expect kementrian to have approved and supplychain not to
-checkCommitReadiness 1 "\"KementrianMSP\": true" "\"SupplyChainMSP\": false"
-checkCommitReadiness 2 "\"KementrianMSP\": true" "\"SupplyChainMSP\": false"
+checkCommitReadiness 'kementrian' "\"KementrianMSP\": true" "\"SupplyChainMSP\": false"
+checkCommitReadiness 'supplychain' "\"KementrianMSP\": true" "\"SupplyChainMSP\": false"
 
 ## now approve also for supplychain
-approveForMyOrg 2
+approveForMyOrg 'supplychain'
 
 ## check whether the chaincode definition is ready to be committed
 ## expect them both to have approved
-checkCommitReadiness 1 "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
-checkCommitReadiness 2 "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
+checkCommitReadiness 'kementrian' "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
+checkCommitReadiness 'supplychain' "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
 
 ## now that we know for sure both orgs have approved, commit the definition
-commitChaincodeDefinition 1 2
+commitChaincodeDefinition 'kementrian' 'supplychain'
 
 ## query on both orgs to see that the definition committed successfully
-queryCommitted 1
-queryCommitted 2
+queryCommitted 'kementrian'
+queryCommitted 'supplychain'
 
 ## Invoke the chaincode - this does require that the chaincode have the 'initLedger'
 ## method defined
 if [ "$CC_INIT_FCN" = "NA" ]; then
   infoln "Chaincode initialization is not required"
 else
-  chaincodeInvokeInit 1 2
+  chaincodeInvokeInit 'kementrian' 'supplychain'
 fi
 
 exit 0

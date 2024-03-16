@@ -25,12 +25,12 @@ setGlobals() {
     USING_ORG="${OVERRIDE_ORG}"
   fi
   infoln "Using organization ${USING_ORG}"
-  if [ $USING_ORG -eq 1 ]; then
+  if [ $USING_ORG = 'kementrian' ]; then
     export CORE_PEER_LOCALMSPID="KementrianMSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_KEMENTRIAN_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/kementrian.example.com/users/Admin@kementrian.example.com/msp
     export CORE_PEER_ADDRESS=localhost:7051
-  elif [ $USING_ORG -eq 2 ]; then
+  elif [ $USING_ORG = 'supplychain' ]; then
     export CORE_PEER_LOCALMSPID="SupplyChainMSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_SUPPLYCHAIN_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/supplychain.example.com/users/Admin@supplychain.example.com/msp
@@ -41,6 +41,7 @@ setGlobals() {
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org3.example.com/users/Admin@org3.example.com/msp
     export CORE_PEER_ADDRESS=localhost:11051
   else
+    echo $USING_ORG
     errorln "ORG Unknown"
   fi
 
@@ -59,9 +60,9 @@ setGlobalsCLI() {
   else
     USING_ORG="${OVERRIDE_ORG}"
   fi
-  if [ $USING_ORG -eq 1 ]; then
+  if [ $USING_ORG = 'kementrian' ]; then
     export CORE_PEER_ADDRESS=peer0.kementrian.example.com:7051
-  elif [ $USING_ORG -eq 2 ]; then
+  elif [ $USING_ORG = 'supplychain' ]; then
     export CORE_PEER_ADDRESS=peer0.supplychain.example.com:9051
   elif [ $USING_ORG -eq 3 ]; then
     export CORE_PEER_ADDRESS=peer0.org3.example.com:11051
@@ -88,7 +89,9 @@ parsePeerConnectionParameters() {
     fi
     PEER_CONN_PARMS=("${PEER_CONN_PARMS[@]}" --peerAddresses $CORE_PEER_ADDRESS)
     ## Set path to TLS certificate
-    CA=PEER0_$1_CA
+    # CA="organizations/peerOrganizations/$1.example.com/peers/peer0.$1.example.com/tls/ca.crt"
+    ORG_CAPITAL=${1^^}
+    CA=PEER0_${ORG_CAPITAL}_CA
     TLSINFO=(--tlsRootCertFiles "${!CA}")
     PEER_CONN_PARMS=("${PEER_CONN_PARMS[@]}" "${TLSINFO[@]}")
     # shift by one to get to the next organization
