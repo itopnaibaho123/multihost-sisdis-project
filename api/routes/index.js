@@ -1,6 +1,7 @@
 const router = require('express').Router()
 
 const userRouter = require('./user.js')
+const exampleRouter = require('./example.js')
 
 const ministryStaffRouter = require('./user/ministryStaff.js')
 const ministryAdminRouter = require('./user/ministryAdmin.js')
@@ -21,6 +22,7 @@ const scProcessRouter = require('./supplyChainProcess/supplyChain.js')
 const scProposalRouter = require('./supplyChainProcess/supplyChainProposal.js')
 
 router.use('/auth', userRouter)
+router.use('/example', exampleRouter)
 
 router.use('/user/ministry-staff', ministryStaffRouter)
 router.use('/user/ministry-admin', ministryAdminRouter)
