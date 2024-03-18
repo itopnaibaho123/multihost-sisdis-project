@@ -3,7 +3,14 @@ const iResp = require('../../utils/response.interface.js')
 
 const getList = async () => {
   try {
-    let result = {}
+    const network = await fabric.connectToNetwork(
+      'supplychain',
+      'pecontract',
+      body.user.username
+    )
+    const result = await network.contract.submitTransaction('ReadAllPerusahaan')
+    network.gateway.disconnect()
+
     return iResp.buildSuccessResponse(
       200,
       `Successfully get all company`,
@@ -16,7 +23,17 @@ const getList = async () => {
 
 const getById = async (companyId) => {
   try {
-    let result = {}
+    const network = await fabric.connectToNetwork(
+      'supplychain',
+      'pecontract',
+      body.user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetPerusahaanById',
+      companyId
+    )
+    network.gateway.disconnect()
+
     return iResp.buildSuccessResponse(
       200,
       `Successfully get company ${companyId}`,
@@ -29,7 +46,18 @@ const getById = async (companyId) => {
 
 const create = async (body) => {
   try {
-    let result = {}
+    args = [body.data]
+    const network = await fabric.connectToNetwork(
+      'supplychain',
+      'pecontract',
+      body.user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'CreatePerusahaan',
+      args
+    )
+    network.gateway.disconnect()
+
     return iResp.buildSuccessResponse(
       201,
       'Successfully  create a company',
@@ -42,7 +70,17 @@ const create = async (body) => {
 
 const update = async (companyId, body) => {
   try {
-    let result = {}
+    const network = await fabric.connectToNetwork(
+      'supplychain',
+      'pecontract',
+      body.user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'UpdatePerusahaan',
+      companyId,
+      [body.data]
+    )
+    network.gateway.disconnect()
     return iResp.buildSuccessResponse(
       201,
       `Successfully update company ${companyId}`,
@@ -55,7 +93,17 @@ const update = async (companyId, body) => {
 
 const remove = async (companyId) => {
   try {
-    let result = {}
+    const network = await fabric.connectToNetwork(
+      'supplychain',
+      'pecontract',
+      body.user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'DeletePerusahaan',
+      companyId,
+      [body.data]
+    )
+    network.gateway.disconnect()
     return iResp.buildSuccessResponse(
       200,
       `Successfully delete company ${companyId}`,
