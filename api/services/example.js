@@ -12,4 +12,14 @@ const query = async (user, args) => {
   return result
 }
 
-module.exports = { query }
+const create = async (user, args) => {
+  const network = await fabric.connectToNetwork('Kementrian', 'basic', user)
+  const result = await network.contract.submitTransaction(
+    'CreateAsset',
+    ...args
+  )
+  network.gateway.disconnect()
+  return result
+}
+
+module.exports = { query, create }
