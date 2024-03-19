@@ -4,7 +4,9 @@ const shipmentService = require('../../services/company/shipment.js')
 
 const getList = async (req, res) => {
   try {
-    const result = await shipmentService.getList()
+    const data = req.body
+    const username = data.username
+    const result = await shipmentService.getList(username, [])
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -20,8 +22,10 @@ const getList = async (req, res) => {
 
 const getById = async (req, res) => {
   try {
-    console.log(req.params.shipmentId)
-    const result = await shipmentService.getById(req.params.shipmentId)
+    const data = req.body
+    const username = data.username
+    const shipmentId = data.divisionId
+    const result = await shipmentService.getById(username, shipmentId)
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -37,8 +41,22 @@ const getById = async (req, res) => {
 
 const create = async (req, res) => {
   try {
-    console.log(req.body)
-    const result = await shipmentService.create(req.body)
+    const data = req.body
+    const username = data.username
+    const args = [
+      data.id,
+      data.idSupplyChain,
+      data.idDivisiPengirim,
+      data.idDivisiPenerima,
+      data.status,
+      data.waktuBerangkat,
+      data.waktuSampai,
+      data.idTransportasi,
+      data.beratMuatan,
+      data.emisiKarbonstr,
+      data.idEmisiKarbon,
+    ]
+    const result = await shipmentService.create(username, args)
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -54,8 +72,23 @@ const create = async (req, res) => {
 
 const update = async (req, res) => {
   try {
+    const data = req.body
+    const username = data.username
+    const args = [
+      data.id,
+      data.idSupplyChain,
+      data.idDivisiPengirim,
+      data.idDivisiPenerima,
+      data.status,
+      data.waktuBerangkat,
+      data.waktuSampai,
+      data.idTransportasi,
+      data.beratMuatan,
+      data.emisiKarbonstr,
+      data.idEmisiKarbon,
+    ]
     console.log(req.params.shipmentId, req.body)
-    const result = await shipmentService.update(req.params.shipmentId, req.body)
+    const result = await shipmentService.update(username, args)
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -71,7 +104,10 @@ const update = async (req, res) => {
 
 const remove = async (req, res) => {
   try {
-    const result = await shipmentService.remove(req.params.shipmentId)
+    const data = req.body
+    const username = data.username
+    const args = data.companyId
+    const result = await shipmentService.remove(username, args)
     console.log(req.params.shipmentId)
 
     if (!result.success) {

@@ -4,7 +4,9 @@ const companyService = require('../../services/company/company.js')
 
 const getList = async (req, res) => {
   try {
-    const result = await companyService.getList()
+    const data = req.body
+    const username = data.username
+    const result = await companyService.getList(username, [])
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -20,8 +22,10 @@ const getList = async (req, res) => {
 
 const getById = async (req, res) => {
   try {
-    console.log(req.params.companyId)
-    const result = await companyService.getById(req.params.companyId)
+    const data = req.body
+    const username = data.username
+    const companyId = data.companyId
+    const result = await companyService.getById(username, companyId)
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -37,8 +41,18 @@ const getById = async (req, res) => {
 
 const create = async (req, res) => {
   try {
-    console.log(req.body)
-    const result = await companyService.create(req.body)
+    const data = req.body
+    const username = data.username
+    const args = [
+      data.id,
+      data.nomorTelepon,
+      data.email,
+      data.nama,
+      data.lokasi,
+      data.deskripsi,
+      data.urlSuratProposal,
+    ]
+    const result = await companyService.create(username, args)
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -54,8 +68,22 @@ const create = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-    console.log(req.params.companyId, req.body)
-    const result = await companyService.update(req.params.companyId, req.body)
+    const data = req.body
+    const username = data.username
+    const args = [
+      data.id,
+      data.nomorTelepon,
+      data.email,
+      data.nama,
+      data.lokasi,
+      data.deskripsi,
+      data.urlSuratProposal,
+      data.approvalStatus,
+      data.participantStatus,
+      data.kuota,
+      data.sisaKuota,
+    ]
+    const result = await companyService.update(username, args)
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -71,8 +99,10 @@ const update = async (req, res) => {
 
 const remove = async (req, res) => {
   try {
-    const result = await companyService.remove(req.params.companyId)
-    console.log(req.params.companyId)
+    const data = req.body
+    const username = data.username
+    const args = data.companyId
+    const result = await companyService.remove(username, args)
 
     if (!result.success) {
       res.status(result.code).send(result)

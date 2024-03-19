@@ -11,7 +11,7 @@ echo $FABRIC_CFG_PATH
 ORG_NAME_1="kementrian"
 ORG_NAME_2="supplychain"
 
-CC_NAME="basic"
+CC_NAME="pecontract"
 INVOKE_FUNCTION_NAME="InitLedger"
 QUERY_FUNCTION_NAME="GetAllAssets"
 
