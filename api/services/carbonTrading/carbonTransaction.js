@@ -1,69 +1,58 @@
 'use strict'
 const iResp = require('../../utils/response.interface.js')
-
-const getList = async () => {
-  try {
-    let result = {}
-    return iResp.buildSuccessResponse(
-      200,
-      `Successfully get all carbonTransaction`,
-      result
-    )
-  } catch (error) {
-    return iResp.buildErrorResponse(500, 'Something wrong', error)
-  }
+const fabric = require('../../utils/fabric.js')
+const getList = async (user, args) => {
+  const network = await fabric.connectToNetwork(
+    'supplychain',
+    'ctcontract',
+    user
+  )
+  const result = await network.contract.submitTransaction('ReadAllCT')
+  network.gateway.disconnect()
+  return result
+}
+const getById = async (user, args) => {
+  const network = await fabric.connectToNetwork(
+    'supplychain',
+    'ctcontract',
+    user
+  )
+  const result = await network.contract.submitTransaction('GetCTById', args)
+  network.gateway.disconnect()
+  return result
 }
 
-const getById = async (carbonTransactionId) => {
-  try {
-    let result = {}
-    return iResp.buildSuccessResponse(
-      200,
-      `Successfully get carbonTransaction ${carbonTransactionId}`,
-      result
-    )
-  } catch (error) {
-    return iResp.buildErrorResponse(500, 'Something wrong', error)
-  }
+const create = async (user, args) => {
+  const network = await fabric.connectToNetwork(
+    'supplychain',
+    'ctcontract',
+    user
+  )
+  const result = await network.contract.submitTransaction('CreateCT', ...args)
+  network.gateway.disconnect()
+  return result
 }
 
-const create = async (body) => {
-  try {
-    let result = {}
-    return iResp.buildSuccessResponse(
-      201,
-      'Successfully  create a carbonTransaction',
-      result
-    )
-  } catch (error) {
-    return iResp.buildErrorResponse(500, 'Something wrong', error)
-  }
+const update = async (user, args) => {
+  const network = await fabric.connectToNetwork(
+    'supplychain',
+    'ctcontract',
+    user
+  )
+  const result = await network.contract.submitTransaction('UpdateCT', ...args)
+  network.gateway.disconnect()
+  return result
 }
 
-const update = async (carbonTransactionId, body) => {
-  try {
-    let result = {}
-    return iResp.buildSuccessResponse(
-      201,
-      `Successfully update carbonTransaction ${carbonTransactionId}`,
-      result
-    )
-  } catch (error) {
-    return iResp.buildErrorResponse(500, 'Something wrong', error)
-  }
-}
-
-const remove = async (carbonTransactionId) => {
-  try {
-    let result = {}
-    return iResp.buildSuccessResponse(
-      200,
-      `Successfully delete carbonTransaction ${carbonTransactionId}`,
-      result
-    )
-  } catch (error) {
-    return iResp.buildErrorResponse(500, 'Something wrong', error)
-  }
+const remove = async (user, args) => {
+  const network = await fabric.connectToNetwork(
+    'supplychain',
+    'ctcontract',
+    user
+  )
+  const result = await network.contract.submitTransaction('DeleteCT', args)
+  network.gateway.disconnect()
+  return result
 }
 
 module.exports = { getList, getById, create, update, remove }

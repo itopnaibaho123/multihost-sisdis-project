@@ -4,7 +4,9 @@ const carbonTransactionService = require('../../services/carbonTrading/carbonTra
 
 const getList = async (req, res) => {
   try {
-    const result = await carbonTransactionService.getList()
+    const data = req.body
+    const username = data.username
+    const result = await carbonTransactionService.getList(username, [])
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -20,10 +22,10 @@ const getList = async (req, res) => {
 
 const getById = async (req, res) => {
   try {
-    console.log(req.params.salesProposalId)
-    const result = await carbonTransactionService.getById(
-      req.params.salesProposalId
-    )
+    const data = req.body
+    const username = data.username
+    const cspId = data.companyId
+    const result = await carbonTransactionService.getById(username, cspId)
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -39,8 +41,17 @@ const getById = async (req, res) => {
 
 const create = async (req, res) => {
   try {
-    console.log(req.body)
-    const result = await carbonTransactionService.create(req.body)
+    const data = req.body
+    const username = data.username
+    const args = [
+      data.id,
+      data.idPerusahaanPembeli,
+      data.idPerusahaanPenjual,
+      data.kuota,
+      data.status,
+      data.urlBuktiTransfer,
+    ]
+    const result = await carbonTransactionService.create(username, args)
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -56,11 +67,17 @@ const create = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-    console.log(req.params.salesProposalId, req.body)
-    const result = await carbonTransactionService.update(
-      req.params.salesProposalId,
-      req.body
-    )
+    const data = req.body
+    const username = data.username
+    const args = [
+      data.id,
+      data.idPerusahaanPembeli,
+      data.idPerusahaanPenjual,
+      data.kuota,
+      data.status,
+      data.urlBuktiTransfer,
+    ]
+    const result = await carbonTransactionService.update(username, args)
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -76,10 +93,10 @@ const update = async (req, res) => {
 
 const remove = async (req, res) => {
   try {
-    const result = await carbonTransactionService.remove(
-      req.params.salesProposalId
-    )
-    console.log(req.params.salesProposalId)
+    const data = req.body
+    const username = data.username
+    const args = data.companyId
+    const result = await carbonTransactionService.remove(username, args)
 
     if (!result.success) {
       res.status(result.code).send(result)

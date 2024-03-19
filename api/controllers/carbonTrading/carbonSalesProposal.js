@@ -4,7 +4,9 @@ const salesProposalService = require('../../services/carbonTrading/carbonSalesPr
 
 const getList = async (req, res) => {
   try {
-    const result = await salesProposalService.getList()
+    const data = req.body
+    const username = data.username
+    const result = await salesProposalService.getList(username, [])
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -20,10 +22,10 @@ const getList = async (req, res) => {
 
 const getById = async (req, res) => {
   try {
-    console.log(req.params.salesProposalId)
-    const result = await salesProposalService.getById(
-      req.params.salesProposalId
-    )
+    const data = req.body
+    const username = data.username
+    const cspId = data.companyId
+    const result = await salesProposalService.getById(username, cspId)
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -39,8 +41,10 @@ const getById = async (req, res) => {
 
 const create = async (req, res) => {
   try {
-    console.log(req.body)
-    const result = await salesProposalService.create(req.body)
+    const data = req.body
+    const username = data.username
+    const args = [data.id, data.idPerusahaan, data.kuotaYangDijual, data.status]
+    const result = await salesProposalService.create(username)
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -56,11 +60,10 @@ const create = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-    console.log(req.params.salesProposalId, req.body)
-    const result = await salesProposalService.update(
-      req.params.salesProposalId,
-      req.body
-    )
+    const data = req.body
+    const username = data.username
+    const args = [data.id, data.idPerusahaan, data.kuotaYangDijual, data.status]
+    const result = await salesProposalService.update(username, args)
 
     if (!result.success) {
       res.status(result.code).send(result)
@@ -76,8 +79,10 @@ const update = async (req, res) => {
 
 const remove = async (req, res) => {
   try {
-    const result = await salesProposalService.remove(req.params.salesProposalId)
-    console.log(req.params.salesProposalId)
+    const data = req.body
+    const username = data.username
+    const args = data.companyId
+    const result = await salesProposalService.remove(username, args)
 
     if (!result.success) {
       res.status(result.code).send(result)
