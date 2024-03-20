@@ -46,15 +46,15 @@ type AdminSC struct {
 // ============================================================================================================================
 
 const (
-	ER11 		= "ER11-Incorrect number of arguments. Required %d arguments, but you have %d arguments."
-	ER12        = "ER12-SatuanManagemenSumberdaya with id '%s' already exists."
-	ER13        = "ER13-SatuanManagemenSumberdaya with id '%s' doesn't exist."
-	ER31        = "ER31-Failed to change to world state: %v."
-	ER32        = "ER32-Failed to read from world state: %v."
-	ER33        = "ER33-Failed to get result from iterator: %v."
-	ER34        = "ER34-Failed unmarshaling JSON: %v."
-	ER41        = "ER41-Access is not permitted with MSDPID '%s'."
-	ER42        = "ER42-Unknown MSPID: '%s'."
+	ER11 		= "ER11-Incorrect number of arguments, required %d arguments, but you have %d arguments"
+	ER12        = "ER12-User with id '%s' already exists"
+	ER13        = "ER13-User with id '%s' doesn't exist"
+	ER31        = "ER31-Failed to change to world state: %v"
+	ER32        = "ER32-Failed to read from world state: %v"
+	ER33        = "ER33-Failed to get result from iterator: %v"
+	ER34        = "ER34-Failed unmarshaling JSON: %v"
+	ER41        = "ER41-Access is not permitted with MSDPID '%s'"
+	ER42        = "ER42-Unknown MSPID: '%s'"
 )
 
 // ============================================================================================================================
@@ -67,8 +67,9 @@ var logger = flogging.MustGetLogger("UserContract")
 func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 11 {
-
+	if len(args) != 5 {
+		logger.Errorf(ER11, 5, len(args))
+		return fmt.Errorf(ER11, 5, len(args))
 	}
 
 	id := args[0]
@@ -100,7 +101,7 @@ func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface)
 
 	err = ctx.GetStub().PutState(id, userJSON)
 	if err != nil {
-		fmt.Errorf(err.Error())
+		return fmt.Errorf(err.Error())
 	}
 
 	return err
@@ -123,11 +124,13 @@ func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorI
 	for resultsIterator.HasNext() {
 		queryResult, err := resultsIterator.Next()
 		if err != nil {
+			return nil, fmt.Errorf(ER33, err)
 		}
 
 		var user User
 		err = json.Unmarshal(queryResult.Value, &user)
 		if err != nil {
+			return nil, fmt.Errorf(ER34, err)
 		}
 		listUser = append(listUser, &user)
 	}
@@ -140,7 +143,8 @@ func (s *UserContract) ReadAllUser(ctx contractapi.TransactionContextInterface) 
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 0 {
-
+		logger.Errorf(ER11, 0, len(args))
+		return nil, fmt.Errorf(ER11, 0, len(args))
 	}
 
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
@@ -162,12 +166,12 @@ func (s *UserContract) GetUserById(ctx contractapi.TransactionContextInterface) 
 		return nil, fmt.Errorf(ER11, 1, len(args))
 	}
 	id := args[0]
-	perjalanan, err := getUserStateById(ctx, id)
+	user, err := getUserStateById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	return perjalanan, nil
+	return user, nil
 }
 
 
@@ -202,7 +206,9 @@ func (s *UserContract) UpdateUser(ctx contractapi.TransactionContextInterface) e
 
 	logger.Infof("Run UpdateUser function with args: %+q.", args)
 
-	if len(args) != 11 {
+	if len(args) != 5 {
+		logger.Errorf(ER11, 5, len(args))
+		return fmt.Errorf(ER11, 5, len(args))
 	}
 
 	id := args[0]
@@ -243,10 +249,12 @@ func (s *UserContract) UpdateUser(ctx contractapi.TransactionContextInterface) e
 }
 
 // DeleteAsset deletes an given asset from the world state.
-func (s *UserContract) DeleteShipment(ctx contractapi.TransactionContextInterface) error {
+func (s *UserContract) DeleteUser(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 1 {
+		logger.Errorf(ER11, 1, len(args))
+		return fmt.Errorf(ER11, 1, len(args))
 	}
 
 	id := args[0]
@@ -256,10 +264,12 @@ func (s *UserContract) DeleteShipment(ctx contractapi.TransactionContextInterfac
 		return err
 	}
 	if !exists {
+		return fmt.Errorf(ER13, id)
 	}
 
 	err = ctx.GetStub().DelState(id)
 	if err != nil {
+		logger.Errorf(ER31, err)
 	}
 
 	return err
