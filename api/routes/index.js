@@ -5,7 +5,6 @@ const exampleRouter = require('./example.js')
 
 const ministryStaffRouter = require('./user/ministryStaff.js')
 const ministryAdminRouter = require('./user/ministryAdmin.js')
-const scStaffRouter = require('./user/supplyChainStaff.js')
 const scManagerRouter = require('./user/supplyChainManager.js')
 const scAdminRouter = require('./user/supplyChainAdmin.js')
 
@@ -26,7 +25,6 @@ router.use('/example', exampleRouter)
 
 router.use('/user/ministry-staff', ministryStaffRouter)
 router.use('/user/ministry-admin', ministryAdminRouter)
-router.use('/user/sc-staff', scStaffRouter)
 router.use('/user/sc-manager', scManagerRouter)
 router.use('/user/sc-admin', scAdminRouter)
 
