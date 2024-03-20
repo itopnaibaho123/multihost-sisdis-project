@@ -108,7 +108,7 @@ func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface)
 	return err
 }
 
-func (s *UserContract) RegisterDataManager(ctx contractapi.TransactionContextInterface) error {
+func (s *UserContract) RegisterDataManagerSc(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 4 {
@@ -138,6 +138,37 @@ func (s *UserContract) RegisterDataManager(ctx contractapi.TransactionContextInt
 	}
 
 	err = ctx.GetStub().PutState(id, managerJSON)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	return err
+}
+
+func (s *UserContract) RegisterDataAdminSc(ctx contractapi.TransactionContextInterface) error {
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	if len(args) != 3 {
+		logger.Errorf(ER11, 3, len(args))
+		return fmt.Errorf(ER11, 3, len(args))
+	}
+
+	id := args[0]
+	idUser := args[1]
+	idPerusahaan := args[2]
+
+	admin := AdminSC{
+		ID: 			id,
+		IdUser: 		idUser,
+		IdPerusahaan:	idPerusahaan,
+	}
+
+	adminJSON, err := json.Marshal(admin)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(id, adminJSON)
 	if err != nil {
 		return fmt.Errorf(err.Error())
 	}
