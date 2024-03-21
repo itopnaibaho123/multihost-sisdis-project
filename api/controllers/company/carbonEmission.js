@@ -9,7 +9,7 @@ const getList = async (req, res) => {
     const result = await carbonEmissionService.getList(username, [])
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -24,11 +24,13 @@ const getById = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const CEId = data.divisionId
-    const result = await carbonEmissionService.getById(username, CEId)
+    const result = await carbonEmissionService.getById(
+      username,
+      req.params.carbonEmissionId
+    )
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -47,7 +49,7 @@ const create = async (req, res) => {
     const result = await carbonEmissionService.create(username, args)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -62,11 +64,11 @@ const update = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const args = [data.id, data.idPerusahaan, data.totalEmisi]
+    const args = [req.params.carbonEmissionId, data.totalEmisi]
     const result = await carbonEmissionService.update(username, args)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -81,11 +83,13 @@ const remove = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const args = data.companyId
-    const result = await carbonEmissionService.remove(username, args)
+    const result = await carbonEmissionService.remove(
+      username,
+      req.params.carbonEmissionId
+    )
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)

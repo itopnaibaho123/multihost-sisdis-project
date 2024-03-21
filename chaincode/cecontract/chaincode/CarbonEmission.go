@@ -3,6 +3,7 @@ package chaincode
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -23,13 +24,13 @@ type CarbonEmission struct {
 	ID           string   `json:"id"`
 	IdPerusahaan string   `json:"perusahaan"`
 	IdPerjalanan []string `json:"perjalanan"`
-	TotalEmisi   string   `json:"totalEmisi"`
+	TotalEmisi   int   `json:"totalEmisi"`
 }
 
 type CarbonEmissionResult struct {
 	ID         	string      	`json:"id"`
 	Perusahaan 	*Perusahaan 	`json:"perusahaan"`
-	TotalEmisi   string      	`json:"totalEmisi"`
+	TotalEmisi   int      	`json:"totalEmisi"`
 	Perjalanan  []* Perjalanan 	`json:"perjalanan"`
 }
 
@@ -76,9 +77,13 @@ func (s *CEContract) CreateCE(ctx contractapi.TransactionContextInterface) error
 
 	id := args[0]
 	idPerusahaan := args[1]
-	totalEmisi := args[2]
+	totalEmisiStr := args[2]
 	IdPerjalanan := []string{}
 
+
+	totalEmisi, err := strconv.Atoi(totalEmisiStr)
+	if err != nil {
+	}
 	exists, err := isCeExists(ctx, id)
 	if err != nil {
 		return err
@@ -177,6 +182,8 @@ func getCompleteDataCE(ctx contractapi.TransactionContextInterface, carbonEmissi
 
 	carbonEmissionResult.ID = carbonEmission.ID
 	carbonEmissionResult.TotalEmisi = carbonEmission.TotalEmisi
+	carbonEmissionResult.Perjalanan = []*Perjalanan{}
+	carbonEmissionResult.Perusahaan = nil
 
 	return &carbonEmissionResult, nil
 }
@@ -206,7 +213,10 @@ func (s *CEContract) UpdateCE(ctx contractapi.TransactionContextInterface) error
 	}
 
 	id := args[0]
-	totalEmisi := args[1]
+	totalEmisiStr := args[1]
+	totalEmisi, err := strconv.Atoi(totalEmisiStr)
+	if err != nil {
+	}
 	carbonEmission, err := getCEStateById(ctx, id)
 	if err != nil {
 		return err
