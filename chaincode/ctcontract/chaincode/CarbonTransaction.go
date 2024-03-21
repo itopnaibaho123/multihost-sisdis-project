@@ -3,6 +3,7 @@ package chaincode
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -23,7 +24,7 @@ type CarbonTransaction struct {
 	ID                  string   `json:"id"`
 	IdPerusahaanPembeli string   `json:"idPerusahaanPembeli"`
 	IdPerusahaanPenjual string   `json:"idPerusahaanPembeli"`
-	Kuota               string   `json:"kuota"`
+	Kuota               int   `json:"kuota"`
 	Status              string   `json:"status"`
 	Vote                []string `json:"vote"`
 	URLBuktiTransaksi   string   `json:"urlBuktiTransaksi"`
@@ -32,7 +33,7 @@ type CarbonTransactionResult struct {
 	ID                string      `json:"id"`
 	PerusahaanPembeli *Perusahaan `json:"PerusahaanPembeli"`
 	PerusahaanPenjual *Perusahaan `json:"PerusahaanPembeli"`
-	Kuota             string      `json:"kuota"`
+	Kuota             int      `json:"kuota"`
 	Status            string      `json:"status"`
 	Vote              []string    `json:"vote"`
 	URLBuktiTransaksi string      `json:"urlBuktiTransaksi"`
@@ -67,11 +68,16 @@ func (s *CTContract) CreateCT(ctx contractapi.TransactionContextInterface) error
 	id := args[0]
 	idPerusahaanPembeli := args[1]
 	idPerusahaanPenjual := args[2]
-	kuota := args[3]
+	kuotaStr := args[3]
 	vote := []string{}
 	status := args[4]
 	urlBuktiTransaksi := args[5]
 
+
+	kuota, err := strconv.Atoi(kuotaStr)
+	if err != nil {
+	}
+	
 	exists, err := isCtExists(ctx, id)
 	if err != nil {
 		return err
@@ -175,6 +181,9 @@ func getCompleteDataCT(ctx contractapi.TransactionContextInterface, ct *CarbonTr
 	ctr.Kuota = ct.Kuota
 	ctr.Status = ct.Status
 	ctr.URLBuktiTransaksi=ct.URLBuktiTransaksi
+	ctr.PerusahaanPembeli = nil
+	ctr.PerusahaanPenjual = nil
+	ctr.Vote = []string{}
 
 	return &ctr, nil
 }
@@ -206,13 +215,17 @@ func (s *CTContract) UpdateCT(ctx contractapi.TransactionContextInterface) error
 	id := args[0]
 	idPerusahaanPembeli := args[1]
 	idPerusahaanPenjual := args[2]
-	kuota := args[3]
+	kuotaStr := args[3]
 	status := args[4]
 	urlBuktiTransaksi := args[5]
 
 	ct, err := getCTStateById(ctx, id)
 	if err != nil {
 		return err
+	}
+
+	kuota, err := strconv.Atoi(kuotaStr)
+	if err != nil {
 	}
 
 	ct.ID = id

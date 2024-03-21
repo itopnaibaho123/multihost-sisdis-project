@@ -9,7 +9,7 @@ const getList = async (req, res) => {
     const result = await carbonTransactionService.getList(username, [])
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -24,11 +24,13 @@ const getById = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const cspId = data.companyId
-    const result = await carbonTransactionService.getById(username, cspId)
+    const result = await carbonTransactionService.getById(
+      username,
+      req.params.carbonTransactionId
+    )
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -54,7 +56,7 @@ const create = async (req, res) => {
     const result = await carbonTransactionService.create(username, args)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -70,7 +72,7 @@ const update = async (req, res) => {
     const data = req.body
     const username = data.username
     const args = [
-      data.id,
+      req.params.carbonTransactionId,
       data.idPerusahaanPembeli,
       data.idPerusahaanPenjual,
       data.kuota,
@@ -80,7 +82,7 @@ const update = async (req, res) => {
     const result = await carbonTransactionService.update(username, args)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -96,10 +98,13 @@ const remove = async (req, res) => {
     const data = req.body
     const username = data.username
     const args = data.companyId
-    const result = await carbonTransactionService.remove(username, args)
+    const result = await carbonTransactionService.remove(
+      username,
+      req.params.carbonTransactionId
+    )
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
