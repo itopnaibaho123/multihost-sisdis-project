@@ -7,9 +7,8 @@ const getList = async (req, res) => {
     const data = req.body
     const username = data.username
     const result = await vehicleService.getList(username, [])
-
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -24,11 +23,10 @@ const getById = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const vehicleId = data.companyId
-    const result = await vehicleService.getById(username, vehicleId)
+    const result = await vehicleService.getById(username, req.params.vehicleId)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -53,7 +51,7 @@ const create = async (req, res) => {
     const result = await vehicleService.create(username, args)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -68,11 +66,16 @@ const update = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const args = [data.id, data.carModel, data.fuelType, data.kmUsage]
+    const args = [
+      req.params.vehicleId,
+      data.carModel,
+      data.fuelType,
+      data.kmUsage,
+    ]
     const result = await vehicleService.update(username, args)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -87,11 +90,10 @@ const remove = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const args = data.companyId
-    const result = await vehicleService.remove(username, args)
+    const result = await vehicleService.remove(username, req.params.vehicleId)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)

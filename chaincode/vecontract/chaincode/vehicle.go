@@ -158,6 +158,7 @@ func getCompleteDataVehicle(ctx contractapi.TransactionContextInterface, vehicle
 	vehicleResult.CarModel = vehicle.CarModel
 	vehicleResult.FuelType = vehicle.FuelType
 	vehicleResult.KmUsage = vehicle.KmUsage
+	vehicleResult.IdDivisi = nil
 
 	return &vehicleResult, nil
 }
@@ -200,6 +201,7 @@ func (s *VEContract) UpdateVehicle(ctx contractapi.TransactionContextInterface) 
 	vehicle.CarModel = carModel
 	vehicle.FuelType = fuelType
 	vehicle.KmUsage = kmUsage
+	vehicle.IdDivisi = ""
 	
 	vehicleJSON, err := json.Marshal(vehicle)
 	if err != nil {
