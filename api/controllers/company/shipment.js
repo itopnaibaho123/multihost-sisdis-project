@@ -9,7 +9,7 @@ const getList = async (req, res) => {
     const result = await shipmentService.getList(username, [])
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -24,11 +24,13 @@ const getById = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const shipmentId = data.divisionId
-    const result = await shipmentService.getById(username, shipmentId)
+    const result = await shipmentService.getById(
+      username,
+      req.params.shipmentId
+    )
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -54,12 +56,11 @@ const create = async (req, res) => {
       data.idTransportasi,
       data.beratMuatan,
       data.emisiKarbonstr,
-      data.idEmisiKarbon,
     ]
     const result = await shipmentService.create(username, args)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -75,7 +76,7 @@ const update = async (req, res) => {
     const data = req.body
     const username = data.username
     const args = [
-      data.id,
+      req.params.shipmentId,
       data.idSupplyChain,
       data.idDivisiPengirim,
       data.idDivisiPenerima,
@@ -85,13 +86,11 @@ const update = async (req, res) => {
       data.idTransportasi,
       data.beratMuatan,
       data.emisiKarbonstr,
-      data.idEmisiKarbon,
     ]
-    console.log(req.params.shipmentId, req.body)
     const result = await shipmentService.update(username, args)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -106,12 +105,11 @@ const remove = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const args = data.companyId
-    const result = await shipmentService.remove(username, args)
+    const result = await shipmentService.remove(username, req.params.shipmentId)
     console.log(req.params.shipmentId)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
