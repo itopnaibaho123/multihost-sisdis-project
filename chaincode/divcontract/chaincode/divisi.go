@@ -172,6 +172,8 @@ func getCompleteDataDivisi(ctx contractapi.TransactionContextInterface, divisi *
 
 	divisiResult.ID = divisi.ID
 	divisiResult.Lokasi = divisi.Lokasi
+	divisiResult.IdManajer = nil
+	divisiResult.Perusahaan = nil
 
 
 	return &divisiResult, nil
