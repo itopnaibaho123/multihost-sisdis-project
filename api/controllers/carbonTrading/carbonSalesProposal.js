@@ -9,7 +9,7 @@ const getList = async (req, res) => {
     const result = await salesProposalService.getList(username, [])
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -24,11 +24,13 @@ const getById = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const cspId = data.companyId
-    const result = await salesProposalService.getById(username, cspId)
+    const result = await salesProposalService.getById(
+      username,
+      req.params.salesProposalId
+    )
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -44,10 +46,10 @@ const create = async (req, res) => {
     const data = req.body
     const username = data.username
     const args = [data.id, data.idPerusahaan, data.kuotaYangDijual, data.status]
-    const result = await salesProposalService.create(username)
+    const result = await salesProposalService.create(username, args)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -62,11 +64,16 @@ const update = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const args = [data.id, data.idPerusahaan, data.kuotaYangDijual, data.status]
+    const args = [
+      req.params.salesProposalId,
+      data.idPerusahaan,
+      data.kuotaYangDijual,
+      data.status,
+    ]
     const result = await salesProposalService.update(username, args)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -81,11 +88,13 @@ const remove = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const args = data.companyId
-    const result = await salesProposalService.remove(username, args)
+    const result = await salesProposalService.remove(
+      username,
+      req.params.salesProposalId
+    )
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)

@@ -3,6 +3,7 @@ package chaincode
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -24,13 +25,13 @@ type CSPContract struct {
 type CarbonSalesProposal struct {
 	ID              string   `json:"id"`
 	IdPerusahaan    string   `json:"idPerusahaan"`
-	KuotaYangDijual string   `json:"kuotaYangDijual"`
+	KuotaYangDijual int   `json:"kuotaYangDijual"`
 	Status          string   `json:"status"`
 }
 type CarbonSalesProposalResult struct {
 	ID              string   	  `json:"id"`
 	IdPerusahaan    *Perusahaan   `json:"perusahaan"`
-	KuotaYangDijual string  	  `json:"kuotaYangDijual"`
+	KuotaYangDijual int  	  `json:"kuotaYangDijual"`
 	Status          string   	  `json:"status"`
 }
 
@@ -62,9 +63,12 @@ func (s *CSPContract) CreateProposal(ctx contractapi.TransactionContextInterface
 
 	id := args[0]
 	idPerusahaan := args[1]
-	kuotaYangDijual := args[2]
+	kuotaYangDijualStr := args[2]
 	status := args[3]
 	
+	kuotaYangDijual, err := strconv.Atoi(kuotaYangDijualStr)
+	if err != nil {
+	}
 
 	exists, err := isCspExists(ctx, id)
 	if err != nil {
@@ -166,7 +170,7 @@ func getCompleteDataPerusahaan(ctx contractapi.TransactionContextInterface, csp 
 	cspr.ID = csp.ID
 	cspr.KuotaYangDijual = csp.KuotaYangDijual
 	cspr.Status = csp.Status
-
+	cspr.IdPerusahaan = nil
 	
 
 	return &cspr, nil
@@ -198,7 +202,7 @@ func (s *CSPContract) UpdateCSP(ctx contractapi.TransactionContextInterface) err
 
 	id := args[0]
 	idPerusahaan := args[1]
-	kuotaYangDijual := args[2]
+	kuotaYangDijualStr := args[2]
 	status := args[3]
 
 	csp, err := getCSPStateById(ctx, id)
@@ -206,7 +210,9 @@ func (s *CSPContract) UpdateCSP(ctx contractapi.TransactionContextInterface) err
 		return err
 	}
 
-	
+	kuotaYangDijual, err := strconv.Atoi(kuotaYangDijualStr)
+	if err != nil {
+	}
 
 	csp.ID = id
 	csp.IdPerusahaan = idPerusahaan
