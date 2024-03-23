@@ -1,19 +1,14 @@
 const iResp = require('../../utils/response.interface.js')
 
-const divisionService = require('../../services/company/division.js')
-const { param } = require('../../routes/user.js')
+const salesProposalService = require('../../services/carbonTrading/carbonSalesProposal.js')
 
 const getList = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const result = await divisionService.getList(username, [])
+    const result = await salesProposalService.getList(username, [])
 
-    if (!result.success) {
-      res.status(200).send(result)
-    }
-
-    res.status(result.code).send(result)
+    res.status(200).send(result)
   } catch (error) {
     res
       .status(500)
@@ -25,16 +20,12 @@ const getById = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const result = await divisionService.getById(
+    const result = await salesProposalService.getById(
       username,
-      req.params.divisionId
+      req.params.salesProposalId
     )
 
-    if (!result.success) {
-      res.status(200).send(result)
-    }
-
-    res.status(result.code).send(result)
+    res.status(200).send(result)
   } catch (error) {
     res
       .status(500)
@@ -46,14 +37,10 @@ const create = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const args = [data.id, data.idPerusahaan, data.lokasi, data.idManajer]
-    const result = await divisionService.create(username, args)
+    const args = [data.id, data.idPerusahaan, data.kuotaYangDijual, data.status]
+    const result = await salesProposalService.create(username, args)
 
-    if (!result.success) {
-      res.status(200).send(result)
-    }
-
-    res.status(result.code).send(result)
+    res.status(201).send(result)
   } catch (error) {
     res
       .status(500)
@@ -65,14 +52,15 @@ const update = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const args = [req.params.divisionId, data.lokasi]
-    const result = await divisionService.update(username, args)
+    const args = [
+      req.params.salesProposalId,
+      data.idPerusahaan,
+      data.kuotaYangDijual,
+      data.status,
+    ]
+    const result = await salesProposalService.update(username, args)
 
-    if (!result.success) {
-      res.status(200).send(result)
-    }
-
-    res.status(result.code).send(result)
+    res.status(200).send(result)
   } catch (error) {
     res
       .status(500)
@@ -84,13 +72,12 @@ const remove = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const result = await divisionService.remove(username, req.params.divisionId)
+    const result = await salesProposalService.remove(
+      username,
+      req.params.salesProposalId
+    )
 
-    if (!result.success) {
-      res.status(200).send(result)
-    }
-
-    res.status(result.code).send(result)
+    res.status(200).send(result)
   } catch (error) {
     res
       .status(500)

@@ -7,10 +7,7 @@ const getList = async (req, res) => {
     const data = req.body
     const username = data.username
     const result = await companyService.getList(username, [])
-
-    if (!result.success) {
-      res.status(200).send(result)
-    }
+    res.status(200).send(result)
   } catch (error) {
     res
       .status(500)
@@ -22,14 +19,8 @@ const getById = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const companyId = data.companyId
     const result = await companyService.getById(username, req.params.companyId)
     res.status(200).send(result)
-    if (!result.success) {
-      res.status(200).send(result)
-    }
-
-    res.status(result.code).send(result)
   } catch (error) {
     res
       .status(500)
@@ -51,12 +42,7 @@ const create = async (req, res) => {
       data.urlSuratProposal,
     ]
     const result = await companyService.create(username, args)
-
-    if (!result.success) {
-      res.status(200).send(result)
-    }
-
-    res.status(result.code).send(result)
+    res.status(200).send(result)
   } catch (error) {
     res
       .status(500)
@@ -82,11 +68,7 @@ const update = async (req, res) => {
       data.sisaKuota,
     ]
     const result = await companyService.update(username, args)
-    if (!result.success) {
-      res.status(200).send(result)
-    }
-
-    res.status(result.code).send(result)
+    res.status(200).send(result)
   } catch (error) {
     res
       .status(500)
@@ -102,8 +84,6 @@ const remove = async (req, res) => {
     if (!result.success) {
       res.status(200).send(result)
     }
-
-    // res.status(result.code).send(result)
   } catch (error) {
     res
       .status(500)

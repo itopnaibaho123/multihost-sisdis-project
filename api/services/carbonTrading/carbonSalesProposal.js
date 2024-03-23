@@ -1,27 +1,24 @@
 'use strict'
-const iResp = require('../../../utils/response.interface.js')
-const fabric = require('../../../utils/fabric.js')
+const iResp = require('../../utils/response.interface.js')
+const fabric = require('../../utils/fabric.js')
 
 const getList = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'pecontract',
+    'cspcontract',
     user
   )
-  const result = await network.contract.submitTransaction('ReadAllPerusahaan')
+  const result = await network.contract.submitTransaction('ReadAllCSP')
   network.gateway.disconnect()
   return result
 }
 const getById = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'pecontract',
+    'cspcontract',
     user
   )
-  const result = await network.contract.submitTransaction(
-    'GetPerusahaanById',
-    args
-  )
+  const result = await network.contract.submitTransaction('GetCSPById', args)
   network.gateway.disconnect()
   return result
 }
@@ -29,11 +26,11 @@ const getById = async (user, args) => {
 const create = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'pecontract',
+    'cspcontract',
     user
   )
   const result = await network.contract.submitTransaction(
-    'CreatePerusahaan',
+    'CreateProposal',
     ...args
   )
   network.gateway.disconnect()
@@ -43,13 +40,10 @@ const create = async (user, args) => {
 const update = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'pecontract',
+    'cspcontract',
     user
   )
-  const result = await network.contract.submitTransaction(
-    'UpdatePerusahaan',
-    ...args
-  )
+  const result = await network.contract.submitTransaction('UpdateCSP', ...args)
   network.gateway.disconnect()
   return result
 }
@@ -57,13 +51,10 @@ const update = async (user, args) => {
 const remove = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'pecontract',
+    'cspcontract',
     user
   )
-  const result = await network.contract.submitTransaction(
-    'DeletePerusahaan',
-    args
-  )
+  const result = await network.contract.submitTransaction('DeleteCSP', args)
   network.gateway.disconnect()
   return result
 }
