@@ -23,7 +23,7 @@ type CTContract struct {
 type CarbonTransaction struct {
 	ID                  string   `json:"id"`
 	IdPerusahaanPembeli string   `json:"idPerusahaanPembeli"`
-	IdPerusahaanPenjual string   `json:"idPerusahaanPembeli"`
+	IdPerusahaanPenjual string   `json:"idPerusahaanPenjual"`
 	Kuota               int   `json:"kuota"`
 	Status              string   `json:"status"`
 	Vote                []string `json:"vote"`
@@ -32,7 +32,7 @@ type CarbonTransaction struct {
 type CarbonTransactionResult struct {
 	ID                string      `json:"id"`
 	PerusahaanPembeli *Perusahaan `json:"PerusahaanPembeli"`
-	PerusahaanPenjual *Perusahaan `json:"PerusahaanPembeli"`
+	PerusahaanPenjual *Perusahaan `json:"PerusahaanPenjual"`
 	Kuota             int      `json:"kuota"`
 	Status            string      `json:"status"`
 	Vote              []string    `json:"vote"`
