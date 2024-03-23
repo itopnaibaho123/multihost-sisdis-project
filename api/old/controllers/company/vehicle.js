@@ -7,8 +7,11 @@ const getList = async (req, res) => {
     const data = req.body
     const username = data.username
     const result = await vehicleService.getList(username, [])
+    if (!result.success) {
+      res.status(200).send(result)
+    }
 
-    res.status(200).send(result)
+    res.status(result.code).send(result)
   } catch (error) {
     res
       .status(500)
@@ -22,7 +25,11 @@ const getById = async (req, res) => {
     const username = data.username
     const result = await vehicleService.getById(username, req.params.vehicleId)
 
-    res.status(200).send(result)
+    if (!result.success) {
+      res.status(200).send(result)
+    }
+
+    res.status(result.code).send(result)
   } catch (error) {
     res
       .status(500)
@@ -43,7 +50,11 @@ const create = async (req, res) => {
     ]
     const result = await vehicleService.create(username, args)
 
-    res.status(201).send(result)
+    if (!result.success) {
+      res.status(200).send(result)
+    }
+
+    res.status(result.code).send(result)
   } catch (error) {
     res
       .status(500)
@@ -63,7 +74,11 @@ const update = async (req, res) => {
     ]
     const result = await vehicleService.update(username, args)
 
-    res.status(200).send(result)
+    if (!result.success) {
+      res.status(200).send(result)
+    }
+
+    res.status(result.code).send(result)
   } catch (error) {
     res
       .status(500)
@@ -77,7 +92,11 @@ const remove = async (req, res) => {
     const username = data.username
     const result = await vehicleService.remove(username, req.params.vehicleId)
 
-    res.status(200).send(result)
+    if (!result.success) {
+      res.status(200).send(result)
+    }
+
+    res.status(result.code).send(result)
   } catch (error) {
     res
       .status(500)

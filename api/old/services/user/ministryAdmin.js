@@ -1,12 +1,13 @@
 'use strict'
-const iResp = require('../../utils/response.interface.js')
+const iResp = require('../../../utils/response.interface.js')
+const { enrollAdmin } = require('../../../services/user.js')
 
 const getList = async () => {
   try {
     let result = {}
     return iResp.buildSuccessResponse(
       200,
-      `Successfully get all ministry staff`,
+      `Successfully get all ministry admin`,
       result
     )
   } catch (error) {
@@ -14,12 +15,12 @@ const getList = async () => {
   }
 }
 
-const getById = async (ministryStaffId) => {
+const getById = async (ministryAdminId) => {
   try {
     let result = {}
     return iResp.buildSuccessResponse(
       200,
-      `Successfully get ministry staff ${ministryStaffId}`,
+      `Successfully get ministry admin ${ministryAdminId}`,
       result
     )
   } catch (error) {
@@ -29,10 +30,14 @@ const getById = async (ministryStaffId) => {
 
 const create = async (body) => {
   try {
-    let result = {}
+    const username = body.username
+    const password = body.password
+    const orgName = body.organizationName
+
+    let result = enrollAdmin(username, password, orgName)
     return iResp.buildSuccessResponse(
       201,
-      'Successfully  create a ministry staff',
+      'Successfully create a ministry admin',
       result
     )
   } catch (error) {
@@ -40,12 +45,12 @@ const create = async (body) => {
   }
 }
 
-const update = async (ministryStaffId, body) => {
+const update = async (ministryAdminId, body) => {
   try {
     let result = {}
     return iResp.buildSuccessResponse(
       201,
-      `Successfully update ministry staff ${ministryStaffId}`,
+      `Successfully update ministry admin ${ministryAdminId}`,
       result
     )
   } catch (error) {
@@ -53,12 +58,12 @@ const update = async (ministryStaffId, body) => {
   }
 }
 
-const remove = async (ministryStaffId) => {
+const remove = async (ministryAdminId) => {
   try {
     let result = {}
     return iResp.buildSuccessResponse(
       200,
-      `Successfully delete ministry staff ${ministryStaffId}`,
+      `Successfully delete ministry admin ${ministryAdminId}`,
       result
     )
   } catch (error) {

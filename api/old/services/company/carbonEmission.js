@@ -1,6 +1,6 @@
 'use strict'
-const iResp = require('../../utils/response.interface.js')
-const fabric = require('../../utils/fabric.js')
+const iResp = require('../../../utils/response.interface.js')
+const fabric = require('../../../utils/fabric.js')
 
 const getList = async (user, args) => {
   const network = await fabric.connectToNetwork(

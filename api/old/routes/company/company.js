@@ -1,5 +1,5 @@
 const companyRouter = require('express').Router()
-const auth = require('../../middleware/auth.js')
+const auth = require('../../../middleware/auth.js')
 
 const companyController = require('../../controllers/company/company.js')
 

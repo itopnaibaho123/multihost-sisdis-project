@@ -1,12 +1,12 @@
 'use strict'
-const iResp = require('../../utils/response.interface.js')
+const iResp = require('../../../utils/response.interface.js')
 
 const getList = async () => {
   try {
     let result = {}
     return iResp.buildSuccessResponse(
       200,
-      `Successfully get all supply chain manager`,
+      `Successfully get all supply chain proposal`,
       result
     )
   } catch (error) {
@@ -14,12 +14,12 @@ const getList = async () => {
   }
 }
 
-const getById = async (scManagerId) => {
+const getById = async (scProposalId) => {
   try {
     let result = {}
     return iResp.buildSuccessResponse(
       200,
-      `Successfully get supply chain manager ${scManagerId}`,
+      `Successfully get supply chain proposal ${scProposalId}`,
       result
     )
   } catch (error) {
@@ -32,7 +32,7 @@ const create = async (body) => {
     let result = {}
     return iResp.buildSuccessResponse(
       201,
-      'Successfully  create a supply chain manager',
+      'Successfully  create a supply chain proposal',
       result
     )
   } catch (error) {
@@ -40,12 +40,12 @@ const create = async (body) => {
   }
 }
 
-const update = async (scManagerId, body) => {
+const update = async (scProposalId, body) => {
   try {
     let result = {}
     return iResp.buildSuccessResponse(
       201,
-      `Successfully update supply chain manager ${scManagerId}`,
+      `Successfully update supply chain proposal ${scProposalId}`,
       result
     )
   } catch (error) {
@@ -53,12 +53,12 @@ const update = async (scManagerId, body) => {
   }
 }
 
-const remove = async (scManagerId) => {
+const remove = async (scProposalId) => {
   try {
     let result = {}
     return iResp.buildSuccessResponse(
       200,
-      `Successfully delete supply chain manager ${scManagerId}`,
+      `Successfully delete supply chain proposal ${scProposalId}`,
       result
     )
   } catch (error) {

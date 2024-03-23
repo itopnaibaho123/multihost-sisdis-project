@@ -1,24 +1,26 @@
 'use strict'
-const iResp = require('../../utils/response.interface.js')
-const fabric = require('../../utils/fabric.js')
-
+const iResp = require('../../../utils/response.interface.js')
+const fabric = require('../../../utils/fabric.js')
 const getList = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'cspcontract',
+    'vecontract',
     user
   )
-  const result = await network.contract.submitTransaction('ReadAllCSP')
+  const result = await network.contract.submitTransaction('ReadAllVehicle')
   network.gateway.disconnect()
   return result
 }
 const getById = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'cspcontract',
+    'vecontract',
     user
   )
-  const result = await network.contract.submitTransaction('GetCSPById', args)
+  const result = await network.contract.submitTransaction(
+    'GetVehicleById',
+    args
+  )
   network.gateway.disconnect()
   return result
 }
@@ -26,11 +28,11 @@ const getById = async (user, args) => {
 const create = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'cspcontract',
+    'vecontract',
     user
   )
   const result = await network.contract.submitTransaction(
-    'CreateProposal',
+    'CreateVehicle',
     ...args
   )
   network.gateway.disconnect()
@@ -40,10 +42,13 @@ const create = async (user, args) => {
 const update = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'cspcontract',
+    'vecontract',
     user
   )
-  const result = await network.contract.submitTransaction('UpdateCSP', ...args)
+  const result = await network.contract.submitTransaction(
+    'UpdateVehicle',
+    ...args
+  )
   network.gateway.disconnect()
   return result
 }
@@ -51,10 +56,10 @@ const update = async (user, args) => {
 const remove = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'cspcontract',
+    'vecontract',
     user
   )
-  const result = await network.contract.submitTransaction('DeleteCSP', args)
+  const result = await network.contract.submitTransaction('DeleteVehicle', args)
   network.gateway.disconnect()
   return result
 }

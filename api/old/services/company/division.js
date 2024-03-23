@@ -1,27 +1,23 @@
 'use strict'
-const iResp = require('../../utils/response.interface.js')
-const fabric = require('../../utils/fabric.js')
-
+const iResp = require('../../../utils/response.interface.js')
+const fabric = require('../../../utils/fabric.js')
 const getList = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'shcontract',
+    'divcontract',
     user
   )
-  const result = await network.contract.submitTransaction('ReadAllShipment')
+  const result = await network.contract.submitTransaction('ReadAllDivisi')
   network.gateway.disconnect()
   return result
 }
 const getById = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'shcontract',
+    'divcontract',
     user
   )
-  const result = await network.contract.submitTransaction(
-    'GetShipmentById',
-    args
-  )
+  const result = await network.contract.submitTransaction('GetDivisiById', args)
   network.gateway.disconnect()
   return result
 }
@@ -29,11 +25,11 @@ const getById = async (user, args) => {
 const create = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'shcontract',
+    'divcontract',
     user
   )
   const result = await network.contract.submitTransaction(
-    'CreateShipment',
+    'CreateDivisi',
     ...args
   )
   network.gateway.disconnect()
@@ -43,11 +39,11 @@ const create = async (user, args) => {
 const update = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'shcontract',
+    'divcontract',
     user
   )
   const result = await network.contract.submitTransaction(
-    'UpdateShipment',
+    'UpdateDivisi',
     ...args
   )
   network.gateway.disconnect()
@@ -57,13 +53,10 @@ const update = async (user, args) => {
 const remove = async (user, args) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
-    'shcontract',
+    'divcontract',
     user
   )
-  const result = await network.contract.submitTransaction(
-    'DeleteShipment',
-    args
-  )
+  const result = await network.contract.submitTransaction('DeleteDivisi', args)
   network.gateway.disconnect()
   return result
 }
