@@ -46,15 +46,17 @@ type AdminSC struct {
 // ============================================================================================================================
 
 const (
-	ER11 		= "ER11-Incorrect number of arguments. Required %d arguments, but you have %d arguments."
-	ER12        = "ER12-SatuanManagemenSumberdaya with id '%s' already exists."
-	ER13        = "ER13-SatuanManagemenSumberdaya with id '%s' doesn't exist."
-	ER31        = "ER31-Failed to change to world state: %v."
-	ER32        = "ER32-Failed to read from world state: %v."
-	ER33        = "ER33-Failed to get result from iterator: %v."
-	ER34        = "ER34-Failed unmarshaling JSON: %v."
-	ER41        = "ER41-Access is not permitted with MSDPID '%s'."
-	ER42        = "ER42-Unknown MSPID: '%s'."
+	ER11 		= "ER11-Incorrect number of arguments, required %d arguments, but you have %d arguments"
+	ER12        = "ER12-User with id '%s' already exists"
+	ER13        = "ER13-User with id '%s' doesn't exist"
+	ER14		= "ER14-User with nik '%s' already exists"
+	ER15		= "ER15-User with email '%s' and password doesn't exist"
+	ER31        = "ER31-Failed to change to world state: %v"
+	ER32        = "ER32-Failed to read from world state: %v"
+	ER33        = "ER33-Failed to get result from iterator: %v"
+	ER34        = "ER34-Failed unmarshaling JSON: %v"
+	ER41        = "ER41-Access is not permitted with MSDPID '%s'"
+	ER42        = "ER42-Unknown MSPID: '%s'"
 )
 
 // ============================================================================================================================
@@ -67,8 +69,9 @@ var logger = flogging.MustGetLogger("UserContract")
 func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 11 {
-
+	if len(args) != 5 {
+		logger.Errorf(ER11, 5, len(args))
+		return fmt.Errorf(ER11, 5, len(args))
 	}
 
 	id := args[0]
@@ -100,39 +103,97 @@ func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface)
 
 	err = ctx.GetStub().PutState(id, userJSON)
 	if err != nil {
-		fmt.Errorf(err.Error())
+		return fmt.Errorf(err.Error())
 	}
 
 	return err
 }
 
-func isUserExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+func (s *UserContract) RegisterDataManagerSc(ctx contractapi.TransactionContextInterface) error {
+	args := ctx.GetStub().GetStringArgs()[1:]
 
-	user, err := ctx.GetStub().GetState(id)
+	if len(args) != 4 {
+		logger.Errorf(ER11, 4, len(args))
+		return fmt.Errorf(ER11, 4, len(args))
+	}
+
+	id := args[0]
+	idUser := args[1]
+	idPerusahaan := args[2]
+	nik := args[3]
+	
+	if isNIKExists(ctx, nik) {
+		return fmt.Errorf(ER14, nik)
+	}
+
+	manager := ManagerSC{
+		ID: 			id,
+		IdUser: 		idUser,
+		IdPerusahaan:	idPerusahaan,
+		NIK: 			nik,
+	}
+
+	managerJSON, err := json.Marshal(manager)
 	if err != nil {
-		return false, fmt.Errorf(err.Error())
+		return err
 	}
 
-	return user != nil, nil
+	err = ctx.GetStub().PutState(id, managerJSON)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	return err
 }
-func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*User, error) {
-	// logger.Infof("Run constructQueryResponseFromIterator function.")
 
-	var listUser []*User
+func (s *UserContract) RegisterDataAdminSc(ctx contractapi.TransactionContextInterface) error {
+	args := ctx.GetStub().GetStringArgs()[1:]
 
-	for resultsIterator.HasNext() {
-		queryResult, err := resultsIterator.Next()
-		if err != nil {
-		}
-
-		var user User
-		err = json.Unmarshal(queryResult.Value, &user)
-		if err != nil {
-		}
-		listUser = append(listUser, &user)
+	if len(args) != 3 {
+		logger.Errorf(ER11, 3, len(args))
+		return fmt.Errorf(ER11, 3, len(args))
 	}
 
-	return listUser, nil
+	id := args[0]
+	idUser := args[1]
+	idPerusahaan := args[2]
+
+	admin := AdminSC{
+		ID: 			id,
+		IdUser: 		idUser,
+		IdPerusahaan:	idPerusahaan,
+	}
+
+	adminJSON, err := json.Marshal(admin)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(id, adminJSON)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	return err
+}
+
+func (s *UserContract) Login(ctx contractapi.TransactionContextInterface) (*User, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	if len(args) != 2 {
+		logger.Errorf(ER11, 2, len(args))
+		return nil, fmt.Errorf(ER11, 2, len(args))
+	}
+
+	email := args[0]
+	password := args[1]
+
+	user, err := checkCredential(ctx, email, password)
+	if(err != nil) {
+		return nil, err
+	}
+
+	return user, nil;
 }
 
 // ReadAsset returns the asset stored in the world state with given id.
@@ -140,7 +201,8 @@ func (s *UserContract) ReadAllUser(ctx contractapi.TransactionContextInterface) 
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 0 {
-
+		logger.Errorf(ER11, 0, len(args))
+		return nil, fmt.Errorf(ER11, 0, len(args))
 	}
 
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
@@ -162,39 +224,13 @@ func (s *UserContract) GetUserById(ctx contractapi.TransactionContextInterface) 
 		return nil, fmt.Errorf(ER11, 1, len(args))
 	}
 	id := args[0]
-	perjalanan, err := getUserStateById(ctx, id)
+	user, err := getUserStateById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	return perjalanan, nil
+	return user, nil
 }
-
-
-// ============================================================================================================================
-// getSmsStateById - Get SMS state with given id.
-// ============================================================================================================================
-
-func getUserStateById(ctx contractapi.TransactionContextInterface, id string) (*User, error) {
-	logger.Infof("Run getSmsStateById function with id: '%s'.", id)
-
-	userJSON, err := ctx.GetStub().GetState(id)
-	if err != nil {
-		return nil, fmt.Errorf(ER32, err)
-	}
-	if userJSON == nil {
-		return nil, fmt.Errorf(ER13, id)
-	}
-
-	var user User
-	err = json.Unmarshal(userJSON, &user)
-	if err != nil {
-		return nil, fmt.Errorf(ER34, err)
-	}
-
-	return &user, nil
-}
-
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
 func (s *UserContract) UpdateUser(ctx contractapi.TransactionContextInterface) error {
@@ -202,7 +238,9 @@ func (s *UserContract) UpdateUser(ctx contractapi.TransactionContextInterface) e
 
 	logger.Infof("Run UpdateUser function with args: %+q.", args)
 
-	if len(args) != 11 {
+	if len(args) != 5 {
+		logger.Errorf(ER11, 5, len(args))
+		return fmt.Errorf(ER11, 5, len(args))
 	}
 
 	id := args[0]
@@ -242,11 +280,13 @@ func (s *UserContract) UpdateUser(ctx contractapi.TransactionContextInterface) e
 	return err
 }
 
-// DeleteAsset deletes an given asset from the world state.
-func (s *UserContract) DeleteShipment(ctx contractapi.TransactionContextInterface) error {
+// DeleteUser deletes an given asset from the world state.
+func (s *UserContract) DeleteUser(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 1 {
+		logger.Errorf(ER11, 1, len(args))
+		return fmt.Errorf(ER11, 1, len(args))
 	}
 
 	id := args[0]
@@ -256,11 +296,131 @@ func (s *UserContract) DeleteShipment(ctx contractapi.TransactionContextInterfac
 		return err
 	}
 	if !exists {
+		return fmt.Errorf(ER13, id)
 	}
 
 	err = ctx.GetStub().DelState(id)
 	if err != nil {
+		logger.Errorf(ER31, err)
 	}
 
 	return err
+}
+
+func getUserStateById(ctx contractapi.TransactionContextInterface, id string) (*User, error) {
+	logger.Infof("Run getUserStateById function with id: '%s'.", id)
+
+	userJSON, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return nil, fmt.Errorf(ER32, err)
+	}
+	if userJSON == nil {
+		return nil, fmt.Errorf(ER13, id)
+	}
+
+	var user User
+	err = json.Unmarshal(userJSON, &user)
+	if err != nil {
+		return nil, fmt.Errorf(ER34, err)
+	}
+
+	return &user, nil
+}
+
+func isUserExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+
+	user, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return false, fmt.Errorf(err.Error())
+	}
+
+	return user != nil, nil
+}
+
+func isNIKExists(ctx contractapi.TransactionContextInterface, nik string) (bool) {
+	queryString := fmt.Sprintf(`{"selector":{"nik":"%s"}}`, nik)
+
+	_, err := getQueryResultForQueryStringManager(ctx, queryString)
+	
+	return err == nil // error gaada berarti nik nya ketemu
+}
+
+func checkCredential(ctx contractapi.TransactionContextInterface, email string, password string) (*User, error) {
+	queryString := fmt.Sprintf(`{"selector":{"email":"%s","password":"%s"}}`, email, password)
+
+    user, err := getQueryResultForQueryStringUser(ctx, queryString)
+    
+    if(err != nil) {
+		return user[0], err
+	}
+
+	return nil, fmt.Errorf(ER15, email, password)
+}
+func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*User, error) {
+	logger.Infof("Run constructQueryResponseFromIterator function.")
+
+	var listUser []*User
+
+	for resultsIterator.HasNext() {
+		queryResult, err := resultsIterator.Next()
+		if err != nil {
+			return nil, fmt.Errorf(ER33, err)
+		}
+
+		var user User
+		err = json.Unmarshal(queryResult.Value, &user)
+		if err != nil {
+			return nil, fmt.Errorf(ER34, err)
+		}
+		listUser = append(listUser, &user)
+	}
+
+	return listUser, nil
+}
+
+func constructQueryResponseFromManagerIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*ManagerSC, error) {
+	logger.Infof("Run constructQueryResponseFromManagerIterator function.")
+
+	var listManager []*ManagerSC
+
+	for resultsIterator.HasNext() {
+		queryResult, err := resultsIterator.Next()
+		if err != nil {
+			return nil, fmt.Errorf(ER33, err)
+		}
+
+		var manager ManagerSC
+		err = json.Unmarshal(queryResult.Value, &manager)
+		if err != nil {
+			return nil, fmt.Errorf(ER34, err)
+		}
+		listManager = append(listManager, &manager)
+	}
+
+	return listManager, nil
+}
+
+func getQueryResultForQueryStringUser(ctx contractapi.TransactionContextInterface, queryString string) ([]*User, error) {
+	logger.Infof("Run getQueryResultForQueryStringManager function with queryString: '%s'.", queryString)
+
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, fmt.Errorf(ER32, err)
+	}
+	defer resultsIterator.Close()
+
+	return constructQueryResponseFromIterator(resultsIterator)
+}
+
+
+func getQueryResultForQueryStringManager(ctx contractapi.TransactionContextInterface, queryString string) ([]*ManagerSC, error) {
+	logger.Infof("Run getQueryResultForQueryStringManager function with queryString: '%s'.", queryString)
+
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, fmt.Errorf(ER32, err)
+	}
+	defer resultsIterator.Close()
+
+	return constructQueryResponseFromManagerIterator(resultsIterator)
 }
