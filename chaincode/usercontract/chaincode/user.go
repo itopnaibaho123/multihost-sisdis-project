@@ -50,7 +50,7 @@ const (
 	ER12        = "ER12-User with id '%s' already exists"
 	ER13        = "ER13-User with id '%s' doesn't exist"
 	ER14		= "ER14-User with nik '%s' already exists"
-	ER15		= "ER15-User with email '%s' and password doesn't exist"
+	ER15		= "ER15-User with email '%s' and password '%s' doesn't exist"
 	ER31        = "ER31-Failed to change to world state: %v"
 	ER32        = "ER32-Failed to read from world state: %v"
 	ER33        = "ER33-Failed to get result from iterator: %v"
@@ -411,7 +411,6 @@ func getQueryResultForQueryStringUser(ctx contractapi.TransactionContextInterfac
 
 	return constructQueryResponseFromIterator(resultsIterator)
 }
-
 
 func getQueryResultForQueryStringManager(ctx contractapi.TransactionContextInterface, queryString string) ([]*ManagerSC, error) {
 	logger.Infof("Run getQueryResultForQueryStringManager function with queryString: '%s'.", queryString)
