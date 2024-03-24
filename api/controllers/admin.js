@@ -1,4 +1,4 @@
-const userService = require('../services/user.js')
+const userService = require('../services/admin.js')
 
 const registerUser = async (req, res) => {
   try {
