@@ -1,9 +1,9 @@
-const userRouter = require('express').Router()
-const userController = require('../controllers/admin.js')
+const adminRouter = require('express').Router()
+const adminController = require('../controllers/admin.js')
 
-userRouter.post('/register', userController.registerUser)
-userRouter.post('/enroll', userController.enrollAdmin)
-userRouter.post('/login', userController.loginUser)
-userRouter.post('/update', userController.updateUser)
+adminRouter.post('/register', adminController.registerUser)
+adminRouter.post('/enroll', adminController.enrollAdmin)
+adminRouter.post('/login', adminController.loginUser)
+adminRouter.post('/update', adminController.updateUser)
 
-module.exports = userRouter
+module.exports = adminRouter
