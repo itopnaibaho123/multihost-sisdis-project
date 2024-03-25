@@ -8,9 +8,11 @@ const crypto = require('crypto')
 const bcrypt = require('bcrypt')
 const path = require('path')
 const fs = require('fs')
+const { v4: uuidv4 } = require('uuid')
 
 const registerUser = async (
-  userId,
+  username,
+  email,
   organizationName,
   userType,
   dataUser = {}
@@ -27,10 +29,10 @@ const registerUser = async (
   const wallet = await fabric.getWallet(organizationName)
 
   // Check to see if we've already enrolled the user.
-  const userIdentity = await wallet.get(userId)
+  const userIdentity = await wallet.get(username)
   if (userIdentity) {
     throw new Error(
-      `An identity for the user ${userId} already exists in the wallet`
+      `An identity for the user ${username} already exists in the wallet`
     )
   }
 
@@ -52,7 +54,7 @@ const registerUser = async (
   const secret = await ca.register(
     {
       affiliation: `${organizationName.toLowerCase()}.department1`,
-      enrollmentID: userId,
+      enrollmentID: username,
       role: 'client',
       attrs: [
         { name: 'userType', value: userType, ecert: true },
@@ -64,7 +66,7 @@ const registerUser = async (
   )
 
   const enrollment = await ca.enroll({
-    enrollmentID: userId,
+    enrollmentID: username,
     enrollmentSecret: secret,
     attr_reqs: [
       { name: 'userType', optional: false },
@@ -80,21 +82,44 @@ const registerUser = async (
     mspId: `${organizationName}MSP`,
     type: 'X.509',
   }
-  await wallet.put(userId, x509Identity)
+  await wallet.put(username, x509Identity)
 
   console.log(password)
 
   fs.writeFile(
     path.join(process.cwd(), 'wallet', 'user.txt'),
-    `${userId}~${userType}~${password}\n`,
+    `${username}~${userType}~${password}\n`,
     { flag: 'a+' },
     (err) => {}
   )
-  await sendEmail(userId, password)
+  await sendEmail(email, password)
+  console.log(organizationName)
+  const network = await fabric.connectToNetwork(
+    organizationName,
+    'usercontract',
+    username
+  )
+
+  const userId = uuidv4()
+
+  await network.contract.submitTransaction(
+    'RegisterUser',
+    ...[userId, username, email]
+  )
+  network.gateway.disconnect()
+
+  const payload = {
+    id: userId,
+    name: username,
+    email: email,
+    userType: userType,
+    dataUser: dataUser,
+  }
+  const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
 
   const response = {
     success: true,
-    password: password,
+    token: token,
     message: 'Successfully registered user and imported it into the wallet',
   }
   return response

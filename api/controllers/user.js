@@ -3,11 +3,12 @@ const userService = require('../services/user.js')
 const registerUser = async (req, res) => {
   try {
     const data = req.body
-    const username = data.username
+    const name = data.name
+    const email = data.email
     const orgName = data.organizationName
     const role = data.role
 
-    const result = await userService.registerUser(username, orgName, role)
+    const result = await userService.registerUser(name, email, orgName, role)
 
     if (!result.error) {
       res.status(200).send(result)
