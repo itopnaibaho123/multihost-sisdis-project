@@ -7,7 +7,7 @@ const companyRouter = require('./company.js')
 const salesProposalRouter = require('./carbonTrading/carbonSalesProposal.js')
 const transactionRouter = require('./carbonTrading/carbonTransaction.js')
 
-router.use('/admin', userRouter)
+router.use('/auth', userRouter)
 router.use('/example', exampleRouter)
 
 router.use('/company', companyRouter)

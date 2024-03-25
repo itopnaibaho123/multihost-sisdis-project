@@ -23,14 +23,14 @@ const registerUser = async (req, res) => {
   }
 }
 
-const enrolluser = async (req, res) => {
+const enrollAdmin = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
     const password = data.password
     const orgName = data.organizationName
 
-    const result = await userService.enrolluser(username, password, orgName)
+    const result = await userService.enrollAdmin(username, password, orgName)
     res.status(200).send(result)
   } catch (error) {
     const response = {
@@ -84,4 +84,4 @@ const updateUser = async (req, res) => {
   }
 }
 
-module.exports = { enrolluser, registerUser, loginUser, updateUser }
+module.exports = { enrollAdmin, registerUser, loginUser, updateUser }
