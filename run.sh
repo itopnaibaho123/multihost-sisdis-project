@@ -19,3 +19,4 @@ CC_FOLDER="atcontract"
 ./network.sh deployCC -ccn pecontract -ccp ../chaincode/pecontract -ccl go
 ./network.sh deployCC -ccn shcontract -ccp ../chaincode/shcontract -ccl go
 ./network.sh deployCC -ccn vecontract -ccp ../chaincode/vecontract -ccl go
+./network.sh deployCC -ccn usercontract -ccp ../chaincode/usercontract -ccl go
