@@ -24,7 +24,7 @@ const enrollAdmin = async (adminId, adminSecret, organizationName) => {
   const ca = new FabricCAServices(
     caInfo.url,
     { trustedRoots: caTLSCACerts, verify: false },
-    caInfo.caName
+    caInfo.causername
   )
 
   const wallet = await fabric.getWallet(organizationName)
@@ -61,7 +61,7 @@ const enrollAdmin = async (adminId, adminSecret, organizationName) => {
 }
 
 const registerAdminKementrian = async (
-  name,
+  username,
   email,
   organizationName,
   userType
@@ -71,17 +71,17 @@ const registerAdminKementrian = async (
   }
 
   if (userType.toLowerCase() !== 'admin-kementerian') {
-    return iResp.buildErrorResponse(400, 'Invalid user type')
+    return iResp.buildErrorResponse(400, 'Invalid role')
   }
 
-  await createUser(name, email, organizationName, userType)
+  await createUser(username, email, organizationName, userType)
 
   const userId = uuidv4()
-  invokeRegisterUserCc(userId, name, organizationName, email)
+  invokeRegisterUserCc(userId, username, organizationName, email)
 
   const payload = {
     id: userId,
-    name: name,
+    username: username,
     email: email,
     userType: userType,
   }
@@ -97,7 +97,7 @@ const registerAdminKementrian = async (
 
 const registerUser = async (
   permitUser,
-  name,
+  username,
   email,
   organizationName,
   userType
@@ -130,24 +130,24 @@ const registerUser = async (
     organizationName.toLowerCase() === 'supplychain' &&
     userType.toLowerCase() === 'staf-kementerian'
   ) {
-    return iResp.buildErrorResponse(400, 'Invalid user type')
+    return iResp.buildErrorResponse(400, 'Invalid organization')
   }
 
   if (
-    organizationName.toLowerCase() === 'kementerian' &&
+    organizationName.toLowerCase() === 'kementrian' &&
     userType.toLowerCase() !== 'staf-kementerian'
   ) {
-    return iResp.buildErrorResponse(400, 'Invalid user type')
+    return iResp.buildErrorResponse(400, 'Invalid organization')
   }
 
-  await createUser(name, email, organizationName, userType)
+  await createUser(username, email, organizationName, userType)
 
   const userId = uuidv4()
-  invokeRegisterUserCc(userId, name, organizationName, email)
+  invokeRegisterUserCc(userId, username, organizationName, email)
 
   const payload = {
     id: userId,
-    name: name,
+    username: username,
     email: email,
     userType: userType,
   }
@@ -161,49 +161,43 @@ const registerUser = async (
   )
 }
 
-const loginUser = async (email, password) => {
-  // tembak ke chaincode login
-
-  // dapetin usernamenya dari chaincode
-
-  const response = {}
+const loginUser = async (username, password) => {
   // Check to see if we've already registered and enrolled the user in wallet Kementrian or SupplyChain
   const walletKementrian = await fabric.getWallet('kementrian')
   const walletSupplyChain = await fabric.getWallet('supplychain')
 
-  const user1 = await walletKementrian.get(name)
-  const user2 = await walletSupplyChain.get(name)
+  const user1 = await walletKementrian.get(username)
+  const user2 = await walletSupplyChain.get(username)
   let organizationName = ''
   if (user1) {
     organizationName = 'kementrian'
   } else if (user2) {
     organizationName = 'supplychain'
   } else {
-    throw new Error(`User ${name} is not registered yet`)
+    throw new Error(`User ${username} is not registered yet`)
   }
 
   // Get user attr
-  const userAttrs = await fabric.getUserAttrs(name, organizationName)
+  const userAttrs = await fabric.getUserAttrs(username, organizationName)
+  console.log(userAttrs)
   const userPassword = userAttrs.find((e) => e.name == 'password').value
   const userType = userAttrs.find((e) => e.name == 'userType').value
 
   // Compare input password with password in CA
   if (await bcrypt.compare(password, userPassword)) {
     const payload = {
-      name: name,
+      username: username,
       userType: userType,
-      dataUser: dataUser,
     }
     const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
 
-    response.success = true
-    response.message = 'Successfully Login'
-    response.user = payload
-    response.token = token
+    // kurang id sama email, nanti tarik dulu dari cc
+    payload.token = token
   } else {
-    throw new Error('Password Not Correct')
+    throw new Error('Invalid credentials')
   }
-  return response
+
+  return iResp.buildSuccessResponse(200, `Successfully Login`, payload)
 }
 
 const updateUser = async (
@@ -266,7 +260,7 @@ module.exports = {
   updateUser,
 }
 
-const createUser = async (name, email, organizationName, userType) => {
+const createUser = async (username, email, organizationName, userType) => {
   const ccp = await fabric.getCcp(organizationName)
 
   // Create a new CA client for interacting with the CA.
@@ -277,14 +271,6 @@ const createUser = async (name, email, organizationName, userType) => {
   const ca = new FabricCAServices(caURL)
 
   const wallet = await fabric.getWallet(organizationName)
-
-  // Check to see if we've already enrolled the user.
-  const userIdentity = await wallet.get(name)
-  if (userIdentity) {
-    throw new Error(
-      `An identity for the user ${name} already exists in the wallet`
-    )
-  }
 
   // Check to see if we've already enrolled the admin user.
   const adminIdentity = await wallet.get('admin')
@@ -304,7 +290,7 @@ const createUser = async (name, email, organizationName, userType) => {
   const secret = await ca.register(
     {
       affiliation: `${organizationName.toLowerCase()}.department1`,
-      enrollmentID: name,
+      enrollmentID: username,
       role: 'client',
       attrs: [
         { name: 'userType', value: userType, ecert: true },
@@ -315,7 +301,7 @@ const createUser = async (name, email, organizationName, userType) => {
   )
 
   const enrollment = await ca.enroll({
-    enrollmentID: name,
+    enrollmentID: username,
     enrollmentSecret: secret,
     attr_reqs: [
       { name: 'userType', optional: false },
@@ -331,11 +317,11 @@ const createUser = async (name, email, organizationName, userType) => {
     mspId: `${organizationName}MSP`,
     type: 'X.509',
   }
-  await wallet.put(name, x509Identity)
+  await wallet.put(username, x509Identity)
 
   fs.writeFile(
     path.join(process.cwd(), 'wallet', 'user.txt'),
-    `${name}~${userType}~${password}\n`,
+    `${username}~${userType}~${password}\n`,
     { flag: 'a+' },
     (err) => {}
   )
@@ -343,16 +329,21 @@ const createUser = async (name, email, organizationName, userType) => {
   await sendEmail(email, password)
 }
 
-const invokeRegisterUserCc = async (userId, name, organizationName, email) => {
+const invokeRegisterUserCc = async (
+  userId,
+  username,
+  organizationName,
+  email
+) => {
   const network = await fabric.connectToNetwork(
     organizationName,
     'usercontract',
-    name
+    username
   )
 
   await network.contract.submitTransaction(
     'RegisterUser',
-    ...[userId, name, email]
+    ...[userId, username, email]
   )
   network.gateway.disconnect()
 

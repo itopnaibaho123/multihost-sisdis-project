@@ -19,36 +19,43 @@ const enrollAdmin = async (req, res) => {
 }
 
 const registerAdminKementrian = async (req, res) => {
-  // try {
-  const data = req.body
-  const name = data.name
-  const email = data.email
-  const orgName = data.organizationName
-  const role = data.role
+  try {
+    const data = req.body
+    const username = data.username
+    const email = data.email
+    const orgName = data.organizationName
+    const role = data.role
 
-  const result = await userService.registerAdminKementrian(
-    name,
-    email,
-    orgName,
-    role
-  )
-  res.status(result.code).send(result)
-  // } catch (error) {
-  //   res
-  //     .status(500)
-  //     .send(iResp.buildErrorResponse(500, 'Something wrong', error))
-  // }
+    const result = await userService.registerAdminKementrian(
+      username,
+      email,
+      orgName,
+      role
+    )
+    res.status(result.code).send(result)
+  } catch (error) {
+    res
+      .status(500)
+      .send(iResp.buildErrorResponse(500, 'Something wrong', error))
+  }
 }
 
 const registerUser = async (req, res) => {
   try {
     const data = req.body
-    const name = data.name
+    const username = data.username
     const email = data.email
     const orgName = data.organizationName
     const role = data.role
 
-    return await userService.registerUser(req.user, name, email, orgName, role)
+    const result = await userService.registerUser(
+      req.user,
+      username,
+      email,
+      orgName,
+      role
+    )
+    res.status(result.code).send(result)
   } catch (error) {
     res
       .status(500)
@@ -57,18 +64,18 @@ const registerUser = async (req, res) => {
 }
 
 const loginUser = async (req, res) => {
-  try {
-    const data = req.body
-    const username = data.username
-    const password = data.password
+  // try {
+  const data = req.body
+  const username = data.username
+  const password = data.password
 
-    const result = await userService.loginUser(username, password)
-    res.status(200).send(result)
-  } catch (error) {
-    res
-      .status(500)
-      .send(iResp.buildErrorResponse(500, 'Something wrong', error))
-  }
+  const result = await userService.loginUser(username, password)
+  res.status(result.code).send(result)
+  // } catch (error) {
+  //   res
+  //     .status(500)
+  //     .send(iResp.buildErrorResponse(500, 'Something wrong', error))
+  // }
 }
 
 const updateUser = async (req, res) => {
