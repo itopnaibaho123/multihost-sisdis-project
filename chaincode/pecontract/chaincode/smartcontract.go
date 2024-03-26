@@ -89,7 +89,7 @@ type Perusahaan struct {
 }
 
 // CreateAsset issues a new asset to the world state with given details.
-func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterface) error {
+func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterface) (*PerusahaanResult, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 7 {
@@ -114,10 +114,10 @@ func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterfac
 
 	exists, err := isPeExists(ctx, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if exists {
-		return fmt.Errorf(id)
+		return nil, fmt.Errorf(id)
 	}
 
 	pe := Perusahaan{
@@ -140,15 +140,21 @@ func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterfac
 
 	peJSON, err := json.Marshal(pe)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = ctx.GetStub().PutState(id, peJSON)
 	if err != nil {
-		fmt.Errorf(err.Error())
+		return nil, err
 	}
 
-	return err
+	perusahaan, _ := getPerusahaanStateById(ctx, id)
+	perusahaanResult, err := getCompleteDataPerusahaan(ctx, perusahaan)
+	if err != nil {
+		return nil, err
+	}
+
+	return perusahaanResult, nil
 }
 
 func isPeExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
