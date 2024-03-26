@@ -183,11 +183,26 @@ const loginUser = async (username, password) => {
   const userPassword = userAttrs.find((e) => e.name == 'password').value
   const userType = userAttrs.find((e) => e.name == 'userType').value
 
+  const network = await fabric.connectToNetwork(
+    organizationName,
+    'usercontract',
+    username
+  )
+
+  const result = await network.contract.evaluateTransaction(
+    'GetUserByUsername',
+    ...[username]
+  )
+
+  console.log(result)
+  network.gateway.disconnect()
+
   // Compare input password with password in CA
   if (await bcrypt.compare(password, userPassword)) {
     const payload = {
       username: username,
       userType: userType,
+      result: JSON.parse(result),
     }
     const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
 
