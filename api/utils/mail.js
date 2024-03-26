@@ -3,17 +3,19 @@ const nodemailer = require('nodemailer')
 const sendEmail = async (email, password) => {
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // Use `true` for port 465, `false` for all other ports
       auth: {
-        user: 'carbonsupplychain@gmail.com',
-        pass: 'carbonchain123',
+        user: 'tacarbonfootprint@gmail.com',
+        pass: 'qdattouaznipndjn',
       },
     })
 
     const text = `Berikut ini adalah akun untuk website Carbon Supply Chain\n email: ${email}\n Password: ${password}`
     const mailOptions = {
-      from: 'carbonsupplychain@gmail.com',
-      to: 'ssteven075@gmail.com',
+      from: 'tacarbonfootprint@gmail.com',
+      to: email,
       subject: 'Password Akun Carbon Supply Chain',
       text: text,
     }
