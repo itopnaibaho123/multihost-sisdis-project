@@ -171,24 +171,6 @@ func (s *UserContract) RegisterDataAdminSc(ctx contractapi.TransactionContextInt
 	return err
 }
 
-func (s *UserContract) Login(ctx contractapi.TransactionContextInterface) (*User, error) {
-	args := ctx.GetStub().GetStringArgs()[1:]
-
-    if len(args) != 2 {
-        logger.Errorf(ER11, 2, len(args))
-        return nil, fmt.Errorf(ER11, 2, len(args))
-    }
-
-    email := args[0]
-
-    user, err := isEmailExists(ctx, email)
-    if err != nil {
-        return nil, err
-    }
-
-    return user, nil
-}
-
 // ReadAsset returns the asset stored in the world state with given id.
 func (s *UserContract) ReadAllUser(ctx contractapi.TransactionContextInterface) ([]*User, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
@@ -326,18 +308,6 @@ func isUserExists(ctx contractapi.TransactionContextInterface, id string) (bool,
 	return user != nil, nil
 }
 
-func isEmailExists(ctx contractapi.TransactionContextInterface, email string) (*User, error) {
-	queryString := fmt.Sprintf(`{"selector":{"email":"%s"}}`, email)
-
-    user, err := getQueryResultForQueryStringUser(ctx, queryString)
-    
-    if(err != nil) {
-		return user[0], err
-	}
-
-	return nil, fmt.Errorf(ER15, email)
-}
-
 func isNIKExists(ctx contractapi.TransactionContextInterface, nik string) (bool) {
 	queryString := fmt.Sprintf(`{"selector":{"nik":"%s"}}`, nik)
 
@@ -388,18 +358,6 @@ func constructQueryResponseFromManagerIterator(resultsIterator shim.StateQueryIt
 	}
 
 	return listManager, nil
-}
-
-func getQueryResultForQueryStringUser(ctx contractapi.TransactionContextInterface, queryString string) ([]*User, error) {
-	logger.Infof("Run getQueryResultForQueryStringManager function with queryString: '%s'.", queryString)
-
-	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
-	if err != nil {
-		return nil, fmt.Errorf(ER32, err)
-	}
-	defer resultsIterator.Close()
-
-	return constructQueryResponseFromUserIterator(resultsIterator)
 }
 
 func getQueryResultForQueryStringManager(ctx contractapi.TransactionContextInterface, queryString string) ([]*ManagerSC, error) {
