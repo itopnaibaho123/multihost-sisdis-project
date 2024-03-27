@@ -3,35 +3,43 @@ const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric.js')
 
 const getList = async (user, args) => {
-  const network = await fabric.connectToNetwork(
-    'supplychain',
-    'pecontract',
-    user
-  )
-  const result = await network.contract.submitTransaction('ReadAllPerusahaan')
-  network.gateway.disconnect()
-  return iResp.buildSuccessResponse(
-    200,
-    'Successfully get all company',
-    JSON.parse(result)
-  )
+  try {
+    const network = await fabric.connectToNetwork(
+      'supplychain',
+      'pecontract',
+      user
+    )
+    const result = await network.contract.submitTransaction('ReadAllPerusahaan')
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      'Successfully get all company',
+      JSON.parse(result)
+    )
+  } catch (err) {
+    return iResp.buildErrorResponse(500, 'Something wrong', err.message)
+  }
 }
 const getById = async (user, id) => {
-  const network = await fabric.connectToNetwork(
-    'supplychain',
-    'pecontract',
-    user
-  )
-  const result = await network.contract.submitTransaction(
-    'GetPerusahaanById',
-    id
-  )
-  network.gateway.disconnect()
-  return iResp.buildSuccessResponse(
-    200,
-    `Successfully get company ${id}`,
-    JSON.parse(result)
-  )
+  try {
+    const network = await fabric.connectToNetwork(
+      'supplychain',
+      'pecontract',
+      user
+    )
+    const result = await network.contract.submitTransaction(
+      'GetPerusahaanById',
+      id
+    )
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get company ${id}`,
+      JSON.parse(result)
+    )
+  } catch (err) {
+    return iResp.buildErrorResponse(500, 'Something wrong', err.message)
+  }
 }
 
 const create = async (user, args) => {
@@ -67,39 +75,44 @@ const create = async (user, args) => {
       )
     }
   } catch (err) {
-    return iResp.buildErrorResponse(400, 'Something wrong', err.message)
+    return iResp.buildErrorResponse(500, 'Something wrong', err.message)
   }
 }
 
 const update = async (user, args) => {
-  const network = await fabric.connectToNetwork(
-    'supplychain',
-    'pecontract',
-    user
-  )
-  const result = await network.contract.submitTransaction(
-    'UpdatePerusahaan',
-    ...args
-  )
-  network.gateway.disconnect()
-  return iResp.buildSuccessResponseWithoutData(
-    200,
-    'Successfully update a company'
-  )
+  try {
+    const network = await fabric.connectToNetwork(
+      'supplychain',
+      'pecontract',
+      user
+    )
+    await network.contract.submitTransaction('UpdatePerusahaan', ...args)
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponseWithoutData(
+      200,
+      'Successfully update a company'
+    )
+  } catch (err) {
+    return iResp.buildErrorResponse(500, 'Something wrong', err.message)
+  }
 }
 
 const remove = async (user, id) => {
-  const network = await fabric.connectToNetwork(
-    'supplychain',
-    'pecontract',
-    user
-  )
-  await network.contract.submitTransaction('DeletePerusahaan', id)
-  network.gateway.disconnect()
-  return iResp.buildSuccessResponseWithoutData(
-    200,
-    'Successfully delete a company'
-  )
+  try {
+    const network = await fabric.connectToNetwork(
+      'supplychain',
+      'pecontract',
+      user
+    )
+    await network.contract.submitTransaction('DeletePerusahaan', id)
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponseWithoutData(
+      200,
+      'Successfully delete a company'
+    )
+  } catch (err) {
+    return iResp.buildErrorResponse(500, 'Something wrong', err.message)
+  }
 }
 
 module.exports = { getList, getById, create, update, remove }
