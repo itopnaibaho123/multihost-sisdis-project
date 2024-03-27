@@ -6,7 +6,7 @@ const companyService = require('../../services/company/company.js')
 const getList = async (req, res) => {
   try {
     const result = await companyService.getList(req.user.username, [])
-    res.status(200).send(result)
+    res.status(200).send(JSON.parse(result))
   } catch (error) {
     res
       .status(500)
@@ -20,7 +20,7 @@ const getById = async (req, res) => {
       req.user.username,
       req.params.companyId
     )
-    res.status(200).send(result)
+    res.status(200).send(JSON.parse(result))
   } catch (error) {
     res
       .status(500)
@@ -29,25 +29,20 @@ const getById = async (req, res) => {
 }
 
 const create = async (req, res) => {
-  try {
-    const data = req.body
-    const id = uuidv4()
-    const args = [
-      id,
-      data.nomorTelepon,
-      data.email,
-      data.nama,
-      data.lokasi,
-      data.deskripsi,
-      data.urlSuratProposal,
-    ]
-    const result = await companyService.create(req.user.username, args)
-    res.status(200).send(result)
-  } catch (error) {
-    res
-      .status(500)
-      .send(iResp.buildErrorResponse(500, 'Something wrong', error))
-  }
+  const data = req.body
+  const id = uuidv4()
+  const args = [
+    id,
+    data.nomorTelepon,
+    data.email,
+    data.nama,
+    data.lokasi,
+    data.deskripsi,
+    data.urlSuratProposal,
+  ]
+  const result = await companyService.create(req.user, args)
+
+  res.status(result.code).send(result)
 }
 
 const update = async (req, res) => {
