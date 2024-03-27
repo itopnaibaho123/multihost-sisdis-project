@@ -10,9 +10,13 @@ const getList = async (user, args) => {
   )
   const result = await network.contract.submitTransaction('ReadAllPerusahaan')
   network.gateway.disconnect()
-  return result
+  return iResp.buildSuccessResponse(
+    200,
+    'Successfully get all company',
+    JSON.parse(result)
+  )
 }
-const getById = async (user, args) => {
+const getById = async (user, id) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
     'pecontract',
@@ -20,10 +24,14 @@ const getById = async (user, args) => {
   )
   const result = await network.contract.submitTransaction(
     'GetPerusahaanById',
-    args
+    id
   )
   network.gateway.disconnect()
-  return result
+  return iResp.buildSuccessResponse(
+    200,
+    `Successfully get company ${id}`,
+    JSON.parse(result)
+  )
 }
 
 const create = async (user, args) => {
@@ -59,7 +67,7 @@ const create = async (user, args) => {
       )
     }
   } catch (err) {
-    return iResp.buildErrorResponse(400, 'Something went wrong', err.message)
+    return iResp.buildErrorResponse(400, 'Something wrong', err.message)
   }
 }
 
@@ -74,21 +82,24 @@ const update = async (user, args) => {
     ...args
   )
   network.gateway.disconnect()
-  return result
+  return iResp.buildSuccessResponseWithoutData(
+    200,
+    'Successfully update a company'
+  )
 }
 
-const remove = async (user, args) => {
+const remove = async (user, id) => {
   const network = await fabric.connectToNetwork(
     'supplychain',
     'pecontract',
     user
   )
-  const result = await network.contract.submitTransaction(
-    'DeletePerusahaan',
-    args
-  )
+  await network.contract.submitTransaction('DeletePerusahaan', id)
   network.gateway.disconnect()
-  return result
+  return iResp.buildSuccessResponseWithoutData(
+    200,
+    'Successfully delete a company'
+  )
 }
 
 module.exports = { getList, getById, create, update, remove }
