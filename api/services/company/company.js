@@ -16,8 +16,8 @@ const getList = async (user, args) => {
       'Successfully get all company',
       JSON.parse(result)
     )
-  } catch (err) {
-    return iResp.buildErrorResponse(500, 'Something wrong', err.message)
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
 const getById = async (user, id) => {
@@ -37,8 +37,8 @@ const getById = async (user, id) => {
       `Successfully get company ${id}`,
       JSON.parse(result)
     )
-  } catch (err) {
-    return iResp.buildErrorResponse(500, 'Something wrong', err.message)
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
 
@@ -74,8 +74,8 @@ const create = async (user, args) => {
         null
       )
     }
-  } catch (err) {
-    return iResp.buildErrorResponse(500, 'Something wrong', err.message)
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
 
@@ -92,8 +92,8 @@ const update = async (user, args) => {
       200,
       'Successfully update a company'
     )
-  } catch (err) {
-    return iResp.buildErrorResponse(500, 'Something wrong', err.message)
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
 
@@ -110,8 +110,8 @@ const remove = async (user, id) => {
       200,
       'Successfully delete a company'
     )
-  } catch (err) {
-    return iResp.buildErrorResponse(500, 'Something wrong', err.message)
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
 
