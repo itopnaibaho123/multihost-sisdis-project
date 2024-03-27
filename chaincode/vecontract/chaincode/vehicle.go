@@ -41,6 +41,8 @@ type Vehicle struct {
 	FuelType string `json:"fuelType"`
 	KmUsage  string `json:"kmUsage"`
 }
+// Create Vehicle
+// 1. Manajer Create Vehicle
 
 // CreateAsset issues a new asset to the world state with given details.
 func (s *VEContract) CreateVehicle(ctx contractapi.TransactionContextInterface) error {

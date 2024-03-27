@@ -20,21 +20,29 @@ type PEContract struct {
 
 // var logger = flogging.MustGetLogger("PEContract")
 
-type ProposalSupplyChain struct {
-	ID            string   `json:"id"`
-	IdPerusahaan  string   `json:"idPerusahaan"`
-	Status        int      `json:"status"`
-	IdSupplyChain string   `json:"idSupplyChain"`
-	Vote          []string `json:"vote"`
-}
+
 
 type SupplyChain struct {
-	ID             string   `json:"id"`
-	ListPerusahaan []string `json:"listPerusahaan"`
-	Status         int      `json:"status"`
-	IdProposal     string   `json:"idProposal"`
+	ID             			string   `json:"id"`
+	ListPerusahaan 			[]string `json:"listPerusahaan"`
+	Status         			int      `json:"status"`
+	ProposalSupplyChain 	[]ProposalSupplyChain `json: "proposalSupplyChain"`
 }
 
+type ProposalSupplyChain struct{
+	IdPerusahaan string `json:"id"`
+	Status 		string `json:"status"`
+	IdSupplyChain string `supplyChain`
+}
+// Pembuatan Supply Chain
+// 1. Admin perusahaan request ke admin Kementrian (admin perusahaan membuat object supplychain)
+// 2. status SupplyChain Pending
+// 3. Admin kementerian Review, kalo setuju approved kalo ga setuju reject
+// 4. Kalo Setuju ngebuat semua proposal supply chain dengan yang isinya list perusahaan
+// 5. Admin Kementerian membuat object proposalSupplyChain untuk semua perusahaan yang ada di ListPerusahaaanm, sehingga proposal menjadi pending status
+// 6. Admin Perusahaan approved, mereject, 
+// 7. Supply Chain berjalan jikalau looping dari proposalSUpplychain Approved semua
+// 8. Kalo ternyata salah satu dicancel status dari SupplyChain jadi Reject
 type EmisiKarbon struct {
 	ID           string `json:"id"`
 	IdPerusahaan string `json:"idPerusahaan"`
@@ -69,6 +77,15 @@ type PerusahaanResult struct {
 	Kuota               int                    `json:"kuota"`
 	SisaKuota           int                    `json:"sisaKuota"`
 }
+// ganti manajer menjadi admin perusahaan
+// tambahin list Divisi
+
+// Create Perusahaan
+// 1. Calon Admin Perusahaan Mengisi Form detail perusahaan dan email perusahaan (email admin)
+// 2. Akan masuk ke dashboard staf kementerian,
+// 3. Kalo di Approve, Hit API regiter admin Perusahaan dan hit api create perusahaan
+
+// * Initial Pembuatan perusahaan, lansung membuat OBject EmisiKarbon Hit Create EMission Carbon API
 
 type Perusahaan struct {
 	ID                  string   `json:"id"`

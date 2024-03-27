@@ -20,15 +20,29 @@ type CTContract struct {
 
 // var logger = flogging.MustGetLogger("PEContract")
 
+
+// Proses Trading
+// 1. Admin Perusahaan Isi Form Membuat CarbonSalesProposal Trading (Hit CC Create Carbon Sales Proposal)
+// 2. Admin perusahaan lain mau membuat transaction dengan CarbonSalesProposal (Carbon Transaction Baru)
+// 3. (Check) jumlah Kuota di Carbon Transaction  < Kuota di perusahaan (BOleh lanjut)
+// 4. Kurangin jumlah carbon yang di CarbonSalesProposal dengan yang di Carbon Transaction
+// 5. Kuota yang dibeli tidak boleh melebihi kuota di carbon sales proposal
+// 6. Gagal Ditolak oleh Penjual
+// 7. Berhasil diterima penjual
+// 8. Pending belum digubris penjual
+// 9. if URLBuktiTransaksi Null tidak bisa diapprove sama penjual
+
 type CarbonTransaction struct {
 	ID                  string   `json:"id"`
 	IdPerusahaanPembeli string   `json:"idPerusahaanPembeli"`
 	IdPerusahaanPenjual string   `json:"idPerusahaanPenjual"`
-	Kuota               int   `json:"kuota"`
+	Kuota               int   		`json:"kuota"`
 	Status              string   `json:"status"`
 	Vote                []string `json:"vote"`
 	URLBuktiTransaksi   string   `json:"urlBuktiTransaksi"`
 }
+// * Hapus Vote
+// * Ganti IdPerusahaanPenjual dengan CarbonSalesProposal
 type CarbonTransactionResult struct {
 	ID                string      `json:"id"`
 	PerusahaanPembeli *Perusahaan `json:"PerusahaanPembeli"`

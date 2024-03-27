@@ -25,13 +25,15 @@ type Divisi struct {
 	Lokasi       string `json:"lokasi"`
 	IdManajer    string `json:"manajer"`
 }
-
+// Menambahkan list of Vehicle
 type DivisiResult struct {
 	ID           string `json:"id"`
 	Perusahaan 	*Perusahaan `json:"perusahaan"`
 	Lokasi       string `json:"lokasi"`
 	IdManajer    *Manajer `json:"manajer"`
 }
+// Create Divisi
+// 1. Admin Perusahaan membuat form pembuatan divisi 
 
 type Manajer struct {
 	ID             string   `json:"id"`

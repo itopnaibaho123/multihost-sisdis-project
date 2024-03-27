@@ -24,23 +24,40 @@ type Perjalanan struct {
 	WaktuBerangkat   string   `json:"waktuBerangkat"`
 	WaktuSampai      string   `json:"waktuSampai"`
 	IdTransportasi   string   `json:"idTransportasi"`
-	BeratMuatan      int   `json:"beratMuatan"`
-	EmisiKarbon      int   `json:"emisiKarbon"`
+	BeratMuatan      int      `json:"beratMuatan"`
+	EmisiKarbon      int      `json:"emisiKarbon"`
 }
 
 type PerjalananResult struct {
-	ID             string          `json:"id"`
-	IdSupplyChain  string          `json:"idSupplyChain"`
-	DivisiPengirim *Divisi         `json:"divisiPengirim"`
-	DivisiPenerima *Divisi         `json:"divisiPenerima"`
-	Vote           []string        `json:"vote"`
-	Status         string          `json:"status"`
-	WaktuBerangkat string          `json:"waktuBerangkat"`
-	WaktuSampai    string          `json:"waktuSampai"`
-	Transportasi   *Vehicle        `json:"transportasi"`
-	BeratMuatan    int        	   `json:"beratMuatan"`
-	EmisiKarbon    int             `json:"emisiKarbonStr"`
+	ID             string   `json:"id"`
+	IdSupplyChain  string   `json:"idSupplyChain"`
+	DivisiPengirim *Divisi  `json:"divisiPengirim"`
+	DivisiPenerima *Divisi  `json:"divisiPenerima"`
+	Vote           []string `json:"vote"`
+	Status         string   `json:"status"`
+	WaktuBerangkat string   `json:"waktuBerangkat"`
+	WaktuSampai    string   `json:"waktuSampai"`
+	Transportasi   *Vehicle `json:"transportasi"`
+	BeratMuatan    int      `json:"beratMuatan"`
+	EmisiKarbon    int      `json:"emisiKarbonStr"`
 }
+
+// Vote Dihapus
+// Butuh Konfirmasi
+// Status Dibatalkan kalau dibatalin pihak sebelah
+// Status Dalam Perjalanan
+// Status Sampai
+
+
+// Proses Pembuatan Perjalanan
+// 1. Login Manajer
+// 2. Membuka halaman Perjalanan
+// 3. Membuat perjalanan oleh manajer yang menginisiasi di divisi tersebut Sehingga status Butuh Dikonfirmasi
+// 4. Pihak Sebelah menerima Status Dalam Perjalanan
+// 5. Manajer penerima mengubah status menjadi sampai, field waktuSampai diisi
+// 6. Ketika field waktuSampai, status menajdi sampai, mengkalkulasi emisi karbon, kirim ke api Update Perjalanan
+
+// * Setiap status selesai, akumulasi ke object EmisiKarbon di perusahaan tersebut hit update CarbonEmission API
 
 // Asset describes basic details of what makes up a simple asset
 // Insert struct field in alphabetic order => to achieve determinism across languages
@@ -89,7 +106,7 @@ func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface)
 	transportasi := args[7]
 	beratMuatanstr := args[8]
 	emisiKarbonstr := args[9]
-	
+
 	emisiKarbon, err := strconv.Atoi(emisiKarbonstr)
 	if err != nil {
 	}
@@ -97,7 +114,6 @@ func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface)
 	beratMuatan, err := strconv.Atoi(beratMuatanstr)
 	if err != nil {
 	}
-
 
 	exists, err := isShipmentExists(ctx, id)
 	if err != nil {
@@ -251,7 +267,6 @@ func (s *SHContract) UpdateShipment(ctx contractapi.TransactionContextInterface)
 	transportasi := args[7]
 	beratMuatanstr := args[8]
 	emisiKarbonstr := args[9]
-
 
 	perjalanan, err := getShipmentStateById(ctx, id)
 	if err != nil {

@@ -40,7 +40,10 @@ type AdminSC struct {
 	ID             string `json:"userId"` // Foreign Key ke User
 	IdPerusahaan   string `json:"idPerusahaan"`
 }
+// *adminSC => *admin perusahaan
 
+// Create Manajer dibuat oleh AdminPerusahaan
+// Admin Perusahana dibuat oleh Admin Kementrian melalui request
 // ============================================================================================================================
 // Error Messages
 // ============================================================================================================================
