@@ -3,13 +3,14 @@ package chaincode
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
 // SmartContract provides functions for managing an Asset
-type DIVContract struct {
+type CSPContract struct {
 	contractapi.Contract
 }
 
@@ -19,28 +20,19 @@ type DIVContract struct {
 
 // var logger = flogging.MustGetLogger("PEContract")
 
-type Divisi struct {
-	ID           string `json:"id"`
-	IdPerusahaan string `json:"perusahaan"`
-	Lokasi       string `json:"lokasi"`
-	IdManajer    string `json:"manajer"`
-}
 
-type DivisiResult struct {
-	ID           string `json:"id"`
-	Perusahaan 	*Perusahaan `json:"perusahaan"`
-	Lokasi       string `json:"lokasi"`
-	IdManajer    *Manajer `json:"manajer"`
-}
 
-type Manajer struct {
-	ID             string   `json:"id"`
-	IdPerusahaan   string   `json:"idPerusahaan"`
-	Email          string   `json:"email"`
-	Nama           string   `json:"nama"`
-	NIK            string   `json:"nik"`
-	IdDivisi       string   `json:"idDivisi"`
-	ListPerjalanan []string `json:"listPerjalanan"`
+type CarbonSalesProposal struct {
+	ID              string   `json:"id"`
+	IdPerusahaan    string   `json:"idPerusahaan"`
+	KuotaYangDijual int   `json:"kuotaYangDijual"`
+	Status          string   `json:"status"`
+}
+type CarbonSalesProposalResult struct {
+	ID              string   	  `json:"id"`
+	IdPerusahaan    *Perusahaan   `json:"perusahaan"`
+	KuotaYangDijual int  	  `json:"kuotaYangDijual"`
+	Status          string   	  `json:"status"`
 }
 
 type Perusahaan struct {
@@ -62,19 +54,23 @@ type Perusahaan struct {
 }
 
 // CreateAsset issues a new asset to the world state with given details.
-func (s *DIVContract) CreateDivisi(ctx contractapi.TransactionContextInterface) error {
+func (s *CSPContract) CreateProposal(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 5 {
+	if len(args) != 4 {
 
 	}
 
 	id := args[0]
 	idPerusahaan := args[1]
-	lokasi := args[2]
-	idManajer := args[3]
+	kuotaYangDijualStr := args[2]
+	status := args[3]
+	
+	kuotaYangDijual, err := strconv.Atoi(kuotaYangDijualStr)
+	if err != nil {
+	}
 
-	exists, err := isDvsExists(ctx, id)
+	exists, err := isCspExists(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -82,19 +78,20 @@ func (s *DIVContract) CreateDivisi(ctx contractapi.TransactionContextInterface) 
 		return fmt.Errorf(id)
 	}
 
-	dvs := Divisi{
-		ID:           id,
-		IdPerusahaan: idPerusahaan,
-		Lokasi:       lokasi,
-		IdManajer:    idManajer,
+	csp := CarbonSalesProposal{
+		ID:                  id,
+		IdPerusahaan:        idPerusahaan,
+		KuotaYangDijual:     kuotaYangDijual,
+		Status:              status,
+
 	}
 
-	dvsJSON, err := json.Marshal(dvs)
+	cspJSON, err := json.Marshal(csp)
 	if err != nil {
 		return err
 	}
 
-	err = ctx.GetStub().PutState(id, dvsJSON)
+	err = ctx.GetStub().PutState(id, cspJSON)
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}
@@ -102,37 +99,37 @@ func (s *DIVContract) CreateDivisi(ctx contractapi.TransactionContextInterface) 
 	return err
 }
 
-func isDvsExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+func isCspExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 
-	dvsJSON, err := ctx.GetStub().GetState(id)
+	cspJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return false, fmt.Errorf(err.Error())
 	}
 
-	return dvsJSON != nil, nil
+	return cspJSON != nil, nil
 }
-func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*Divisi, error) {
+func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*CarbonSalesProposal, error) {
 	// logger.Infof("Run constructQueryResponseFromIterator function.")
 
-	var divisiList []*Divisi
+	var cspList []*CarbonSalesProposal
 
 	for resultsIterator.HasNext() {
 		queryResult, err := resultsIterator.Next()
 		if err != nil {
 		}
 
-		var divisi Divisi
-		err = json.Unmarshal(queryResult.Value, &divisi)
+		var csp CarbonSalesProposal
+		err = json.Unmarshal(queryResult.Value, &csp)
 		if err != nil {
 		}
-		divisiList = append(divisiList, &divisi)
+		cspList = append(cspList, &csp)
 	}
 
-	return divisiList, nil
+	return cspList, nil
 }
 
 // ReadAsset returns the asset stored in the world state with given id.
-func (s *DIVContract) ReadAllDivisi(ctx contractapi.TransactionContextInterface) ([]*Divisi, error) {
+func (s *CSPContract) ReadAllCSP(ctx contractapi.TransactionContextInterface) ([]*CarbonSalesProposal, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 0 {
@@ -148,77 +145,87 @@ func (s *DIVContract) ReadAllDivisi(ctx contractapi.TransactionContextInterface)
 	return constructQueryResponseFromIterator(resultsIterator)
 }
 
-func (s *DIVContract) GetDivisiById(ctx contractapi.TransactionContextInterface) (*DivisiResult, error) {
+func (s *CSPContract) GetCSPById(ctx contractapi.TransactionContextInterface) (*CarbonSalesProposalResult, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 1 {
 	}
 	id := args[0]
-	vehicle, err := getDivisiStateById(ctx, id)
+	csp, err := getCSPStateById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	perusahaanResult, err := getCompleteDataDivisi(ctx, vehicle)
+	cspResult, err := getCompleteDataPerusahaan(ctx, csp)
 	if err != nil {
 		return nil, err
 	}
 
-	return perusahaanResult, nil
+	return cspResult, nil
 }
-func getCompleteDataDivisi(ctx contractapi.TransactionContextInterface, divisi *Divisi) (*DivisiResult, error) {
+func getCompleteDataPerusahaan(ctx contractapi.TransactionContextInterface, csp *CarbonSalesProposal) (*CarbonSalesProposalResult, error) {
 	// logger.Infof("Run getCompleteDataKls function with kls id: '%s'.", perusahaan.ID)
 
-	var divisiResult DivisiResult
+	var cspr CarbonSalesProposalResult
 
-	divisiResult.ID = divisi.ID
-	divisiResult.Lokasi = divisi.Lokasi
-	divisiResult.IdManajer = nil
-	divisiResult.Perusahaan = nil
+	cspr.ID = csp.ID
+	cspr.KuotaYangDijual = csp.KuotaYangDijual
+	cspr.Status = csp.Status
+	cspr.IdPerusahaan = nil
+	
 
-
-	return &divisiResult, nil
+	return &cspr, nil
 }
-func getDivisiStateById(ctx contractapi.TransactionContextInterface, id string) (*Divisi, error) {
+func getCSPStateById(ctx contractapi.TransactionContextInterface, id string) (*CarbonSalesProposal, error) {
 
-	divisiJSON, err := ctx.GetStub().GetState(id)
+	cspJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
 	}
-	if divisiJSON == nil {
+	if cspJSON == nil {
 	}
 
-	var divisi Divisi
-	err = json.Unmarshal(divisiJSON, &divisi)
+	var csp CarbonSalesProposal
+	err = json.Unmarshal(cspJSON, &csp)
 	if err != nil {
 	}
 
-	return &divisi, nil
+	return &csp, nil
 }
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
-func (s *DIVContract) UpdateDivisi(ctx contractapi.TransactionContextInterface) error {
+func (s *CSPContract) UpdateCSP(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	// logger.Infof("Run UpdateKls function with args: %+q.", args)
 
-	if len(args) != 2 {
+	if len(args) != 4 {
 	}
 
 	id := args[0]
-	lokasi := args[1]
-	divisi, err := getDivisiStateById(ctx, id)
+	idPerusahaan := args[1]
+	kuotaYangDijualStr := args[2]
+	status := args[3]
+
+	csp, err := getCSPStateById(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	divisi.ID = id
-	divisi.Lokasi = lokasi
+	kuotaYangDijual, err := strconv.Atoi(kuotaYangDijualStr)
+	if err != nil {
+	}
 
-	divisiJSON, err := json.Marshal(divisi)
+	csp.ID = id
+	csp.IdPerusahaan = idPerusahaan
+	csp.KuotaYangDijual = kuotaYangDijual
+	csp.Status = status
+	
+
+	cspJSON, err := json.Marshal(csp)
 	if err != nil {
 		return err
 	}
 
-	err = ctx.GetStub().PutState(id, divisiJSON)
+	err = ctx.GetStub().PutState(id, cspJSON)
 	if err != nil {
 	}
 
@@ -226,7 +233,7 @@ func (s *DIVContract) UpdateDivisi(ctx contractapi.TransactionContextInterface) 
 }
 
 // DeleteAsset deletes an given asset from the world state.
-func (s *DIVContract) DeleteDivisi(ctx contractapi.TransactionContextInterface) error {
+func (s *CSPContract) DeleteCSP(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 1 {
@@ -234,7 +241,7 @@ func (s *DIVContract) DeleteDivisi(ctx contractapi.TransactionContextInterface) 
 
 	id := args[0]
 
-	exists, err := isDvsExists(ctx, id)
+	exists, err := isCspExists(ctx, id)
 	if err != nil {
 		return err
 	}

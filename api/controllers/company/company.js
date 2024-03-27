@@ -1,18 +1,12 @@
 const iResp = require('../../utils/response.interface.js')
 
+const { v4: uuidv4 } = require('uuid')
 const companyService = require('../../services/company/company.js')
 
 const getList = async (req, res) => {
   try {
-    const data = req.body
-    const username = data.username
-    const result = await companyService.getList(username, [])
-
-    if (!result.success) {
-      res.status(result.code).send(result)
-    }
-
-    res.status(result.code).send(result)
+    const result = await companyService.getList(req.user.username, [])
+    res.status(200).send(JSON.parse(result))
   } catch (error) {
     res
       .status(500)
@@ -22,16 +16,11 @@ const getList = async (req, res) => {
 
 const getById = async (req, res) => {
   try {
-    const data = req.body
-    const username = data.username
-    const companyId = data.companyId
-    const result = await companyService.getById(username, companyId)
-
-    if (!result.success) {
-      res.status(result.code).send(result)
-    }
-
-    res.status(result.code).send(result)
+    const result = await companyService.getById(
+      req.user.username,
+      req.params.companyId
+    )
+    res.status(200).send(JSON.parse(result))
   } catch (error) {
     res
       .status(500)
@@ -40,38 +29,28 @@ const getById = async (req, res) => {
 }
 
 const create = async (req, res) => {
-  try {
-    const data = req.body
-    const username = data.username
-    const args = [
-      data.id,
-      data.nomorTelepon,
-      data.email,
-      data.nama,
-      data.lokasi,
-      data.deskripsi,
-      data.urlSuratProposal,
-    ]
-    const result = await companyService.create(username, args)
+  const data = req.body
+  const id = uuidv4()
+  const args = [
+    id,
+    data.nomorTelepon,
+    data.email,
+    data.nama,
+    data.lokasi,
+    data.deskripsi,
+    data.urlSuratProposal,
+  ]
+  const result = await companyService.create(req.user, args)
 
-    if (!result.success) {
-      res.status(result.code).send(result)
-    }
-
-    res.status(result.code).send(result)
-  } catch (error) {
-    res
-      .status(500)
-      .send(iResp.buildErrorResponse(500, 'Something wrong', error))
-  }
+  res.status(result.code).send(result)
 }
 
 const update = async (req, res) => {
   try {
     const data = req.body
-    const username = data.username
+    const id = uuidv4()
     const args = [
-      data.id,
+      id,
       data.nomorTelepon,
       data.email,
       data.nama,
@@ -83,13 +62,8 @@ const update = async (req, res) => {
       data.kuota,
       data.sisaKuota,
     ]
-    const result = await companyService.update(username, args)
-
-    if (!result.success) {
-      res.status(result.code).send(result)
-    }
-
-    res.status(result.code).send(result)
+    const result = await companyService.update(req.user.username, args)
+    res.status(200).send(result)
   } catch (error) {
     res
       .status(500)
@@ -100,15 +74,13 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   try {
     const data = req.body
-    const username = data.username
-    const args = data.companyId
-    const result = await companyService.remove(username, args)
-
+    const result = await companyService.remove(
+      req.user.username,
+      req.params.companyId
+    )
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
-
-    res.status(result.code).send(result)
   } catch (error) {
     res
       .status(500)

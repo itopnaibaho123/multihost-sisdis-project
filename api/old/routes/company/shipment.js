@@ -1,5 +1,5 @@
 const shipmentRouter = require('express').Router()
-const shipmentController = require('../../controllers/company/shipment.js')
+const shipmentController = require('../../../controllers/company/shipment.js')
 
 shipmentRouter.get('/', shipmentController.getList)
 shipmentRouter.get('/:shipmentId', shipmentController.getById)

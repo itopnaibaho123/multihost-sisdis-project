@@ -1,13 +1,15 @@
 const iResp = require('../../utils/response.interface.js')
 
-const scStaffService = require('../../services/user/supplyChainStaff.js')
+const salesProposalService = require('../../services/carbonTrading/carbonSalesProposal.js')
 
 const getList = async (req, res) => {
   try {
-    const result = await scStaffService.getList()
+    const data = req.body
+    const username = data.username
+    const result = await salesProposalService.getList(username, [])
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -20,11 +22,15 @@ const getList = async (req, res) => {
 
 const getById = async (req, res) => {
   try {
-    console.log(req.params.scStaffId)
-    const result = await scStaffService.getById(req.params.scStaffId)
+    const data = req.body
+    const username = data.username
+    const result = await salesProposalService.getById(
+      username,
+      req.params.salesProposalId
+    )
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -37,11 +43,13 @@ const getById = async (req, res) => {
 
 const create = async (req, res) => {
   try {
-    console.log(req.body)
-    const result = await scStaffService.create(req.body)
+    const data = req.body
+    const username = data.username
+    const args = [data.id, data.idPerusahaan, data.kuotaYangDijual, data.status]
+    const result = await salesProposalService.create(username, args)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -54,11 +62,18 @@ const create = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-    console.log(req.params.scStaffId, req.body)
-    const result = await scStaffService.update(req.params.scStaffId, req.body)
+    const data = req.body
+    const username = data.username
+    const args = [
+      req.params.salesProposalId,
+      data.idPerusahaan,
+      data.kuotaYangDijual,
+      data.status,
+    ]
+    const result = await salesProposalService.update(username, args)
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)
@@ -71,11 +86,15 @@ const update = async (req, res) => {
 
 const remove = async (req, res) => {
   try {
-    const result = await scStaffService.remove(req.params.scStaffId)
-    console.log(req.params.scStaffId)
+    const data = req.body
+    const username = data.username
+    const result = await salesProposalService.remove(
+      username,
+      req.params.salesProposalId
+    )
 
     if (!result.success) {
-      res.status(result.code).send(result)
+      res.status(200).send(result)
     }
 
     res.status(result.code).send(result)

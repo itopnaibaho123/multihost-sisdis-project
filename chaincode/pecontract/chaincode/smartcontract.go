@@ -230,6 +230,8 @@ func getCompleteDataPerusahaan(ctx contractapi.TransactionContextInterface, peru
 	perusahaanResult.ParticipantStatus = perusahaan.ParticipantStatus
 	perusahaanResult.Kuota = perusahaan.Kuota
 	perusahaanResult.SisaKuota = perusahaan.SisaKuota
+	perusahaanResult.ProposalSupplyChain = []*ProposalSupplyChain{}
+	perusahaanResult.SupplyChain = []*SupplyChain{}
 
 	return &perusahaanResult, nil
 }

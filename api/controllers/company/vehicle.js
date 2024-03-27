@@ -8,11 +8,7 @@ const getList = async (req, res) => {
     const username = data.username
     const result = await vehicleService.getList(username, [])
 
-    if (!result.success) {
-      res.status(result.code).send(result)
-    }
-
-    res.status(result.code).send(result)
+    res.status(200).send(result)
   } catch (error) {
     res
       .status(500)
@@ -24,14 +20,9 @@ const getById = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const vehicleId = data.companyId
-    const result = await vehicleService.getById(username, vehicleId)
+    const result = await vehicleService.getById(username, req.params.vehicleId)
 
-    if (!result.success) {
-      res.status(result.code).send(result)
-    }
-
-    res.status(result.code).send(result)
+    res.status(200).send(result)
   } catch (error) {
     res
       .status(500)
@@ -52,11 +43,7 @@ const create = async (req, res) => {
     ]
     const result = await vehicleService.create(username, args)
 
-    if (!result.success) {
-      res.status(result.code).send(result)
-    }
-
-    res.status(result.code).send(result)
+    res.status(201).send(result)
   } catch (error) {
     res
       .status(500)
@@ -68,14 +55,15 @@ const update = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const args = [data.id, data.carModel, data.fuelType, data.kmUsage]
+    const args = [
+      req.params.vehicleId,
+      data.carModel,
+      data.fuelType,
+      data.kmUsage,
+    ]
     const result = await vehicleService.update(username, args)
 
-    if (!result.success) {
-      res.status(result.code).send(result)
-    }
-
-    res.status(result.code).send(result)
+    res.status(200).send(result)
   } catch (error) {
     res
       .status(500)
@@ -87,14 +75,9 @@ const remove = async (req, res) => {
   try {
     const data = req.body
     const username = data.username
-    const args = data.companyId
-    const result = await vehicleService.remove(username, args)
+    const result = await vehicleService.remove(username, req.params.vehicleId)
 
-    if (!result.success) {
-      res.status(result.code).send(result)
-    }
-
-    res.status(result.code).send(result)
+    res.status(200).send(result)
   } catch (error) {
     res
       .status(500)

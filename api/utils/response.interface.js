@@ -1,4 +1,4 @@
-const buildSuccessResponse = (code, message, data, error = null) => {
+exports.buildSuccessResponse = (code, message, data, error = null) => {
   return {
     success: true,
     code: code,
@@ -8,7 +8,22 @@ const buildSuccessResponse = (code, message, data, error = null) => {
   }
 }
 
-const buildErrorResponse = (code, message, error) => {
+exports.buildSuccessResponseWithoutData = (
+  code,
+  message,
+  data = null,
+  error = null
+) => {
+  return {
+    success: true,
+    code: code,
+    message: message,
+    data: data,
+    error: error,
+  }
+}
+
+exports.buildErrorResponse = (code, message, error) => {
   return {
     success: false,
     code: code,
@@ -18,7 +33,7 @@ const buildErrorResponse = (code, message, error) => {
   }
 }
 
-const buildErrorResponseWithData = (code, message, data, error) => {
+exports.buildErrorResponseWithData = (code, message, data, error) => {
   return {
     success: false,
     code: code,
@@ -26,10 +41,4 @@ const buildErrorResponseWithData = (code, message, data, error) => {
     data: data,
     error: error,
   }
-}
-
-module.exports = {
-  buildSuccessResponse,
-  buildErrorResponse,
-  buildErrorResponseWithData,
 }

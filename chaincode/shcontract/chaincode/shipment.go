@@ -3,6 +3,7 @@ package chaincode
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -23,9 +24,8 @@ type Perjalanan struct {
 	WaktuBerangkat   string   `json:"waktuBerangkat"`
 	WaktuSampai      string   `json:"waktuSampai"`
 	IdTransportasi   string   `json:"idTransportasi"`
-	BeratMuatan      string   `json:"beratMuatan"`
-	EmisiKarbon      string   `json:"emisiKarbon"`
-	IdEmisiKarbon    string   `json:"idEmisiKarbon"`
+	BeratMuatan      int   `json:"beratMuatan"`
+	EmisiKarbon      int   `json:"emisiKarbon"`
 }
 
 type PerjalananResult struct {
@@ -38,9 +38,8 @@ type PerjalananResult struct {
 	WaktuBerangkat string          `json:"waktuBerangkat"`
 	WaktuSampai    string          `json:"waktuSampai"`
 	Transportasi   *Vehicle        `json:"transportasi"`
-	BeratMuatan    string          `json:"beratMuatan"`
-	EmisiKarbonstr string          `json:"emisiKarbonStr"`
-	EmisiKarbon    *CarbonEmission `json:"emisiKarbon"`
+	BeratMuatan    int        	   `json:"beratMuatan"`
+	EmisiKarbon    int             `json:"emisiKarbonStr"`
 }
 
 // Asset describes basic details of what makes up a simple asset
@@ -88,9 +87,17 @@ func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface)
 	waktuBerangkat := args[5]
 	waktuSampai := args[6]
 	transportasi := args[7]
-	beratMuatan := args[8]
+	beratMuatanstr := args[8]
 	emisiKarbonstr := args[9]
-	emisiKarbon := args[10]
+	
+	emisiKarbon, err := strconv.Atoi(emisiKarbonstr)
+	if err != nil {
+	}
+
+	beratMuatan, err := strconv.Atoi(beratMuatanstr)
+	if err != nil {
+	}
+
 
 	exists, err := isShipmentExists(ctx, id)
 	if err != nil {
@@ -111,8 +118,7 @@ func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface)
 		WaktuSampai:      waktuSampai,
 		IdTransportasi:   transportasi,
 		BeratMuatan:      beratMuatan,
-		EmisiKarbon:      emisiKarbonstr,
-		IdEmisiKarbon:    emisiKarbon,
+		EmisiKarbon:      emisiKarbon,
 	}
 
 	perjalananJSON, err := json.Marshal(perjalanan)
@@ -202,7 +208,11 @@ func getCompleteDataShipment(ctx contractapi.TransactionContextInterface, perjal
 	PerjalananResult.WaktuBerangkat = perjalanan.WaktuBerangkat
 	PerjalananResult.WaktuSampai = perjalanan.WaktuSampai
 	PerjalananResult.BeratMuatan = perjalanan.BeratMuatan
-	PerjalananResult.EmisiKarbonstr = perjalanan.EmisiKarbon
+	PerjalananResult.EmisiKarbon = perjalanan.EmisiKarbon
+	PerjalananResult.DivisiPenerima = nil
+	PerjalananResult.DivisiPengirim = nil
+	PerjalananResult.Transportasi = nil
+	PerjalananResult.Vote = []string{}
 
 	return &PerjalananResult, nil
 }
@@ -239,9 +249,8 @@ func (s *SHContract) UpdateShipment(ctx contractapi.TransactionContextInterface)
 	waktuBerangkat := args[5]
 	waktuSampai := args[6]
 	transportasi := args[7]
-	beratMuatan := args[8]
+	beratMuatanstr := args[8]
 	emisiKarbonstr := args[9]
-	emisiKarbon := args[10]
 
 
 	perjalanan, err := getShipmentStateById(ctx, id)
@@ -249,7 +258,14 @@ func (s *SHContract) UpdateShipment(ctx contractapi.TransactionContextInterface)
 		return err
 	}
 
-	perjalanan.ID = id
+	emisiKarbon, err := strconv.Atoi(emisiKarbonstr)
+	if err != nil {
+	}
+
+	beratMuatan, err := strconv.Atoi(beratMuatanstr)
+	if err != nil {
+	}
+
 	perjalanan.IdSupplyChain = idSupplyChain
 	perjalanan.IdDivisiPenerima = divisiPengirim
 	perjalanan.IdDivisiPenerima = divisiPenerima
@@ -258,8 +274,7 @@ func (s *SHContract) UpdateShipment(ctx contractapi.TransactionContextInterface)
 	perjalanan.WaktuSampai = waktuSampai
 	perjalanan.IdTransportasi = transportasi
 	perjalanan.BeratMuatan = beratMuatan
-	perjalanan.EmisiKarbon = emisiKarbonstr
-	perjalanan.IdEmisiKarbon = emisiKarbon
+	perjalanan.EmisiKarbon = emisiKarbon
 
 	perjalananJSON, err := json.Marshal(perjalanan)
 	if err != nil {

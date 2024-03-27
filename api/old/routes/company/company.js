@@ -1,7 +1,7 @@
 const companyRouter = require('express').Router()
-const auth = require('../../middleware/auth.js')
+const auth = require('../../../middleware/auth.js')
 
-const companyController = require('../../controllers/company/company.js')
+const companyController = require('../../../controllers/company/company.js')
 
 companyRouter.get('/', auth, companyController.getList)
 companyRouter.get('/:companyId', companyController.getById)
