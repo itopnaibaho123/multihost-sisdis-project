@@ -77,7 +77,7 @@ const registerAdminKementrian = async (
   await createUser(username, email, organizationName, userType)
 
   const userId = uuidv4()
-  invokeRegisterUserCc(userId, username, organizationName, email)
+  invokeRegisterUserCc(userId, username, organizationName, email, userType)
 
   const payload = {
     id: userId,
@@ -102,63 +102,67 @@ const registerUser = async (
   organizationName,
   userType
 ) => {
-  if (
-    permitUser.userType === 'admin-kementerian' &&
-    userType !== 'staf-kementerian'
-  ) {
-    return iResp.buildErrorResponse(
-      400,
-      'Admin kementerian only be able to register staf kementerian'
+  try {
+    if (
+      permitUser.userType === 'admin-kementerian' &&
+      userType !== 'staf-kementerian'
+    ) {
+      return iResp.buildErrorResponse(
+        400,
+        'Admin kementerian only be able to register staf kementerian'
+      )
+    }
+
+    if (permitUser.userType === 'staf-kementerian' && userType !== 'admin-sc') {
+      return iResp.buildErrorResponse(
+        400,
+        'Staf kementerian only be able to register admin supply chain'
+      )
+    }
+
+    if (permitUser.userType === 'admin-sc' && userType !== 'manager-sc') {
+      return iResp.buildErrorResponse(
+        400,
+        'Admin supply chain only be able to register manager supply chain'
+      )
+    }
+
+    if (
+      organizationName.toLowerCase() === 'supplychain' &&
+      userType.toLowerCase() === 'staf-kementerian'
+    ) {
+      return iResp.buildErrorResponse(400, 'Invalid organization')
+    }
+
+    if (
+      organizationName.toLowerCase() === 'kementrian' &&
+      userType.toLowerCase() !== 'staf-kementerian'
+    ) {
+      return iResp.buildErrorResponse(400, 'Invalid organization')
+    }
+
+    await createUser(username, email, organizationName, userType)
+
+    const userId = uuidv4()
+    invokeRegisterUserCc(userId, username, organizationName, email, userType)
+
+    const payload = {
+      id: userId,
+      username: username,
+      email: email,
+      userType: userType,
+    }
+    const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
+    payload.token = token
+
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully registered ${userType} and imported it into the wallet`,
+      payload
     )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
-
-  if (permitUser.userType === 'staf-kementerian' && userType !== 'admin-sc') {
-    return iResp.buildErrorResponse(
-      400,
-      'Staf kementerian only be able to register admin supply chain'
-    )
-  }
-
-  if (permitUser.userType === 'admin-sc' && userType !== 'manager-sc') {
-    return iResp.buildErrorResponse(
-      400,
-      'Admin supply chain only be able to register manager supply chain'
-    )
-  }
-
-  if (
-    organizationName.toLowerCase() === 'supplychain' &&
-    userType.toLowerCase() === 'staf-kementerian'
-  ) {
-    return iResp.buildErrorResponse(400, 'Invalid organization')
-  }
-
-  if (
-    organizationName.toLowerCase() === 'kementrian' &&
-    userType.toLowerCase() !== 'staf-kementerian'
-  ) {
-    return iResp.buildErrorResponse(400, 'Invalid organization')
-  }
-
-  await createUser(username, email, organizationName, userType)
-
-  const userId = uuidv4()
-  invokeRegisterUserCc(userId, username, organizationName, email)
-
-  const payload = {
-    id: userId,
-    username: username,
-    email: email,
-    userType: userType,
-  }
-  const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
-  payload.token = token
-
-  return iResp.buildSuccessResponse(
-    200,
-    `Successfully registered ${userType} and imported it into the wallet`,
-    payload
-  )
 }
 
 const loginUser = async (username, password) => {
@@ -179,25 +183,50 @@ const loginUser = async (username, password) => {
 
   // Get user attr
   const userAttrs = await fabric.getUserAttrs(username, organizationName)
-  console.log(userAttrs)
+
   const userPassword = userAttrs.find((e) => e.name == 'password').value
   const userType = userAttrs.find((e) => e.name == 'userType').value
 
+  const network = await fabric.connectToNetwork(
+    organizationName,
+    'usercontract',
+    username
+  )
+
+  let result = await network.contract.evaluateTransaction(
+    'GetUserByUsername',
+    ...[username]
+  )
+
+  network.gateway.disconnect()
+
+  result = JSON.parse(result)
   // Compare input password with password in CA
   if (await bcrypt.compare(password, userPassword)) {
     const payload = {
+      id: result.id,
       username: username,
+      email: result.email,
       userType: userType,
     }
+
+    if (userType === 'manager-sc') {
+      payload.nik = result['data-manager'].nik
+      payload.idDivisi = result['data-manager'].idDivisi
+      payload.idPerusahaan = result['data-manager'].idPerusahaan
+      payload.idPerjalanan = result['data-manager'].idPerjalanan
+    }
+    if (userType === 'admin-sc') {
+      payload.idPerusahaan = result['data-admin'].idPerusahaan
+    }
+
     const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
 
-    // kurang id sama email, nanti tarik dulu dari cc
     payload.token = token
+    return iResp.buildSuccessResponse(200, `Successfully Login`, payload)
   } else {
     throw new Error('Invalid credentials')
   }
-
-  return iResp.buildSuccessResponse(200, `Successfully Login`, payload)
 }
 
 const updateUser = async (
@@ -272,6 +301,24 @@ const createUser = async (username, email, organizationName, userType) => {
 
   const wallet = await fabric.getWallet(organizationName)
 
+  const walletSupplyChain = await fabric.getWallet('supplychain')
+  const walletKementrian = await fabric.getWallet('kementrian')
+
+  // Check to see if we've already enrolled the user.
+  const checkWalletSc = await walletSupplyChain.get(username)
+  if (checkWalletSc) {
+    throw new Error(
+      `An identity for the user ${username} already exists in the wallet`
+    )
+  }
+
+  const checkWalletKm = await walletKementrian.get(username)
+  if (checkWalletKm) {
+    throw new Error(
+      `An identity for the user ${username} already exists in the wallet`
+    )
+  }
+
   // Check to see if we've already enrolled the admin user.
   const adminIdentity = await wallet.get('admin')
   if (!adminIdentity) {
@@ -333,7 +380,8 @@ const invokeRegisterUserCc = async (
   userId,
   username,
   organizationName,
-  email
+  email,
+  role
 ) => {
   const network = await fabric.connectToNetwork(
     organizationName,
@@ -343,7 +391,7 @@ const invokeRegisterUserCc = async (
 
   await network.contract.submitTransaction(
     'RegisterUser',
-    ...[userId, username, email]
+    ...[userId, username, email, role]
   )
   network.gateway.disconnect()
 

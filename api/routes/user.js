@@ -2,7 +2,7 @@ const userRouter = require('express').Router()
 const userController = require('../controllers/user.js')
 const auth = require('../middleware/auth.js')
 
-userRouter.post('/user/register', auth, userController.registerUser)
+userRouter.post('/user/register', auth.verifyToken, userController.registerUser)
 userRouter.post(
   '/admin-kementerian/register',
   userController.registerAdminKementrian

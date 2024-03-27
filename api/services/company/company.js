@@ -27,17 +27,40 @@ const getById = async (user, args) => {
 }
 
 const create = async (user, args) => {
-  const network = await fabric.connectToNetwork(
-    'supplychain',
-    'pecontract',
-    user
-  )
-  const result = await network.contract.submitTransaction(
-    'CreatePerusahaan',
-    ...args
-  )
-  network.gateway.disconnect()
-  return result
+  try {
+    if (user.idPerusahaan === '') {
+      const penetwork = await fabric.connectToNetwork(
+        'supplychain',
+        'pecontract',
+        user.username
+      )
+      await penetwork.contract.submitTransaction('CreatePerusahaan', ...args)
+      penetwork.gateway.disconnect()
+      const usernetwork = await fabric.connectToNetwork(
+        'supplychain',
+        'usercontract',
+        user.username
+      )
+
+      await usernetwork.contract.submitTransaction(
+        'UpdateAdminData',
+        ...[user.id, args[0]]
+      )
+      usernetwork.gateway.disconnect()
+      return iResp.buildSuccessResponseWithoutData(
+        200,
+        'Successfully registered a new company'
+      )
+    } else {
+      return iResp.buildErrorResponse(
+        400,
+        'This user already has a company',
+        null
+      )
+    }
+  } catch (err) {
+    return iResp.buildErrorResponse(400, 'Something went wrong', err.message)
+  }
 }
 
 const update = async (user, args) => {

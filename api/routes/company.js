@@ -39,10 +39,10 @@ companyRouter.delete(
   carbonEmissionController.remove
 )
 
-companyRouter.get('/', auth, companyController.getList)
-companyRouter.get('/:companyId', companyController.getById)
-companyRouter.post('/', companyController.create)
-companyRouter.put('/:companyId', companyController.update)
-companyRouter.delete('/:companyId', companyController.remove)
+companyRouter.get('/', auth.verifyToken, companyController.getList)
+companyRouter.get('/:companyId', auth.verifyToken, companyController.getById)
+companyRouter.post('/', auth.onlyAdminSc, companyController.create)
+companyRouter.put('/:companyId', auth.onlyAdminSc, companyController.update)
+// companyRouter.delete('/:companyId', companyController.remove)
 
 module.exports = companyRouter

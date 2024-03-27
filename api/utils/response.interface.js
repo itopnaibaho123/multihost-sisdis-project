@@ -8,6 +8,21 @@ exports.buildSuccessResponse = (code, message, data, error = null) => {
   }
 }
 
+exports.buildSuccessResponseWithoutData = (
+  code,
+  message,
+  data = null,
+  error = null
+) => {
+  return {
+    success: true,
+    code: code,
+    message: message,
+    data: data,
+    error: error,
+  }
+}
+
 exports.buildErrorResponse = (code, message, error) => {
   return {
     success: false,
