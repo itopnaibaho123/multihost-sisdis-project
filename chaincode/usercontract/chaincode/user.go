@@ -110,6 +110,7 @@ func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface)
 			ID: id,
 			IdPerusahaan: "",
 		}
+	case "staf-kementerian", "admin-kementerian":
 	default:
 		return fmt.Errorf("unsupported role: %s", role)
 	}
@@ -167,6 +168,9 @@ func (s *UserContract) GetUserByUsername(ctx contractapi.TransactionContextInter
 	user.ID = queryResult[0].ID
 	user.Name = queryResult[0].Name
 	user.Email = queryResult[0].Email
+	user.Role = queryResult[0].Role
+	user.ManagerSc = queryResult[0].ManagerSc
+	user.AdminSC = queryResult[0].AdminSC
 
 	return &user, nil
 }
@@ -275,7 +279,7 @@ func (s *UserContract) UpdateManagerData(ctx contractapi.TransactionContextInter
 }
 
 // AddManagerPerjalanan appends a new idPerjalanan value to the idPerjalanan field of ManagerSC for a user
-func (s *UserContract) AddManagerPerjalanan(ctx contractapi.TransactionContextInterface) error {
+func (s *UserContract) AddPerjalananToManager(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 2 {
