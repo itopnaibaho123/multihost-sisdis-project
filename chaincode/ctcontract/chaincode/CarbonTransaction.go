@@ -35,10 +35,9 @@ type CTContract struct {
 type CarbonTransaction struct {
 	ID                  string   `json:"id"`
 	IdPerusahaanPembeli string   `json:"idPerusahaanPembeli"`
-	IdPerusahaanPenjual string   `json:"idPerusahaanPenjual"`
-	Kuota               int   		`json:"kuota"`
+	IdProposalPenjual 	string   	 `json:"idProposalPenjual"`
+	Kuota               int   	 `json:"kuota"`
 	Status              string   `json:"status"`
-	Vote                []string `json:"vote"`
 	URLBuktiTransaksi   string   `json:"urlBuktiTransaksi"`
 }
 // * Hapus Vote
@@ -83,7 +82,6 @@ func (s *CTContract) CreateCT(ctx contractapi.TransactionContextInterface) error
 	idPerusahaanPembeli := args[1]
 	idPerusahaanPenjual := args[2]
 	kuotaStr := args[3]
-	vote := []string{}
 	status := args[4]
 	urlBuktiTransaksi := args[5]
 
@@ -103,9 +101,8 @@ func (s *CTContract) CreateCT(ctx contractapi.TransactionContextInterface) error
 	ct := CarbonTransaction{
 		ID:                  id,
 		IdPerusahaanPembeli: idPerusahaanPembeli,
-		IdPerusahaanPenjual: idPerusahaanPenjual,
+		IdProposalPenjual: idPerusahaanPenjual,
 		Kuota:               kuota,
-		Vote:                vote,
 		URLBuktiTransaksi:   urlBuktiTransaksi,
 		Status:              status,
 	}
@@ -244,7 +241,7 @@ func (s *CTContract) UpdateCT(ctx contractapi.TransactionContextInterface) error
 
 	ct.ID = id
 	ct.IdPerusahaanPembeli = idPerusahaanPembeli
-	ct.IdPerusahaanPenjual = idPerusahaanPenjual
+	ct.IdProposalPenjual = idPerusahaanPenjual
 	ct.Kuota = kuota
 	ct.Status = status
 	ct.URLBuktiTransaksi = urlBuktiTransaksi
