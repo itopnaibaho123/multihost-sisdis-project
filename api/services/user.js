@@ -95,6 +95,7 @@ const registerAdminKementrian = async (
       username: username,
       email: email,
       userType: 'admin-kementerian',
+      organizationName: organizationName,
     }
     const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
     payload.token = token
@@ -173,6 +174,7 @@ const registerUser = async (
       username: username,
       email: email,
       userType: userType,
+      organizationName: organizationName,
     }
     const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
     payload.token = token
@@ -231,6 +233,7 @@ const loginUser = async (username, password) => {
         username: username,
         email: result.email,
         userType: userType,
+        organizationName: result.organization,
       }
 
       if (userType === 'manager-perusahaan') {
