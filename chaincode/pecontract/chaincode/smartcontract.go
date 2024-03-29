@@ -50,15 +50,6 @@ type EmisiKarbon struct {
 	TotalEmisi   int    `json:"totalEmisi"`
 }
 
-type Manajer struct {
-	ID             string   `json:"id"`
-	IdPerusahaan   string   `json:"idPerusahaan"`
-	Email          string   `json:"email"`
-	Nama           string   `json:"nama"`
-	NIK            string   `json:"nik"`
-	IdDivisi       string   `json:"idDivisi"`
-	ListPerjalanan []string `json:"listPerjalanan"`
-}
 
 type PerusahaanResult struct {
 	ID                  string                 `json:"id"`
@@ -73,7 +64,7 @@ type PerusahaanResult struct {
 	SupplyChain         []*SupplyChain         `json:"supplyChain"`
 	ProposalSupplyChain []*ProposalSupplyChain `json:"proposalSupplyChain"`
 	EmisiKarbon         *EmisiKarbon           `json:"emisiKarbon"`
-	Manajer             *Manajer               `json:"manajer"`
+	AdminPerusahaan     *Admin 	 			   `json:"adminPerusahaan"`
 	Kuota               int                    `json:"kuota"`
 	SisaKuota           int                    `json:"sisaKuota"`
 }
@@ -86,6 +77,11 @@ type PerusahaanResult struct {
 // 3. Kalo di Approve, Hit API regiter admin Perusahaan dan hit api create perusahaan
 
 // * Initial Pembuatan perusahaan, lansung membuat OBject EmisiKarbon Hit Create EMission Carbon API
+type Admin struct {
+	ID             	string 	`json:"id"`
+	Username 		string 	`json:"username"`
+	Password 		string 	`json:"password"`
+}
 
 type Perusahaan struct {
 	ID                  string   `json:"id"`
@@ -100,7 +96,7 @@ type Perusahaan struct {
 	SupplyChain         []string `json:"supplyChain"`
 	ProposalSupplyChain []string `json:"proposalSupplyChain"`
 	IdEmisiKarbon       string   `json:"emisiKarbon"`
-	IdManajer           string   `json:"manajer"`
+	AdminPerusahaan     *Admin 	 `json:"adminPerusahaan"`
 	Kuota               int      `json:"kuota"`
 	SisaKuota           int      `json:"sisaKuota"`
 }
@@ -109,7 +105,7 @@ type Perusahaan struct {
 func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 7 {
+	if len(args) != 10 {
 
 	}
 
@@ -120,12 +116,16 @@ func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterfac
 	Lokasi := args[4]
 	Deskripsi := args[5]
 	URLSuratProposal := args[6]
+	adminPerusahaan := &Admin{
+		ID:           args[7],
+        Username:     args[8],
+        Password:     args[9],
+	}
 	ApprovalStatus := 0
 	ParticipantStatus := 0
 	SupplyChain := []string{}
 	ProposalSupplyChain := []string{}
 	EmisiKarbon := ""
-	Manajer := ""
 	Kuota := 0
 	SisaKuota := 0
 
@@ -148,7 +148,7 @@ func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterfac
 		ApprovalStatus:      ApprovalStatus,
 		ParticipantStatus:   ParticipantStatus,
 		IdEmisiKarbon:       EmisiKarbon,
-		IdManajer:           Manajer,
+		AdminPerusahaan:     adminPerusahaan,
 		Kuota:               Kuota,
 		SisaKuota:           SisaKuota,
 		SupplyChain:         SupplyChain,
@@ -231,6 +231,7 @@ func (s *PEContract) GetPerusahaanById(ctx contractapi.TransactionContextInterfa
 
 	return perusahaanResult, nil
 }
+
 func getCompleteDataPerusahaan(ctx contractapi.TransactionContextInterface, perusahaan *Perusahaan) (*PerusahaanResult, error) {
 	// logger.Infof("Run getCompleteDataKls function with kls id: '%s'.", perusahaan.ID)
 
@@ -244,6 +245,7 @@ func getCompleteDataPerusahaan(ctx contractapi.TransactionContextInterface, peru
 	perusahaanResult.Deskripsi = perusahaan.Deskripsi
 	perusahaanResult.URLSuratProposal = perusahaan.URLSuratProposal
 	perusahaanResult.ApprovalStatus = perusahaan.ApprovalStatus
+	perusahaanResult.AdminPerusahaan = perusahaan.AdminPerusahaan
 	perusahaanResult.ParticipantStatus = perusahaan.ParticipantStatus
 	perusahaanResult.Kuota = perusahaan.Kuota
 	perusahaanResult.SisaKuota = perusahaan.SisaKuota
