@@ -1,5 +1,3 @@
-const iResp = require('../utils/response.interface.js')
-
 const userService = require('../services/user.js')
 
 const enrollAdmin = async (req, res) => {
@@ -17,14 +15,12 @@ const registerAdminKementrian = async (req, res) => {
   const data = req.body
   const username = data.username
   const email = data.email
-  const orgName = data.organizationName
-  const role = data.role
 
   const result = await userService.registerAdminKementrian(
     username,
     email,
-    orgName,
-    role
+    'Kementrian',
+    'admin-kementerian'
   )
   res.status(result.code).send(result)
 }

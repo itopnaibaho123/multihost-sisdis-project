@@ -78,16 +78,23 @@ const registerAdminKementrian = async (
       return iResp.buildErrorResponse(400, 'Invalid role')
     }
 
-    await createUser(username, email, organizationName, userType)
+    await createUser(username, email, 'Kementrian', 'admin-kementerian')
 
     const userId = uuidv4()
-    invokeRegisterUserCc(userId, username, organizationName, email, userType)
+    invokeRegisterUserCc(
+      userId,
+      username,
+      'Kementrian',
+      email,
+      'admin-kementerian',
+      ''
+    )
 
     const payload = {
       id: userId,
       username: username,
       email: email,
-      userType: userType,
+      userType: 'admin-kementerian',
     }
     const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
     payload.token = token
@@ -107,7 +114,8 @@ const registerUser = async (
   username,
   email,
   organizationName,
-  userType
+  userType,
+  idPerusahaan
 ) => {
   try {
     if (
@@ -120,17 +128,17 @@ const registerUser = async (
       )
     }
 
-    if (permitUser.userType === 'staf-kementerian' && userType !== 'admin-sc') {
-      return iResp.buildErrorResponse(
-        400,
-        'Staf kementerian only be able to register admin supply chain'
-      )
+    if (userType === 'admin-perusahaan') {
+      return iResp.buildErrorResponse(400, 'Invalid user type')
     }
 
-    if (permitUser.userType === 'admin-sc' && userType !== 'manager-sc') {
+    if (
+      permitUser.userType === 'admin-perusahaan' &&
+      userType !== 'manager-perusahaan'
+    ) {
       return iResp.buildErrorResponse(
         400,
-        'Admin supply chain only be able to register manager supply chain'
+        'Company admin only be able to register company manager'
       )
     }
 
@@ -151,7 +159,14 @@ const registerUser = async (
     await createUser(username, email, organizationName, userType)
 
     const userId = uuidv4()
-    invokeRegisterUserCc(userId, username, organizationName, email, userType)
+    invokeRegisterUserCc(
+      userId,
+      username,
+      organizationName,
+      email,
+      userType,
+      idPerusahaan
+    )
 
     const payload = {
       id: userId,
@@ -218,13 +233,13 @@ const loginUser = async (username, password) => {
         userType: userType,
       }
 
-      if (userType === 'manager-sc') {
+      if (userType === 'manager-perusahaan') {
         payload.nik = result['data-manager'].nik
         payload.idDivisi = result['data-manager'].idDivisi
         payload.idPerusahaan = result['data-manager'].idPerusahaan
         payload.idPerjalanan = result['data-manager'].idPerjalanan
       }
-      if (userType === 'admin-sc') {
+      if (userType === 'admin-perusahaan') {
         payload.idPerusahaan = result['data-admin'].idPerusahaan
       }
 
@@ -316,8 +331,8 @@ const createUser = async (username, email, organizationName, userType) => {
   const walletKementrian = await fabric.getWallet('kementrian')
 
   // Check to see if we've already enrolled the user.
-  const checkWalletSc = await walletSupplyChain.get(username)
-  if (checkWalletSc) {
+  const checkWalletPerusahaan = await walletSupplyChain.get(username)
+  if (checkWalletPerusahaan) {
     throw new Error(
       `An identity for the user ${username} already exists in the wallet`
     )
@@ -392,7 +407,8 @@ const invokeRegisterUserCc = async (
   username,
   organizationName,
   email,
-  role
+  role,
+  idPerusahaan
 ) => {
   const network = await fabric.connectToNetwork(
     organizationName,
@@ -402,7 +418,7 @@ const invokeRegisterUserCc = async (
 
   await network.contract.submitTransaction(
     'RegisterUser',
-    ...[userId, username, email, role]
+    ...[userId, username, email, role, idPerusahaan]
   )
   network.gateway.disconnect()
 
