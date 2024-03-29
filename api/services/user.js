@@ -418,7 +418,7 @@ const invokeRegisterUserCc = async (
 
   await network.contract.submitTransaction(
     'RegisterUser',
-    ...[userId, username, email, role, idPerusahaan]
+    ...[userId, username, email, role, idPerusahaan, organizationName]
   )
   network.gateway.disconnect()
 
