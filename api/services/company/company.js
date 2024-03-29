@@ -13,9 +13,9 @@ const { v4: uuidv4 } = require('uuid')
 const getList = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'kementrian',
+      user.organizationName,
       'pecontract',
-      user
+      user.username
     )
     const result = await network.contract.submitTransaction('ReadAllPerusahaan')
     network.gateway.disconnect()
@@ -32,7 +32,7 @@ const getList = async (user, args) => {
 const getById = async (user, id) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'pecontract',
       user
     )

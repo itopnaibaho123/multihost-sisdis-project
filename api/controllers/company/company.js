@@ -1,15 +1,12 @@
 const companyService = require('../../services/company/company.js')
 
 const getList = async (req, res) => {
-  const result = await companyService.getList(req.user.username, [])
+  const result = await companyService.getList(req.user, [])
   res.status(result.code).send(result)
 }
 
 const getById = async (req, res) => {
-  const result = await companyService.getById(
-    req.user.username,
-    req.params.companyId
-  )
+  const result = await companyService.getById(req.user, req.params.companyId)
 
   res.status(result.code).send(result)
 }
