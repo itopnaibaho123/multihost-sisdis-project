@@ -24,24 +24,20 @@ type User struct {
 	Email 	 	string   `json:"email"`
 	Role 		string 	 `json:"role"`
 	
-	ManagerSc   *ManagerSC 	`json:"data-manager"`
-	AdminSC		*AdminSC 	`json:"data-admin"`
+	ManagerPerusahaan   *ManagerPerusahaan 	`json:"data-manager"`
+	AdminPerusahaan		*AdminPerusahaan 	`json:"data-admin"`
 }
 
-type ManagerSC struct {
-	ID             string 	`json:"userId"` // Foreign Key ke User
+type ManagerPerusahaan struct {
 	IdPerusahaan   string 	`json:"idPerusahaan"`
 	IdDivisi 	   string 	`json:"idDivisi"`
 	IdPerjalanan   []string `json:"idPerjalanan"`
 	NIK 		   string 	`json:"nik"`
 }
 
-type AdminSC struct {
-	ID             string `json:"userId"` // Foreign Key ke User
+type AdminPerusahaan struct {
 	IdPerusahaan   string `json:"idPerusahaan"`
 }
-// *adminSC => *admin perusahaan
-
 // Create Manajer dibuat oleh AdminPerusahaan
 // Admin Perusahana dibuat oleh Admin Kementrian melalui request
 // ============================================================================================================================
@@ -72,15 +68,16 @@ var logger = flogging.MustGetLogger("UserContract")
 func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 4 {
-		logger.Errorf(ER11, 4, len(args))
-		return fmt.Errorf(ER11, 4, len(args))
+	if len(args) != 5 {
+		logger.Errorf(ER11, 5, len(args))
+		return fmt.Errorf(ER11, 5, len(args))
 	}
 
 	id := args[0]
 	name := args[1]
 	email := args[2]
 	role := args[3]
+	idPerusahaan := args[4]
 
 	exists, err := isUserExists(ctx, id)
 	if err != nil {
@@ -97,21 +94,19 @@ func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface)
 		Role:  role,
 	}
 
-	// Set ManagerSC or AdminSC based on role
+	// Set ManagerPerusahaan or AdminPerusahaan based on role
 	switch role {
-	case "manager-sc":
-		managerSc := ManagerSC{
-			ID:           id,
-			IdPerusahaan: "", // Initialize with appropriate values
+	case "manager-perusahaan":
+		managerPerusahaan := ManagerPerusahaan{
+			IdPerusahaan: idPerusahaan, // Initialize with appropriate values
 			IdDivisi:     "", // Initialize with appropriate values
 			IdPerjalanan: make([]string, 0), // Initialize as empty slice
 			NIK:          "", // Initialize with appropriate values
 		}
-		user.ManagerSc = &managerSc
-	case "admin-sc":
-		user.AdminSC = &AdminSC{
-			ID: id,
-			IdPerusahaan: "",
+		user.ManagerPerusahaan = &managerPerusahaan
+	case "admin-perusahaan":
+		user.AdminPerusahaan = &AdminPerusahaan{
+			IdPerusahaan: idPerusahaan,
 		}
 	case "staf-kementerian", "admin-kementerian":
 	default:
@@ -149,6 +144,25 @@ func (s *UserContract) ReadAllUser(ctx contractapi.TransactionContextInterface) 
 	return constructQueryResponseFromUserIterator(resultsIterator)
 }
 
+func (s *UserContract) GetUserById(ctx contractapi.TransactionContextInterface) (*User, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	logger.Infof("Run GetSmsById function with args: %+q.", args)
+
+	if len(args) != 1 {
+		logger.Errorf(ER11, 1, len(args))
+		return nil, fmt.Errorf(ER11, 1, len(args))
+	}
+	id := args[0]
+	user, err := getUserStateById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+
 // GetUserByUsername used by Login method
 func (s *UserContract) GetUserByUsername(ctx contractapi.TransactionContextInterface) (*User, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
@@ -172,13 +186,13 @@ func (s *UserContract) GetUserByUsername(ctx contractapi.TransactionContextInter
 	user.Name = queryResult[0].Name
 	user.Email = queryResult[0].Email
 	user.Role = queryResult[0].Role
-	user.ManagerSc = queryResult[0].ManagerSc
-	user.AdminSC = queryResult[0].AdminSC
+	user.ManagerPerusahaan = queryResult[0].ManagerPerusahaan
+	user.AdminPerusahaan = queryResult[0].AdminPerusahaan
 
 	return &user, nil
 }
 
-// UpdateUserData updates the general user data (excluding ManagerSC and AdminSC) for a user
+// UpdateUserData updates the general user data (excluding ManagerPerusahaan and AdminPerusahaan) for a user
 func (s *UserContract) UpdateUserData(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
@@ -193,18 +207,9 @@ func (s *UserContract) UpdateUserData(ctx contractapi.TransactionContextInterfac
 	role := args[3]
 	
 	// Retrieve the user from the ledger
-	userJSON, err := ctx.GetStub().GetState(userId)
+	user, err := getUserStateById(ctx, userId)
 	if err != nil {
-		return fmt.Errorf(ER32, err.Error())
-	}
-	if userJSON == nil {
-		return fmt.Errorf(ER13, userId)
-	}
-
-	var user User
-	err = json.Unmarshal(userJSON, &user)
-	if err != nil {
-		return fmt.Errorf(ER34, err.Error())
+		return err
 	}
 
 	// Update general user data
@@ -242,29 +247,20 @@ func (s *UserContract) UpdateManagerData(ctx contractapi.TransactionContextInter
 	nik := args[3]
 
 	// Retrieve the user from the ledger
-	userJSON, err := ctx.GetStub().GetState(userId)
+	user, err := getUserStateById(ctx, userId)
 	if err != nil {
-		return fmt.Errorf(ER32, err.Error())
-	}
-	if userJSON == nil {
-		return fmt.Errorf(ER13, userId)
-	}
-
-	var user User
-	err = json.Unmarshal(userJSON, &user)
-	if err != nil {
-		return fmt.Errorf(ER34, err.Error())
+		return err
 	}
 
 	// Check if user is a manager
-	if user.ManagerSc == nil {
+	if user.ManagerPerusahaan == nil {
 		return fmt.Errorf("user with ID %s is not a manager", userId)
 	}
 
-	// Update field of ManagerSC
-	user.ManagerSc.IdPerusahaan = idPerusahaan
-	user.ManagerSc.IdDivisi = idDivisi
-	user.ManagerSc.NIK = nik
+	// Update field of ManagerPerusahaan
+	user.ManagerPerusahaan.IdPerusahaan = idPerusahaan
+	user.ManagerPerusahaan.IdDivisi = idDivisi
+	user.ManagerPerusahaan.NIK = nik
 
 	// Marshal the updated user object
 	updatedUserJSON, err := json.Marshal(user)
@@ -281,7 +277,7 @@ func (s *UserContract) UpdateManagerData(ctx contractapi.TransactionContextInter
 	return nil
 }
 
-// AddManagerPerjalanan appends a new idPerjalanan value to the idPerjalanan field of ManagerSC for a user
+// AddManagerPerjalanan appends a new idPerjalanan value to the idPerjalanan field of ManagerPerusahaan for a user
 func (s *UserContract) AddPerjalananToManager(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
@@ -294,27 +290,17 @@ func (s *UserContract) AddPerjalananToManager(ctx contractapi.TransactionContext
 	newPerjalananId := args[1]
 	
 	// Retrieve the user from the ledger
-	userJSON, err := ctx.GetStub().GetState(userId)
+	user, err := getUserStateById(ctx, userId)
 	if err != nil {
-		return fmt.Errorf(ER32, err.Error())
+		return err
 	}
-	if userJSON == nil {
-		return fmt.Errorf(ER13, userId)
-	}
-
-	var user User
-	err = json.Unmarshal(userJSON, &user)
-	if err != nil {
-		return fmt.Errorf(ER34, err.Error())
-	}
-
 	// Check if user is a manager
-	if user.ManagerSc == nil {
+	if user.ManagerPerusahaan == nil {
 		return fmt.Errorf("user with ID %s is not a manager", userId)
 	}
 
 	// Append newPerjalananId to idPerjalanan field
-	user.ManagerSc.IdPerjalanan = append(user.ManagerSc.IdPerjalanan, newPerjalananId)
+	user.ManagerPerusahaan.IdPerjalanan = append(user.ManagerPerusahaan.IdPerjalanan, newPerjalananId)
 
 	// Marshal the updated user object
 	updatedUserJSON, err := json.Marshal(user)
@@ -344,27 +330,18 @@ func (s *UserContract) UpdateAdminData(ctx contractapi.TransactionContextInterfa
 	idPerusahaan := args[1]
 
 	// Retrieve the user from the ledger
-	userJSON, err := ctx.GetStub().GetState(userId)
+	user, err := getUserStateById(ctx, userId)
 	if err != nil {
-		return fmt.Errorf(ER32, err.Error())
-	}
-	if userJSON == nil {
-		return fmt.Errorf(ER13, userId)
-	}
-
-	var user User
-	err = json.Unmarshal(userJSON, &user)
-	if err != nil {
-		return fmt.Errorf(ER34, err.Error())
+		return err
 	}
 
 	// Check if user is a manager
-	if user.AdminSC == nil {
+	if user.AdminPerusahaan == nil {
 		return fmt.Errorf("user with ID %s is not a manager", userId)
 	}
 
-	// Update field of ManagerSC
-	user.AdminSC.IdPerusahaan = idPerusahaan
+	// Update field of ManagerPerusahaan
+	user.AdminPerusahaan.IdPerusahaan = idPerusahaan
 
 	// Marshal the updated user object
 	updatedUserJSON, err := json.Marshal(user)
@@ -415,6 +392,26 @@ func isUserExists(ctx contractapi.TransactionContextInterface, id string) (bool,
 	}
 
 	return user != nil, nil
+}
+
+func getUserStateById(ctx contractapi.TransactionContextInterface, id string) (*User, error) {
+	logger.Infof("Run getUserStateById function with id: '%s'.", id)
+
+	userJSON, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return nil, fmt.Errorf(ER32, err)
+	}
+	if userJSON == nil {
+		return nil, fmt.Errorf(ER13, id)
+	}
+
+	var user User
+	err = json.Unmarshal(userJSON, &user)
+	if err != nil {
+		return nil, fmt.Errorf(ER34, err)
+	}
+
+	return &user, nil
 }
 
 func getQueryResultForQueryStringUser(ctx contractapi.TransactionContextInterface, queryString string) ([]*User, error) {
