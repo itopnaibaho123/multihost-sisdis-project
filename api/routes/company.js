@@ -6,43 +6,101 @@ const shipmentController = require('../controllers/company/shipment.js')
 const carbonEmissionController = require('../controllers/company/carbonEmission.js')
 const auth = require('../middleware/auth.js')
 
-companyRouter.get('/vehicle', vehicleController.getList)
-companyRouter.get('/vehicle/:vehicleId', vehicleController.getById)
-companyRouter.post('/vehicle', vehicleController.create)
-companyRouter.put('/vehicle/:vehicleId', vehicleController.update)
-companyRouter.delete('/vehicle/:vehicleId', vehicleController.remove)
-
-companyRouter.get('/division', divisionController.getList)
-companyRouter.get('/division/:divisionId', divisionController.getById)
-companyRouter.post('/division/', divisionController.create)
-companyRouter.put('/division/:divisionId', divisionController.update)
-companyRouter.delete('/division/:divisionId', divisionController.remove)
-
-companyRouter.get('/shipment', shipmentController.getList)
-companyRouter.get('/shipment/:shipmentId', shipmentController.getById)
-companyRouter.post('/shipment/', shipmentController.create)
-companyRouter.put('/shipment/:shipmentId', shipmentController.update)
-companyRouter.delete('/shipment/:shipmentId', shipmentController.remove)
-
-companyRouter.get('/carbon_emission', carbonEmissionController.getList)
 companyRouter.get(
-  '/carbon_emission/:carbonEmissionId',
+  '/vehicle/:companyId',
+  auth.verifyToken,
+  vehicleController.getList
+)
+companyRouter.get(
+  '/vehicle/detail/:vehicleId',
+  auth.verifyToken,
+  vehicleController.getById
+)
+companyRouter.post('/vehicle', auth.verifyToken, vehicleController.create)
+companyRouter.put(
+  '/vehicle/:vehicleId',
+  auth.verifyToken,
+  vehicleController.update
+)
+companyRouter.delete(
+  '/vehicle/:vehicleId',
+  auth.verifyToken,
+  vehicleController.remove
+)
+
+companyRouter.get(
+  '/division/:companyId',
+  auth.verifyToken,
+  divisionController.getList
+)
+companyRouter.get(
+  '/division/detail/:divisionId',
+  auth.verifyToken,
+  divisionController.getById
+)
+companyRouter.post('/division/', auth.verifyToken, divisionController.create)
+companyRouter.put(
+  '/division/:divisionId',
+  auth.verifyToken,
+  divisionController.update
+)
+companyRouter.delete(
+  '/division/:divisionId',
+  auth.verifyToken,
+  divisionController.remove
+)
+
+companyRouter.get(
+  '/shipment/:companyId',
+  auth.verifyToken,
+  shipmentController.getList
+)
+companyRouter.get(
+  '/shipment/detail/:shipmentId',
+  auth.verifyToken,
+  shipmentController.getById
+)
+companyRouter.post('/shipment/', auth.verifyToken, shipmentController.create)
+companyRouter.put(
+  '/shipment/:shipmentId',
+  auth.verifyToken,
+  shipmentController.update
+)
+companyRouter.delete(
+  '/shipment/:shipmentId',
+  auth.verifyToken,
+  shipmentController.remove
+)
+
+companyRouter.get(
+  '/carbon_emission/:companyId',
+  auth.verifyToken,
+  carbonEmissionController.getList
+)
+companyRouter.get(
+  '/carbon_emission/detail/:carbonEmissionId',
+  auth.verifyToken,
   carbonEmissionController.getById
 )
-companyRouter.post('/carbon_emission', carbonEmissionController.create)
+companyRouter.post(
+  '/carbon_emission',
+  auth.verifyToken,
+  carbonEmissionController.create
+)
 companyRouter.put(
   '/carbon_emission/:carbonEmissionId',
+  auth.verifyToken,
   carbonEmissionController.update
 )
 companyRouter.delete(
   '/carbon_emission/:carbonEmissionId',
+  auth.verifyToken,
   carbonEmissionController.remove
 )
 
 companyRouter.get('/', auth.verifyToken, companyController.getList)
 companyRouter.get('/:companyId', auth.verifyToken, companyController.getById)
 companyRouter.post('/', companyController.create)
-// companyRouter.put('/:companyId', auth.onlyAdminSc, companyController.update)
 companyRouter.put(
   '/approve/:companyId',
   auth.onlyKementerian,
