@@ -86,14 +86,7 @@ const create = async (data) => {
     )
     await userNetwork.contract.submitTransaction(
       'RegisterUser',
-      ...[
-        idUser,
-        data.username,
-        data.email,
-        'admin-perusahaan',
-        idPerusahaan,
-        'SupplyChain',
-      ]
+      ...[idUser, data.username, data.email, 'admin-perusahaan', idPerusahaan]
     )
     userNetwork.gateway.disconnect()
 

@@ -23,7 +23,6 @@ type User struct {
 	Name   			string   `json:"name"`
 	Email 	 		string   `json:"email"`
 	Role 			string 	 `json:"role"`
-	Organization 	string 	 `json:"organization"`
 	
 	ManagerPerusahaan   *ManagerPerusahaan 	`json:"data-manager"`
 	AdminPerusahaan		*AdminPerusahaan 	`json:"data-admin"`
@@ -69,9 +68,9 @@ var logger = flogging.MustGetLogger("UserContract")
 func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 6 {
-		logger.Errorf(ER11, 6, len(args))
-		return fmt.Errorf(ER11, 6, len(args))
+	if len(args) != 5 {
+		logger.Errorf(ER11, 5, len(args))
+		return fmt.Errorf(ER11, 5, len(args))
 	}
 
 	id := args[0]
@@ -79,7 +78,6 @@ func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface)
 	email := args[2]
 	role := args[3]
 	idPerusahaan := args[4]
-	organization := args[5]
 
 	exists, err := isUserExists(ctx, id)
 	if err != nil {
@@ -94,7 +92,6 @@ func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface)
 		Name:  name,
 		Email: email,
 		Role:  role,
-		Organization: organization,
 	}
 
 	// Set ManagerPerusahaan or AdminPerusahaan based on role
@@ -147,6 +144,13 @@ func (s *UserContract) ReadAllUser(ctx contractapi.TransactionContextInterface) 
 	return constructQueryResponseFromUserIterator(resultsIterator)
 }
 
+// GetManagersByCompanyId retrieves all users with role "manager-perusahaan" and matching idPerusahaan
+func (s *UserContract) GetManagersByCompanyId(ctx contractapi.TransactionContextInterface, idPerusahaan string) ([]*User, error) {
+    queryString := fmt.Sprintf(`{"selector":{"role":"manager-perusahaan", "data-manager.idPerusahaan":"%s"}}`, idPerusahaan)
+    return getQueryResultForQueryStringUser(ctx, queryString)
+}
+
+
 func (s *UserContract) GetUserById(ctx contractapi.TransactionContextInterface) (*User, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
@@ -164,7 +168,6 @@ func (s *UserContract) GetUserById(ctx contractapi.TransactionContextInterface) 
 
 	return user, nil
 }
-
 
 // GetUserByUsername used by Login method
 func (s *UserContract) GetUserByUsername(ctx contractapi.TransactionContextInterface) (*User, error) {

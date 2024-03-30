@@ -27,18 +27,7 @@ const registerAdminKementrian = async (req, res) => {
 
 const registerUser = async (req, res) => {
   const data = req.body
-  const username = data.username
-  const email = data.email
-  const orgName = data.organizationName
-  const role = data.role
-
-  const result = await userService.registerUser(
-    req.user,
-    username,
-    email,
-    orgName,
-    role
-  )
+  const result = await userService.registerUser(req.user, data)
   res.status(result.code).send(result)
 }
 
@@ -70,10 +59,20 @@ const updateUser = async (req, res) => {
   res.status(result.code).send(result)
 }
 
+const getAllManagerByIdPerusahaan = async (req, res) => {
+  const result = await userService.getAllManagerByIdPerusahaan(
+    req.user,
+    req.params.idPerusahaan
+  )
+
+  res.status(result.code).send(result)
+}
+
 module.exports = {
   enrollAdmin,
   registerAdminKementrian,
   registerUser,
   loginUser,
   updateUser,
+  getAllManagerByIdPerusahaan,
 }

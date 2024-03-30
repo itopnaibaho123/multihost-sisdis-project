@@ -2,15 +2,21 @@
 
 const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric.js')
-const getList = async (user, args) => {
+const { v4: uuidv4 } = require('uuid')
+
+const getList = async (user, idPerusahaan) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'divcontract',
-      user
+      user.username
     )
-    const result = await network.contract.submitTransaction('ReadAllDivisi')
+    const result = await network.contract.submitTransaction(
+      'ReadAllDivisiByPerusahaan',
+      idPerusahaan
+    )
     network.gateway.disconnect()
+
     return iResp.buildSuccessResponse(
       200,
       'Successfully get all division',
@@ -23,9 +29,9 @@ const getList = async (user, args) => {
 const getById = async (user, id) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'divcontract',
-      user
+      user.username
     )
     const result = await network.contract.submitTransaction('GetDivisiById', id)
     network.gateway.disconnect()
@@ -39,17 +45,21 @@ const getById = async (user, id) => {
   }
 }
 
-const create = async (user, args) => {
+const create = async (user, data) => {
   try {
+    const args = [
+      uuidv4(),
+      data.name,
+      user.idPerusahaan,
+      data.lokasi,
+      data.idManajer,
+    ]
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'divcontract',
-      user
+      user.username
     )
-    const result = await network.contract.submitTransaction(
-      'CreateDivisi',
-      ...args
-    )
+    await network.contract.submitTransaction('CreateDivisi', ...args)
     network.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(
       200,
@@ -63,9 +73,9 @@ const create = async (user, args) => {
 const update = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'divcontract',
-      user
+      user.username
     )
     await network.contract.submitTransaction('UpdateDivisi', ...args)
     network.gateway.disconnect()
@@ -81,9 +91,9 @@ const update = async (user, args) => {
 const remove = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'divcontract',
-      user
+      user.username
     )
     await network.contract.submitTransaction('DeleteDivisi', args)
     network.gateway.disconnect()

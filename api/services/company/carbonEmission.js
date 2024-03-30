@@ -5,9 +5,9 @@ const fabric = require('../../utils/fabric.js')
 const getList = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'cecontract',
-      user
+      user.username
     )
     const result = await network.contract.submitTransaction('ReadAllCE')
     network.gateway.disconnect()
@@ -23,9 +23,9 @@ const getList = async (user, args) => {
 const getById = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'cecontract',
-      user
+      user.username
     )
     const result = await network.contract.submitTransaction('GetCEById', args)
     network.gateway.disconnect()
@@ -42,9 +42,9 @@ const getById = async (user, args) => {
 const create = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'cecontract',
-      user
+      user.username
     )
     await network.contract.submitTransaction('CreateCE', ...args)
     network.gateway.disconnect()
@@ -60,9 +60,9 @@ const create = async (user, args) => {
 const update = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'cecontract',
-      user
+      user.username
     )
     await network.contract.submitTransaction('UpdateCE', ...args)
     network.gateway.disconnect()
@@ -78,9 +78,9 @@ const update = async (user, args) => {
 const remove = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'cecontract',
-      user
+      user.username
     )
     await network.contract.submitTransaction('DeleteCE', args)
     network.gateway.disconnect()
