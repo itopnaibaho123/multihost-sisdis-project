@@ -38,7 +38,11 @@ companyRouter.get(
   auth.verifyToken,
   divisionController.getById
 )
-companyRouter.post('/division/', auth.verifyToken, divisionController.create)
+companyRouter.post(
+  '/division',
+  auth.onlyAdminPerusahaan,
+  divisionController.create
+)
 companyRouter.put(
   '/division/:divisionId',
   auth.verifyToken,

@@ -28,11 +28,12 @@ type Divisi struct {
 }
 
 // CreateAsset issues a new asset to the world state with given details.
+// CreateDivisi issues a new division to the world state with given details.
 func (s *DIVContract) CreateDivisi(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 5 {
-
+		return fmt.Errorf("incorrect number of arguments, expected 5")
 	}
 
 	id := args[0]
@@ -41,17 +42,18 @@ func (s *DIVContract) CreateDivisi(ctx contractapi.TransactionContextInterface) 
 	lokasi := args[3]
 	idManajer := args[4]
 
+	// Check if division with the same name and idPerusahaan already exists
 	exists, err := CheckIfDivisiNameExists(ctx, name, idPerusahaan)
 	if err != nil {
 		return err
 	}
 	if exists {
-		return fmt.Errorf(name)
+		return fmt.Errorf("division with name %s already exists in the company %s", name, idPerusahaan)
 	}
 
 	dvs := Divisi{
 		ID:           id,
-		Name: 		  name,
+		Name:         name,
 		IdPerusahaan: idPerusahaan,
 		Lokasi:       lokasi,
 		IdManajer:    idManajer,
@@ -64,15 +66,16 @@ func (s *DIVContract) CreateDivisi(ctx contractapi.TransactionContextInterface) 
 
 	err = ctx.GetStub().PutState(id, dvsJSON)
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return fmt.Errorf("failed to put state: %v", err)
 	}
 
-	return err
+	return nil
 }
+
 // CheckIfDivisiNameExists checks if the name of a division is already used by another company
 func CheckIfDivisiNameExists(ctx contractapi.TransactionContextInterface, name string, idPerusahaan string) (bool, error) {
-    // Create a composite key using the name and idPerusahaan
-    compositeKey, err := ctx.GetStub().CreateCompositeKey("name~idPerusahaan", []string{name, idPerusahaan})
+    // Construct the composite key using the pattern "name~perusahaan"
+    compositeKey, err := ctx.GetStub().CreateCompositeKey("name~perusahaan", []string{name, idPerusahaan})
     if err != nil {
         return false, fmt.Errorf("failed to create composite key: %v", err)
     }
@@ -111,7 +114,7 @@ func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorI
 // ReadAllDivisiByPerusahaan returns all divisions belonging to a specific company (idPerusahaan) from the ledger
 func (s *DIVContract) ReadAllDivisiByPerusahaan(ctx contractapi.TransactionContextInterface, idPerusahaan string) ([]*Divisi, error) {
     // Construct a query string to retrieve divisions by idPerusahaan
-    queryString := fmt.Sprintf(`{"selector":{"idPerusahaan":"%s"}}`, idPerusahaan)
+    queryString := fmt.Sprintf(`{"selector":{"perusahaan":"%s"}}`, idPerusahaan)
 
     // Get query results from the ledger
     resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)

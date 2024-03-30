@@ -2,15 +2,21 @@
 
 const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric.js')
-const getList = async (user, args) => {
+const { v4: uuidv4 } = require('uuid')
+
+const getList = async (user, idPerusahaan) => {
   try {
     const network = await fabric.connectToNetwork(
       user.organizationName,
       'divcontract',
       user.username
     )
-    const result = await network.contract.submitTransaction('ReadAllDivisi')
+    const result = await network.contract.submitTransaction(
+      'ReadAllDivisiByPerusahaan',
+      idPerusahaan
+    )
     network.gateway.disconnect()
+
     return iResp.buildSuccessResponse(
       200,
       'Successfully get all division',
@@ -39,8 +45,15 @@ const getById = async (user, id) => {
   }
 }
 
-const create = async (user, args) => {
+const create = async (user, data) => {
   try {
+    const args = [
+      uuidv4(),
+      data.name,
+      user.idPerusahaan,
+      data.lokasi,
+      data.idManajer,
+    ]
     const network = await fabric.connectToNetwork(
       user.organizationName,
       'divcontract',
