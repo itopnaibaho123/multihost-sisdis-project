@@ -12,4 +12,10 @@ userRouter.post('/enroll', userController.enrollAdmin)
 userRouter.post('/login', userController.loginUser)
 userRouter.post('/update', userController.updateUser)
 
+userRouter.get(
+  '/list/manager/:idPerusahaan',
+  auth.onlyAdminPerusahaan,
+  userController.getAllManagerByIdPerusahaan
+)
+
 module.exports = userRouter

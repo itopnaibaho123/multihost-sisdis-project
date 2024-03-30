@@ -115,8 +115,7 @@ const registerUser = async (
   username,
   email,
   organizationName,
-  userType,
-  idPerusahaan
+  userType
 ) => {
   try {
     if (
@@ -166,7 +165,7 @@ const registerUser = async (
       organizationName,
       email,
       userType,
-      idPerusahaan
+      permitUser.idPerusahaan
     )
 
     const payload = {
@@ -233,7 +232,7 @@ const loginUser = async (username, password) => {
         username: username,
         email: result.email,
         userType: userType,
-        organizationName: result.organization,
+        organizationName: organizationName,
       }
 
       if (userType === 'manager-perusahaan') {
@@ -241,9 +240,10 @@ const loginUser = async (username, password) => {
         payload.idDivisi = result['data-manager'].idDivisi
         payload.idPerusahaan = result['data-manager'].idPerusahaan
         payload.idPerjalanan = result['data-manager'].idPerjalanan
-      }
-      if (userType === 'admin-perusahaan') {
+      } else if (userType === 'admin-perusahaan') {
         payload.idPerusahaan = result['data-admin'].idPerusahaan
+      } else {
+        payload.idPerusahaan = ''
       }
 
       const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
@@ -310,12 +310,32 @@ const updateUser = async (
   return userAttrs
 }
 
+const getAllManagerByIdPerusahaan = async (user, idPerusahaan) => {
+  const network = await fabric.connectToNetwork(
+    user.organizationName,
+    'usercontract',
+    user.username
+  )
+
+  let result = await network.contract.submitTransaction(
+    'GetManagersByCompanyId',
+    user.idPerusahaan
+  )
+
+  return iResp.buildSuccessResponse(
+    200,
+    'Sucessfully get all manager',
+    JSON.parse(result)
+  )
+}
+
 module.exports = {
   enrollAdmin,
   registerUser,
   registerAdminKementrian,
   loginUser,
   updateUser,
+  getAllManagerByIdPerusahaan,
 }
 
 const createUser = async (username, email, organizationName, userType) => {
@@ -418,10 +438,10 @@ const invokeRegisterUserCc = async (
     'usercontract',
     username
   )
-
+  console.log(userId, username, organizationName, email, role, idPerusahaan)
   await network.contract.submitTransaction(
     'RegisterUser',
-    ...[userId, username, email, role, idPerusahaan, organizationName]
+    ...[userId, username, email, role, idPerusahaan]
   )
   network.gateway.disconnect()
 
