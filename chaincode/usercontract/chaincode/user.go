@@ -78,6 +78,7 @@ func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface)
 	email := args[2]
 	role := args[3]
 	idPerusahaan := args[4]
+	idDivisi := args[5]
 
 	exists, err := isUserExists(ctx, id)
 	if err != nil {
@@ -99,7 +100,7 @@ func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface)
 	case "manager-perusahaan":
 		managerPerusahaan := ManagerPerusahaan{
 			IdPerusahaan: idPerusahaan, // Initialize with appropriate values
-			IdDivisi:     "", // Initialize with appropriate values
+			IdDivisi:     idDivisi, // Initialize with appropriate values
 			IdPerjalanan: make([]string, 0), // Initialize as empty slice
 			NIK:          "", // Initialize with appropriate values
 		}

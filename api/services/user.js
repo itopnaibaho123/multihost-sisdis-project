@@ -115,9 +115,12 @@ const registerUser = async (
   username,
   email,
   organizationName,
-  userType
+  userType,
+  idDivision
 ) => {
   try {
+    let userIdDivision = idDivision ? idDivision : ''
+
     if (
       permitUser.userType === 'admin-kementerian' &&
       userType !== 'staf-kementerian'
@@ -139,6 +142,13 @@ const registerUser = async (
       return iResp.buildErrorResponse(
         400,
         'Company admin only be able to register company manager'
+      )
+    }
+
+    if (userType === 'manager-perusahaan' && userIdDivision === '') {
+      return iResp.buildErrorResponse(
+        400,
+        'Manager perusahaan need idDivision attribute to register'
       )
     }
 
@@ -165,7 +175,8 @@ const registerUser = async (
       organizationName,
       email,
       userType,
-      permitUser.idPerusahaan
+      permitUser.idPerusahaan,
+      userIdDivision
     )
 
     const payload = {

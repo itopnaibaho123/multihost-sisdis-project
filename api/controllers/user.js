@@ -32,7 +32,8 @@ const registerUser = async (req, res) => {
     data.username,
     data.email,
     data.organizationName,
-    data.role
+    data.role,
+    data.idDivision
   )
   res.status(result.code).send(result)
 }
