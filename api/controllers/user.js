@@ -27,7 +27,13 @@ const registerAdminKementrian = async (req, res) => {
 
 const registerUser = async (req, res) => {
   const data = req.body
-  const result = await userService.registerUser(req.user, data)
+  const result = await userService.registerUser(
+    req.user,
+    data.username,
+    data.email,
+    data.organizationName,
+    data.role
+  )
   res.status(result.code).send(result)
 }
 
