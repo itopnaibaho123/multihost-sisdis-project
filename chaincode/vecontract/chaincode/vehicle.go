@@ -21,6 +21,7 @@ type VEContract struct {
 
 type Divisi struct {
 	ID           string `json:"id"`
+	Name 		 string `json:"name"`
 	IdPerusahaan string `json:"perusahaan"`
 	Lokasi       string `json:"lokasi"`
 	IdManajer    string `json:"manajer"`
@@ -161,6 +162,8 @@ func getCompleteDataVehicle(ctx contractapi.TransactionContextInterface, vehicle
 	vehicleResult.FuelType = vehicle.FuelType
 	vehicleResult.KmUsage = vehicle.KmUsage
 	vehicleResult.IdDivisi = nil
+
+	// response := ctx.GetStub().InvokeChaincode(PDContract, queryArgs, AcademicChannel)
 
 	return &vehicleResult, nil
 }

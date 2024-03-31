@@ -1,7 +1,8 @@
 'use strict'
 const iResp = require('../../utils/response.interface.js')
-
 const fabric = require('../../utils/fabric')
+const { v4: uuidv4 } = require('uuid')
+
 const getList = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
@@ -43,8 +44,15 @@ const getById = async (user, id) => {
   }
 }
 
-const create = async (user, args) => {
+const create = async (user, data) => {
   try {
+    const args = [
+      uuidv4(),
+      user.idDivisi,
+      data.carModel,
+      data.fuelType,
+      data.kmUsage,
+    ]
     const network = await fabric.connectToNetwork(
       user.organizationName,
       'vecontract',
