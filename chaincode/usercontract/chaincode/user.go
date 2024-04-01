@@ -68,9 +68,9 @@ var logger = flogging.MustGetLogger("UserContract")
 func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 5 {
-		logger.Errorf(ER11, 5, len(args))
-		return fmt.Errorf(ER11, 5, len(args))
+	if len(args) != 6 {
+		logger.Errorf(ER11, 6, len(args))
+		return fmt.Errorf(ER11, 6, len(args))
 	}
 
 	id := args[0]
