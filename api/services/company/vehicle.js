@@ -3,14 +3,18 @@ const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric')
 const { v4: uuidv4 } = require('uuid')
 
-const getList = async (user, args) => {
+const getList = async (user, idDivisi) => {
   try {
     const network = await fabric.connectToNetwork(
       user.organizationName,
       'vecontract',
       user.username
     )
-    const result = await network.contract.submitTransaction('ReadAllVehicle')
+    const result = await network.contract.submitTransaction(
+      'GetVehiclesByDivisi',
+      idDivisi
+    )
+    console.log(result)
     network.gateway.disconnect()
     return iResp.buildSuccessResponse(
       200,

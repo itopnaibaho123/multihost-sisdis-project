@@ -135,6 +135,20 @@ func (s *VEContract) ReadAllVehicle(ctx contractapi.TransactionContextInterface)
 	return constructQueryResponseFromIterator(resultsIterator)
 }
 
+// GetVehiclesByDivisi retrieves all vehicles belonging to a specific division (idDivisi)
+func (s *VEContract) GetVehiclesByDivisi(ctx contractapi.TransactionContextInterface, idDivisi string) ([]*Vehicle, error) {
+    queryString := fmt.Sprintf(`{"selector":{"divisi":"%s"}}`, idDivisi)
+
+    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+    if err != nil {
+        return nil, fmt.Errorf("failed to execute query: %v", err)
+    }
+    defer resultsIterator.Close()
+
+    return constructQueryResponseFromIterator(resultsIterator)
+}
+
+
 func (s *VEContract) GetVehicleById(ctx contractapi.TransactionContextInterface) (*VehicleResult, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 

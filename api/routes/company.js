@@ -7,7 +7,7 @@ const carbonEmissionController = require('../controllers/company/carbonEmission.
 const auth = require('../middleware/auth.js')
 
 companyRouter.get(
-  '/vehicle/:companyId',
+  '/vehicle/:divisionId',
   auth.verifyToken,
   vehicleController.getList
 )
@@ -16,7 +16,11 @@ companyRouter.get(
   auth.verifyToken,
   vehicleController.getById
 )
-companyRouter.post('/vehicle', auth.verifyToken, vehicleController.create)
+companyRouter.post(
+  '/vehicle',
+  auth.onlyManagerPerusahaan,
+  vehicleController.create
+)
 companyRouter.put(
   '/vehicle/:vehicleId',
   auth.verifyToken,
