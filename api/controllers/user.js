@@ -75,6 +75,12 @@ const getAllManagerByIdPerusahaan = async (req, res) => {
   res.status(result.code).send(result)
 }
 
+const getAllStafKementerian = async (req, res) => {
+  const result = await userService.getAllStafKementerian(req.user)
+
+  res.status(result.code).send(result)
+}
+
 module.exports = {
   enrollAdmin,
   registerAdminKementrian,
@@ -82,4 +88,5 @@ module.exports = {
   loginUser,
   updateUser,
   getAllManagerByIdPerusahaan,
+  getAllStafKementerian,
 }

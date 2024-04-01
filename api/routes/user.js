@@ -18,4 +18,10 @@ userRouter.get(
   userController.getAllManagerByIdPerusahaan
 )
 
+userRouter.get(
+  '/list/staf',
+  auth.onlyAdminKementerian,
+  userController.getAllStafKementerian
+)
+
 module.exports = userRouter

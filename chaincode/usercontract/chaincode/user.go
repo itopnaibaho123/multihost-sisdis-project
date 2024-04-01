@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/hyperledger/fabric/common/flogging"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"github.com/hyperledger/fabric/common/flogging"
 )
 
 // SmartContract provides functions for managing an Asset
@@ -148,6 +148,11 @@ func (s *UserContract) ReadAllUser(ctx contractapi.TransactionContextInterface) 
 // GetManagersByCompanyId retrieves all users with role "manager-perusahaan" and matching idPerusahaan
 func (s *UserContract) GetManagersByCompanyId(ctx contractapi.TransactionContextInterface, idPerusahaan string) ([]*User, error) {
     queryString := fmt.Sprintf(`{"selector":{"role":"manager-perusahaan", "data-manager.idPerusahaan":"%s"}}`, idPerusahaan)
+    return getQueryResultForQueryStringUser(ctx, queryString)
+}
+
+func (s *UserContract) GetStafKementerian(ctx contractapi.TransactionContextInterface) ([]*User, error) {
+    queryString := fmt.Sprintf(`{"selector":{"role":"staf-kementerian"}}`)
     return getQueryResultForQueryStringUser(ctx, queryString)
 }
 
