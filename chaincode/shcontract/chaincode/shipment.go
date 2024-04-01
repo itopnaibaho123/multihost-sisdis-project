@@ -17,6 +17,7 @@ type SHContract struct {
 
 type Perjalanan struct {
 	ID               string   `json:"id"`
+	IdPerusahaan 	 string   `json:"idPerusahaan"`
 	IdSupplyChain    string   `json:"idSupplyChain"`
 	IdDivisiPengirim string   `json:"idDivisiPengirim"`
 	IdDivisiPenerima string   `json:"idDivisiPenerima"`
@@ -94,16 +95,18 @@ func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface)
 	}
 
 	id := args[0]
-	idSupplyChain := args[1]
-	divisiPengirim := args[2]
-	divisiPenerima := args[3]
-	status := args[4]
-	waktuBerangkat := args[5]
-	transportasi := args[6]
-	beratMuatan, _ := strconv.Atoi(args[7])
+	idPerusahaan := args[1]
+	idSupplyChain := args[2]
+	divisiPengirim := args[3]
+	divisiPenerima := args[4]
+	status := args[5]
+	waktuBerangkat := args[6]
+	transportasi := args[7]
+	beratMuatan, _ := strconv.Atoi(args[8])
 
 	perjalanan := Perjalanan{
 		ID:               id,
+		IdPerusahaan: 	  idPerusahaan,
 		IdSupplyChain:    idSupplyChain,
 		IdDivisiPengirim: divisiPengirim,
 		IdDivisiPenerima: divisiPenerima,
