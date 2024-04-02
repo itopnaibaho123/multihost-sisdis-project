@@ -86,7 +86,8 @@ const registerAdminKementrian = async (
       username,
       'Kementrian',
       email,
-      'admin-kementerian'
+      'admin-kementerian',
+      ''
     )
 
     const payload = {
@@ -138,13 +139,6 @@ const registerUser = async (
       return iResp.buildErrorResponse(
         400,
         'Company admin only be able to register company manager'
-      )
-    }
-
-    if (userType === 'manager-perusahaan' && userIdDivision === '') {
-      return iResp.buildErrorResponse(
-        400,
-        'Manager perusahaan need idDivision attribute to register'
       )
     }
 
@@ -585,6 +579,7 @@ const invokeRegisterUserCc = async (
     'usercontract',
     username
   )
+  console.log(userId, username, email, role, idPerusahaan)
   await network.contract.submitTransaction(
     'RegisterUser',
     ...[userId, username, email, role, idPerusahaan]
