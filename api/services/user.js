@@ -382,7 +382,7 @@ const editPassword = async (user, data) => {
     payload.idPerusahaan = user.idPerusahaan
     payload.idPerjalanan = user.idPerjalanan
   } else if (user.userType === 'admin-perusahaan') {
-    payload.idPerusahaan = userdPerusahaan
+    payload.idPerusahaan = user.idPerusahaan
   } else {
     payload.idPerusahaan = ''
   }
@@ -428,7 +428,7 @@ const editEmail = async (user, data) => {
       payload.idPerusahaan = user.idPerusahaan
       payload.idPerjalanan = user.idPerjalanan
     } else if (user.userType === 'admin-perusahaan') {
-      payload.idPerusahaan = userdPerusahaan
+      payload.idPerusahaan = user.idPerusahaan
     } else {
       payload.idPerusahaan = ''
     }
