@@ -13,7 +13,7 @@ userRouter.post('/login', userController.loginUser)
 userRouter.post('/update', userController.updateUser)
 
 userRouter.get(
-  '/list/manager/:idPerusahaan',
+  '/list/manager',
   auth.onlyAdminPerusahaan,
   userController.getAllManagerByIdPerusahaan
 )

@@ -67,10 +67,7 @@ const updateUser = async (req, res) => {
 }
 
 const getAllManagerByIdPerusahaan = async (req, res) => {
-  const result = await userService.getAllManagerByIdPerusahaan(
-    req.user,
-    req.params.idPerusahaan
-  )
+  const result = await userService.getAllManagerByIdPerusahaan(req.user)
 
   res.status(result.code).send(result)
 }
