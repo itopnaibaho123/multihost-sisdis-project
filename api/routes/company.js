@@ -115,4 +115,10 @@ companyRouter.put(
   companyController.approve
 )
 
+companyRouter.put(
+  '/reject/:companyId',
+  auth.onlyKementerian,
+  companyController.reject
+)
+
 module.exports = companyRouter

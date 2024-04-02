@@ -85,14 +85,7 @@ const create = async (data) => {
     )
     await userNetwork.contract.submitTransaction(
       'RegisterUser',
-      ...[
-        idUser,
-        data.username,
-        data.email,
-        'admin-perusahaan',
-        idPerusahaan,
-        '',
-      ]
+      ...[idUser, data.username, data.email, 'admin-perusahaan', idPerusahaan]
     )
     userNetwork.gateway.disconnect()
 
@@ -120,7 +113,43 @@ const approve = async (user, id) => {
     peNetwork.gateway.disconnect()
     company = JSON.parse(company)
 
-    await sendEmail(company.email, company.adminPerusahaan.password)
+    await sendEmail(
+      company.email,
+      `Berikut ini adalah akun untuk website Carbon Supply Chain\n 
+      username: ${company.adminPerusahaan.username}\n 
+      Password: ${company.adminPerusahaan.password}`
+    )
+    return iResp.buildSuccessResponse(
+      200,
+      'Successfully approve a company',
+      company
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
+
+const reject = async (user, id) => {
+  try {
+    const peNetwork = await fabric.connectToNetwork(
+      'kementrian',
+      'pecontract',
+      user.username
+    )
+    await peNetwork.contract.submitTransaction('RejectPerusahaan', id)
+    let company = await peNetwork.contract.submitTransaction(
+      'GetPerusahaanById',
+      id
+    )
+    peNetwork.gateway.disconnect()
+    company = JSON.parse(company)
+
+    await sendEmail(
+      company.email,
+      'Mohon maaf, perusahaan Anda tidak kami terima'
+    )
+    // Tembak smartcontract buat delete user
+
     return iResp.buildSuccessResponse(
       200,
       'Successfully approve a company',
@@ -149,7 +178,7 @@ const update = async (user, args) => {
   }
 }
 
-module.exports = { getList, getById, create, update, approve }
+module.exports = { getList, getById, create, update, approve, reject }
 
 const createUser = async (username) => {
   const ccp = await fabric.getCcp('SupplyChain')
