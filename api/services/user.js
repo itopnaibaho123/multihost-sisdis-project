@@ -269,7 +269,7 @@ const loginUser = async (username, password) => {
   }
 }
 
-const updateUser = async (
+const editUser = async (
   organizationName,
   username,
   password,
@@ -321,7 +321,134 @@ const updateUser = async (
   return userAttrs
 }
 
-const getAllManagerByIdPerusahaan = async (user, idPerusahaan) => {
+const editPassword = async (user, data) => {
+  // try {
+  const currentUserAttrs = await fabric.getUserAttrs(
+    user.username,
+    user.organizationName
+  )
+  const currentPassword = currentUserAttrs.find(
+    (e) => e.name == 'password'
+  ).value
+
+  if (!(await bcrypt.compare(data.currentPassword, currentPassword))) {
+    return iResp.buildErrorResponse(400, 'Invalid current password', null)
+  }
+
+  const ccp = await fabric.getCcp(user.organizationName)
+  const wallet = await fabric.getWallet(user.organizationName)
+
+  // Create a new CA client for interacting with the CA.
+  const caURL =
+    ccp.certificateAuthorities[
+      `ca.${user.organizationName.toLowerCase()}.example.com`
+    ].url
+  const ca = new FabricCAServices(
+    caURL,
+    undefined,
+    `ca.${user.organizationName.toLowerCase()}.example.com`
+  )
+
+  // Check to see if we've already enrolled the admin user.
+  const adminIdentity = await wallet.get('admin')
+  if (!adminIdentity) {
+    throw new Error('Admin network does not exist')
+  }
+
+  // build a user object for authenticating with the CA
+  const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type)
+  const adminUser = await provider.getUserContext(adminIdentity, 'admin')
+
+  // retrieve the registered identity
+  const identityService = ca.newIdentityService()
+  const encryptedPassword = await bcrypt.hash(data.newPassword, 10)
+  const updateObj = {
+    affiliation: `${user.organizationName.toLowerCase()}.department1`,
+    role: 'client',
+    attrs: [
+      { name: 'userType', value: user.userType, ecert: true },
+      { name: 'password', value: encryptedPassword, ecert: true },
+    ],
+  }
+  identityService.update(user.username, updateObj, adminUser)
+
+  // Get user attr
+  const payload = {
+    id: user.id,
+    username: user.username,
+    email: data.email,
+    userType: user.userType,
+    organizationName: user.organizationName,
+  }
+
+  if (user.userType === 'manager-perusahaan') {
+    payload.nik = user.nik
+    payload.idDivisi = user.idDivisi
+    payload.idPerusahaan = user.idPerusahaan
+    payload.idPerjalanan = user.idPerjalanan
+  } else if (user.userType === 'admin-perusahaan') {
+    payload.idPerusahaan = user.idPerusahaan
+  } else {
+    payload.idPerusahaan = ''
+  }
+
+  const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
+
+  payload.token = token
+
+  return iResp.buildSuccessResponse(
+    200,
+    `Successfully Update Password`,
+    payload
+  )
+  // } catch (error) {
+  //   return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  // }
+}
+
+const editEmail = async (user, data) => {
+  try {
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'usercontract',
+      user.username
+    )
+
+    await network.contract.evaluateTransaction(
+      'UpdateUserData',
+      ...[user.id, data.email]
+    )
+
+    const payload = {
+      id: user.id,
+      username: user.username,
+      email: data.email,
+      userType: user.userType,
+      organizationName: user.organizationName,
+    }
+
+    if (user.userType === 'manager-perusahaan') {
+      payload.nik = user.nik
+      payload.idDivisi = user.idDivisi
+      payload.idPerusahaan = user.idPerusahaan
+      payload.idPerjalanan = user.idPerjalanan
+    } else if (user.userType === 'admin-perusahaan') {
+      payload.idPerusahaan = user.idPerusahaan
+    } else {
+      payload.idPerusahaan = ''
+    }
+
+    const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
+
+    payload.token = token
+
+    return iResp.buildSuccessResponse(200, `Successfully Update Email`, payload)
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
+
+const getAllManagerByIdPerusahaan = async (user) => {
   const network = await fabric.connectToNetwork(
     user.organizationName,
     'usercontract',
@@ -361,7 +488,8 @@ module.exports = {
   registerUser,
   registerAdminKementrian,
   loginUser,
-  updateUser,
+  editPassword,
+  editEmail,
   getAllManagerByIdPerusahaan,
   getAllStafKementerian,
 }
@@ -384,16 +512,12 @@ const createUser = async (username, email, organizationName, userType) => {
   // Check to see if we've already enrolled the user.
   const checkWalletPerusahaan = await walletSupplyChain.get(username)
   if (checkWalletPerusahaan) {
-    throw new Error(
-      `An identity for the user ${username} already exists in the wallet`
-    )
+    throw new Error(`An identity for the user ${username} already exists`)
   }
 
   const checkWalletKm = await walletKementrian.get(username)
   if (checkWalletKm) {
-    throw new Error(
-      `An identity for the user ${username} already exists in the wallet`
-    )
+    throw new Error(`An identity for the user ${username} already exists`)
   }
 
   // Check to see if we've already enrolled the admin user.
@@ -467,19 +591,19 @@ const invokeRegisterUserCc = async (
     'usercontract',
     username
   )
-  console.log(
-    userId,
-    username,
-    organizationName,
-    email,
-    role,
-    idPerusahaan,
-    idDivisi
-  )
-  await network.contract.submitTransaction(
-    'RegisterUser',
-    ...[userId, username, email, role, idPerusahaan, idDivisi]
-  )
+
+  if (!idDivisi) {
+    await network.contract.submitTransaction(
+      'RegisterUser',
+      ...[userId, username, email, role, idPerusahaan, '']
+    )
+  } else {
+    await network.contract.submitTransaction(
+      'RegisterUser',
+      ...[userId, username, email, role, idPerusahaan, idDivisi]
+    )
+  }
+
   network.gateway.disconnect()
 
   return userId

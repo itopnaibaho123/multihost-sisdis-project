@@ -1,9 +1,10 @@
-const iResp = require('../../utils/response.interface.js')
-
 const shipmentService = require('../../services/company/shipment.js')
 
 const getList = async (req, res) => {
-  const result = await shipmentService.getList(req.user, [])
+  const user = req.user
+  const idPerusahaan =
+    user.idPerusahaan == '' ? req.params.idPerusahaan : user.idPerusahaan
+  const result = await shipmentService.getList(user, idPerusahaan)
 
   res.status(result.code).send(result)
 }
@@ -15,19 +16,7 @@ const getById = async (req, res) => {
 }
 
 const create = async (req, res) => {
-  const args = [
-    data.id,
-    data.idSupplyChain,
-    data.idDivisiPengirim,
-    data.idDivisiPenerima,
-    data.status,
-    data.waktuBerangkat,
-    data.waktuSampai,
-    data.idTransportasi,
-    data.beratMuatan,
-    data.emisiKarbonstr,
-  ]
-  const result = await shipmentService.create(req.user, args)
+  const result = await shipmentService.create(req.user, req.body)
 
   res.status(result.code).send(result)
 }

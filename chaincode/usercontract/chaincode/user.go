@@ -208,14 +208,13 @@ func (s *UserContract) GetUserByUsername(ctx contractapi.TransactionContextInter
 func (s *UserContract) UpdateUserData(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 4 {
-		logger.Errorf(ER11, 4, len(args))
-		return fmt.Errorf(ER11, 4, len(args))
+	if len(args) != 2 {
+		logger.Errorf(ER11, 2, len(args))
+		return fmt.Errorf(ER11, 2, len(args))
 	}
 
 	userId := args[0]
-	name := args[1]
-	email := args[2]
+	newEmail := args[1]
 	
 	// Retrieve the user from the ledger
 	user, err := getUserStateById(ctx, userId)
@@ -223,9 +222,14 @@ func (s *UserContract) UpdateUserData(ctx contractapi.TransactionContextInterfac
 		return err
 	}
 
+	// Check if the new email is already used by another user
+	if err := checkEmailAvailability(ctx, newEmail, userId); 
+	err != nil {
+		return err
+	}
+
 	// Update general user data
-	user.Name = name
-	user.Email = email
+	user.Email = newEmail
 
 	// Marshal the updated user object
 	updatedUserJSON, err := json.Marshal(user)
@@ -402,6 +406,36 @@ func isUserExists(ctx contractapi.TransactionContextInterface, id string) (bool,
 	}
 
 	return user != nil, nil
+}
+
+// checkEmailAvailability checks if the new email is already used by another user
+func checkEmailAvailability(ctx contractapi.TransactionContextInterface, newEmail, userId string) error {
+	// Query the ledger to check if the email is already used by another user
+	queryString := fmt.Sprintf(`{"selector":{"email":"%s"},"use_index":["_design/indexEmailDoc","indexEmail"]}`, newEmail)
+	queryResults, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return fmt.Errorf("error querying the ledger: %v", err)
+	}
+	defer queryResults.Close()
+
+	for queryResults.HasNext() {
+		item, err := queryResults.Next()
+		if err != nil {
+			return fmt.Errorf("error iterating query results: %v", err)
+		}
+
+		var user User
+		if err := json.Unmarshal(item.Value, &user); err != nil {
+			return fmt.Errorf("error unmarshalling user data: %v", err)
+		}
+
+		// If the email belongs to a different user, return an error
+		if user.ID != userId {
+			return fmt.Errorf("email '%s' is already used by another user", newEmail)
+		}
+	}
+
+	return nil
 }
 
 func getUserStateById(ctx contractapi.TransactionContextInterface, id string) (*User, error) {

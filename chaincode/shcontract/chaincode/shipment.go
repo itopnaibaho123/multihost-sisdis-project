@@ -99,10 +99,10 @@ func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface)
 	idSupplyChain := args[2]
 	divisiPengirim := args[3]
 	divisiPenerima := args[4]
-	status := args[5]
-	waktuBerangkat := args[6]
-	transportasi := args[7]
-	beratMuatan, _ := strconv.Atoi(args[8])
+	status := "Need Approval"
+	waktuBerangkat := args[5]
+	transportasi := args[6]
+	beratMuatan, _ := strconv.Atoi(args[7])
 
 	perjalanan := Perjalanan{
 		ID:               id,
@@ -237,6 +237,19 @@ func (s *SHContract) ReadAllShipment(ctx contractapi.TransactionContextInterface
 
 	return constructQueryResponseFromIterator(resultsIterator)
 }
+
+func (s *SHContract) GetShipmentsByPerusahaan(ctx contractapi.TransactionContextInterface, idPerusahaan string) ([]*Perjalanan, error) {
+    queryString := fmt.Sprintf(`{"selector":{"idPerusahaan":"%s"}}`, idPerusahaan)
+
+    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+    if err != nil {
+        return nil, fmt.Errorf("failed to execute query: %v", err)
+    }
+    defer resultsIterator.Close()
+
+    return constructQueryResponseFromIterator(resultsIterator)
+}
+
 
 func (s *SHContract) GetShipmentById(ctx contractapi.TransactionContextInterface) (*PerjalananResult, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]

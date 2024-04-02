@@ -108,12 +108,12 @@ companyRouter.delete(
 )
 
 companyRouter.get(
-  '/supply_chain/:supplyId',
+  '/supply_chain/',
   auth.verifyToken,
   supplyChainController.getList
 )
 companyRouter.get(
-  '/supply_chain/detail/:supplyId',
+  '/supply_chain/:supplyId',
   auth.verifyToken,
   supplyChainController.getById
 )

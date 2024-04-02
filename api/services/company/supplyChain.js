@@ -42,21 +42,20 @@ const getById = async (user, args) => {
 
 const create = async (user, data) => {
   try {
+    console.log(data.listPerusahaan)
     const args = {
       id: uuidv4(),
       listPerusahaan: data.listPerusahaan,
       status: 'pending',
       proposalSupplyChain: [],
     }
+
     const network = await fabric.connectToNetwork(
       user.organizationName,
       'sccontract',
       user.username
     )
-    await network.contract.submitTransaction(
-      'CreateSupplyChainInitial',
-      ...args
-    )
+    await network.contract.submitTransaction('CreateSC', JSON.stringify(args))
     network.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(
       200,
@@ -135,10 +134,7 @@ const ApprovePerusahaan = async (user, data) => {
       user.username
     )
     const supplyChain = JSON.parse(
-      await network1.contract.submitTransaction(
-        'getSCStateById',
-        data.idSupplyChain
-      )
+      await network1.contract.submitTransaction('GetSCById', data.idSupplyChain)
     )
     let objProposal = supplyChain.proposalSupplyChain.findIndex(
       (obj) => obj.id == data.IdPerusahaan
@@ -147,7 +143,7 @@ const ApprovePerusahaan = async (user, data) => {
 
     if (data.status === 'reject') {
       supplyChain.status = 'reject'
-      await network1.contract.submitTransaction('UpdateCSP', supplyChain)
+      await network1.contract.submitTransaction('UpdateSC', supplyChain)
       const network2 = await fabric.connectToNetwork(
         user.organizationName,
         'pecontract',
