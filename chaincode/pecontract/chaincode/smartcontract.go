@@ -80,7 +80,6 @@ type PerusahaanResult struct {
 type Admin struct {
 	ID             	string 	`json:"id"`
 	Username 		string 	`json:"username"`
-	Password 		string 	`json:"password"`
 }
 
 type Perusahaan struct {
@@ -105,7 +104,7 @@ type Perusahaan struct {
 func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 10 {
+	if len(args) != 9 {
 
 	}
 
@@ -119,7 +118,6 @@ func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterfac
 	adminPerusahaan := &Admin{
 		ID:           args[7],
         Username:     args[8],
-        Password:     args[9],
 	}
 	ApprovalStatus := 0
 	ParticipantStatus := 0

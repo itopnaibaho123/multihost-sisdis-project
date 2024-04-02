@@ -34,7 +34,7 @@ const getById = async (user, id) => {
     const network = await fabric.connectToNetwork(
       user.organizationName,
       'pecontract',
-      user
+      user.username
     )
     const result = await network.contract.submitTransaction(
       'GetPerusahaanById',
@@ -56,7 +56,7 @@ const create = async (data) => {
     const idUser = uuidv4()
     const idPerusahaan = uuidv4()
 
-    const password = await createUser(data.username)
+    await createUser(data.username)
 
     const args = [
       idPerusahaan,
@@ -68,7 +68,6 @@ const create = async (data) => {
       data.urlSuratProposal,
       idUser,
       data.username,
-      password,
     ]
 
     const peNetwork = await fabric.connectToNetwork(
