@@ -20,19 +20,17 @@ type CSPContract struct {
 
 // var logger = flogging.MustGetLogger("PEContract")
 
-
-
 type CarbonSalesProposal struct {
-	ID              string   `json:"id"`
-	IdPerusahaan    string   `json:"idPerusahaan"`
-	KuotaYangDijual int   `json:"kuotaYangDijual"`
-	Status          string   `json:"status"`
+	ID              string `json:"id"`
+	IdPerusahaan    string `json:"idPerusahaan"`
+	KuotaYangDijual int    `json:"kuotaYangDijual"`
+	Status          string `json:"status"`
 }
 type CarbonSalesProposalResult struct {
-	ID              string   	  `json:"id"`
-	IdPerusahaan    *Perusahaan   `json:"perusahaan"`
-	KuotaYangDijual int  	  `json:"kuotaYangDijual"`
-	Status          string   	  `json:"status"`
+	ID              string      `json:"id"`
+	IdPerusahaan    *Perusahaan `json:"perusahaan"`
+	KuotaYangDijual int         `json:"kuotaYangDijual"`
+	Status          string      `json:"status"`
 }
 
 type Perusahaan struct {
@@ -65,7 +63,7 @@ func (s *CSPContract) CreateProposal(ctx contractapi.TransactionContextInterface
 	idPerusahaan := args[1]
 	kuotaYangDijualStr := args[2]
 	status := args[3]
-	
+
 	kuotaYangDijual, err := strconv.Atoi(kuotaYangDijualStr)
 	if err != nil {
 	}
@@ -79,11 +77,10 @@ func (s *CSPContract) CreateProposal(ctx contractapi.TransactionContextInterface
 	}
 
 	csp := CarbonSalesProposal{
-		ID:                  id,
-		IdPerusahaan:        idPerusahaan,
-		KuotaYangDijual:     kuotaYangDijual,
-		Status:              status,
-
+		ID:              id,
+		IdPerusahaan:    idPerusahaan,
+		KuotaYangDijual: kuotaYangDijual,
+		Status:          status,
 	}
 
 	cspJSON, err := json.Marshal(csp)
@@ -145,7 +142,35 @@ func (s *CSPContract) ReadAllCSP(ctx contractapi.TransactionContextInterface) ([
 	return constructQueryResponseFromIterator(resultsIterator)
 }
 
-func (s *CSPContract) GetCSPById(ctx contractapi.TransactionContextInterface) (*CarbonSalesProposalResult, error) {
+func (s *CSPContract) GetAllCSPByIdPerusahaan(ctx contractapi.TransactionContextInterface) ([]*CarbonSalesProposal, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"idPerusahaan":"%s"}}`, args)
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var carbonSalesProposalList []*CarbonSalesProposal
+
+
+	for _, csp := range queryResult {
+		carbonSalesProposalList = append(carbonSalesProposalList, csp)
+	}
+	
+
+	return carbonSalesProposalList, nil
+}
+func getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) ([]*CarbonSalesProposal, error) {
+
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, fmt.Errorf("ER32", err)
+	}
+	defer resultsIterator.Close()
+
+	return constructQueryResponseFromIterator(resultsIterator)
+}
+
+func (s *CSPContract) GetCSPById(ctx contractapi.TransactionContextInterface) (*CarbonSalesProposal, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 1 {
@@ -155,12 +180,9 @@ func (s *CSPContract) GetCSPById(ctx contractapi.TransactionContextInterface) (*
 	if err != nil {
 		return nil, err
 	}
-	cspResult, err := getCompleteDataPerusahaan(ctx, csp)
-	if err != nil {
-		return nil, err
-	}
+	
 
-	return cspResult, nil
+	return csp, nil
 }
 func getCompleteDataPerusahaan(ctx contractapi.TransactionContextInterface, csp *CarbonSalesProposal) (*CarbonSalesProposalResult, error) {
 	// logger.Infof("Run getCompleteDataKls function with kls id: '%s'.", perusahaan.ID)
@@ -171,7 +193,6 @@ func getCompleteDataPerusahaan(ctx contractapi.TransactionContextInterface, csp 
 	cspr.KuotaYangDijual = csp.KuotaYangDijual
 	cspr.Status = csp.Status
 	cspr.IdPerusahaan = nil
-	
 
 	return &cspr, nil
 }
@@ -218,7 +239,6 @@ func (s *CSPContract) UpdateCSP(ctx contractapi.TransactionContextInterface) err
 	csp.IdPerusahaan = idPerusahaan
 	csp.KuotaYangDijual = kuotaYangDijual
 	csp.Status = status
-	
 
 	cspJSON, err := json.Marshal(csp)
 	if err != nil {
