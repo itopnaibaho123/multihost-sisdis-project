@@ -115,12 +115,9 @@ const registerUser = async (
   username,
   email,
   organizationName,
-  userType,
-  idDivision
+  userType
 ) => {
   try {
-    let userIdDivision = idDivision ? idDivision : ''
-    console.log(userIdDivision)
     if (
       permitUser.userType === 'admin-kementerian' &&
       userType !== 'staf-kementerian'
@@ -142,13 +139,6 @@ const registerUser = async (
       return iResp.buildErrorResponse(
         400,
         'Company admin only be able to register company manager'
-      )
-    }
-
-    if (userType === 'manager-perusahaan' && userIdDivision === '') {
-      return iResp.buildErrorResponse(
-        400,
-        'Manager perusahaan need idDivision attribute to register'
       )
     }
 
@@ -175,8 +165,7 @@ const registerUser = async (
       organizationName,
       email,
       userType,
-      permitUser.idPerusahaan,
-      userIdDivision
+      permitUser.idPerusahaan
     )
 
     const payload = {
@@ -583,27 +572,18 @@ const invokeRegisterUserCc = async (
   organizationName,
   email,
   role,
-  idPerusahaan,
-  idDivisi
+  idPerusahaan
 ) => {
   const network = await fabric.connectToNetwork(
     organizationName,
     'usercontract',
     username
   )
-
-  if (!idDivisi) {
-    await network.contract.submitTransaction(
-      'RegisterUser',
-      ...[userId, username, email, role, idPerusahaan, '']
-    )
-  } else {
-    await network.contract.submitTransaction(
-      'RegisterUser',
-      ...[userId, username, email, role, idPerusahaan, idDivisi]
-    )
-  }
-
+  console.log(userId, username, email, role, idPerusahaan)
+  await network.contract.submitTransaction(
+    'RegisterUser',
+    ...[userId, username, email, role, idPerusahaan]
+  )
   network.gateway.disconnect()
 
   return userId

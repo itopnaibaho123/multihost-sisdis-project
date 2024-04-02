@@ -47,10 +47,13 @@ const getById = async (user, id) => {
 
 const create = async (user, data) => {
   try {
+    const idDivisi = uuidv4()
     const args = [
-      uuidv4(),
+      idDivisi,
       data.name,
       user.idPerusahaan,
+      data.lan,
+      data.long,
       data.lokasi,
       data.idManajer,
     ]
@@ -61,6 +64,19 @@ const create = async (user, data) => {
     )
     await network.contract.submitTransaction('CreateDivisi', ...args)
     network.gateway.disconnect()
+
+    // update data manager
+    const network2 = await fabric.connectToNetwork(
+      user.organizationName,
+      'usercontract',
+      user.username
+    )
+    await network2.contract.submitTransaction(
+      'UpdateManagerData',
+      ...[data.idManajer, user.idPerusahaan, idDivisi, '']
+    )
+    network2.gateway.disconnect()
+
     return iResp.buildSuccessResponseWithoutData(
       200,
       'Successfully registered a new division'

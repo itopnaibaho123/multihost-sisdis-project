@@ -23,6 +23,8 @@ type Divisi struct {
 	ID           string `json:"id"`
 	Name 		 string `json:"name"`
 	IdPerusahaan string `json:"perusahaan"`
+	Latitude 	 string `json:"lat"`
+	Longitude	 string `json:"long"`
 	Lokasi       string `json:"lokasi"`
 	IdManajer    string `json:"manajer"`
 }
@@ -32,15 +34,17 @@ type Divisi struct {
 func (s *DIVContract) CreateDivisi(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 5 {
-		return fmt.Errorf("incorrect number of arguments, expected 5")
+	if len(args) != 7 {
+		return fmt.Errorf("incorrect number of arguments, expected 7")
 	}
 
 	id := args[0]
 	name := args[1]
 	idPerusahaan := args[2]
-	lokasi := args[3]
-	idManajer := args[4]
+	latitude := args[3]
+	longitude := args[4]
+	lokasi := args[5]
+	idManajer := args[6]
 
 	// Check if division with the same name and idPerusahaan already exists
 	exists, err := CheckIfDivisiNameExists(ctx, name, idPerusahaan)
@@ -55,6 +59,8 @@ func (s *DIVContract) CreateDivisi(ctx contractapi.TransactionContextInterface) 
 		ID:           id,
 		Name:         name,
 		IdPerusahaan: idPerusahaan,
+		Latitude: 	  latitude,
+		Longitude: 	  longitude,
 		Lokasi:       lokasi,
 		IdManajer:    idManajer,
 	}

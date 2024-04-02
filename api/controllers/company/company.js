@@ -25,6 +25,13 @@ const approve = async (req, res) => {
   res.status(result.code).send(result)
 }
 
+const reject = async (req, res) => {
+  const id = req.params.companyId
+  const result = await companyService.approve(req.user, id)
+
+  res.status(result.code).send(result)
+}
+
 const update = async (req, res) => {
   const data = req.body
   const id = uuidv4()
@@ -46,4 +53,4 @@ const update = async (req, res) => {
   res.status(result.code).send(result)
 }
 
-module.exports = { getList, getById, create, update, approve }
+module.exports = { getList, getById, create, update, approve, reject }
