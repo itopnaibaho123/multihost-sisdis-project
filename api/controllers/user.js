@@ -47,7 +47,7 @@ const loginUser = async (req, res) => {
   res.status(result.code).send(result)
 }
 
-const updateUser = async (req, res) => {
+const editUser = async (req, res) => {
   const data = req.body
   const username = data.username
   const password = data.password
@@ -63,6 +63,16 @@ const updateUser = async (req, res) => {
     dataUser
   )
 
+  res.status(result.code).send(result)
+}
+
+const editPassword = async (req, res) => {
+  const result = await userService.editPassword(req.user, req.body)
+  res.status(result.code).send(result)
+}
+
+const editEmail = async (req, res) => {
+  const result = await userService.editEmail(req.user, req.body)
   res.status(result.code).send(result)
 }
 
@@ -83,7 +93,8 @@ module.exports = {
   registerAdminKementrian,
   registerUser,
   loginUser,
-  updateUser,
+  editPassword,
+  editEmail,
   getAllManagerByIdPerusahaan,
   getAllStafKementerian,
 }
