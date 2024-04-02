@@ -120,7 +120,7 @@ const registerUser = async (
 ) => {
   try {
     let userIdDivision = idDivision ? idDivision : ''
-
+    console.log(userIdDivision)
     if (
       permitUser.userType === 'admin-kementerian' &&
       userType !== 'staf-kementerian'
@@ -459,17 +459,26 @@ const invokeRegisterUserCc = async (
   organizationName,
   email,
   role,
-  idPerusahaan
+  idPerusahaan,
+  idDivisi
 ) => {
   const network = await fabric.connectToNetwork(
     organizationName,
     'usercontract',
     username
   )
-  console.log(userId, username, organizationName, email, role, idPerusahaan)
+  console.log(
+    userId,
+    username,
+    organizationName,
+    email,
+    role,
+    idPerusahaan,
+    idDivisi
+  )
   await network.contract.submitTransaction(
     'RegisterUser',
-    ...[userId, username, email, role, idPerusahaan]
+    ...[userId, username, email, role, idPerusahaan, idDivisi]
   )
   network.gateway.disconnect()
 

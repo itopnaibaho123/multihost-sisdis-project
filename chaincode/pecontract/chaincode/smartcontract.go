@@ -67,9 +67,8 @@ type PerusahaanResult struct {
 
 // * Initial Pembuatan perusahaan, lansung membuat OBject EmisiKarbon Hit Create EMission Carbon API
 type Admin struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	ID             	string 	`json:"id"`
+	Username 		string 	`json:"username"`
 }
 
 type Perusahaan struct {
@@ -94,7 +93,7 @@ type Perusahaan struct {
 func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 10 {
+	if len(args) != 9 {
 
 	}
 
@@ -106,9 +105,8 @@ func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterfac
 	Deskripsi := args[5]
 	URLSuratProposal := args[6]
 	adminPerusahaan := &Admin{
-		ID:       args[7],
-		Username: args[8],
-		Password: args[9],
+		ID:           args[7],
+        Username:     args[8],
 	}
 	ApprovalStatus := 0
 	ParticipantStatus := 0
