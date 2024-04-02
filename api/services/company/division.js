@@ -52,6 +52,8 @@ const create = async (user, data) => {
       idDivisi,
       data.name,
       user.idPerusahaan,
+      data.lan,
+      data.long,
       data.lokasi,
       data.idManajer,
     ]
