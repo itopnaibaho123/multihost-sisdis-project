@@ -387,7 +387,7 @@ const editPassword = async (user, data) => {
     payload.idPerusahaan = user.idPerusahaan
     payload.idPerjalanan = user.idPerjalanan
   } else if (user.userType === 'admin-perusahaan') {
-    payload.idPerusahaan = userdPerusahaan
+    payload.idPerusahaan = user.idPerusahaan
   } else {
     payload.idPerusahaan = ''
   }
@@ -433,7 +433,7 @@ const editEmail = async (user, data) => {
       payload.idPerusahaan = user.idPerusahaan
       payload.idPerjalanan = user.idPerjalanan
     } else if (user.userType === 'admin-perusahaan') {
-      payload.idPerusahaan = userdPerusahaan
+      payload.idPerusahaan = user.idPerusahaan
     } else {
       payload.idPerusahaan = ''
     }
@@ -591,19 +591,19 @@ const invokeRegisterUserCc = async (
     'usercontract',
     username
   )
-  console.log(
-    userId,
-    username,
-    organizationName,
-    email,
-    role,
-    idPerusahaan,
-    idDivisi
-  )
-  await network.contract.submitTransaction(
-    'RegisterUser',
-    ...[userId, username, email, role, idPerusahaan, idDivisi]
-  )
+
+  if (!idDivisi) {
+    await network.contract.submitTransaction(
+      'RegisterUser',
+      ...[userId, username, email, role, idPerusahaan, '']
+    )
+  } else {
+    await network.contract.submitTransaction(
+      'RegisterUser',
+      ...[userId, username, email, role, idPerusahaan, idDivisi]
+    )
+  }
+
   network.gateway.disconnect()
 
   return userId
