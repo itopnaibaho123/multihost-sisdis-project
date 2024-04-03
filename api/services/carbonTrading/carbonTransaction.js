@@ -1,6 +1,7 @@
 'use strict'
 const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric.js')
+const { bufferToJson } = require('../../utils/converter.js')
 const getList = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
@@ -13,7 +14,7 @@ const getList = async (user, args) => {
     return iResp.buildSuccessResponse(
       200,
       'Successfully get all carbon transaction',
-      JSON.parse(result)
+      bufferToJson(result)
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
