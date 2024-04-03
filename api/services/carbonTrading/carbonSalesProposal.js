@@ -94,7 +94,7 @@ const update = async (user, args) => {
       'cspcontract',
       user.username
     )
-    await network.contract.submitTransaction('UpdateCSP', ...args)
+    await network.contract.submitTransaction('UpdateCSP', JSON.stringify(args))
     network.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(
       200,

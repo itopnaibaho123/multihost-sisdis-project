@@ -33,13 +33,8 @@ const getAllCspPerusahaan = async (req, res) => {
 
 const update = async (req, res) => {
   const data = req.body
-  const args = [
-    req.params.salesProposalId,
-    data.idPerusahaan,
-    data.kuotaYangDijual,
-    data.status,
-  ]
-  const result = await salesProposalService.update(req.user, args)
+
+  const result = await salesProposalService.update(req.user, data)
 
   res.status(result.code).send(result)
 }

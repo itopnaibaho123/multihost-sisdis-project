@@ -133,6 +133,24 @@ func (s *CSPContract) GetAllCSPByIdPerusahaan(ctx contractapi.TransactionContext
 
 	return carbonSalesProposalList, nil
 }
+
+func (s *CSPContract) GetAllCSPByStatus(ctx contractapi.TransactionContextInterface) ([]*CarbonSalesProposal, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"status":"%s"}}`, args[0])
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var carbonSalesProposalList []*CarbonSalesProposal
+
+
+	for _, csp := range queryResult {
+		carbonSalesProposalList = append(carbonSalesProposalList, csp)
+	}
+	
+
+	return carbonSalesProposalList, nil
+}
 func getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) ([]*CarbonSalesProposal, error) {
 
 	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)

@@ -272,6 +272,22 @@ func getCTStateById(ctx contractapi.TransactionContextInterface, id string) (*Ca
 
 	return &ct, nil
 }
+func (s *CTContract) GetAllCTByStatus(ctx contractapi.TransactionContextInterface) ([]*CarbonTransaction, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"status":"%s"}}`, args[0])
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var ctList []*CarbonTransaction
+
+
+	for _, ct := range queryResult {
+		ctList = append(ctList, ct)
+	}
+	
+	return ctList, nil
+}
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
 func (s *CTContract) UpdateCT(ctx contractapi.TransactionContextInterface , jsonData string) error {

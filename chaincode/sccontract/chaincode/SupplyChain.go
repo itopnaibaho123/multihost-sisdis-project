@@ -145,6 +145,22 @@ func getSCStateById(ctx contractapi.TransactionContextInterface, id string) (*Su
 	return &sc, nil
 }
 
+func (s *SCContract) GetAllSCByStatus(ctx contractapi.TransactionContextInterface) ([]*SupplyChain, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"status":"%s"}}`, args[0])
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var scList []*SupplyChain
+
+
+	for _, sc := range queryResult {
+		scList = append(scList, sc)
+	}
+	return scList, nil
+}
+
 // UpdateAsset updates an existing asset in the world state with provided parameters.
 func (s *SCContract) UpdateSC(ctx contractapi.TransactionContextInterface, jsonData string) error {
 
