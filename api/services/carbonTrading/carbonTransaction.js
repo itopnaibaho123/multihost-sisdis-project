@@ -167,8 +167,7 @@ const verifikasiTransferKarbon = async (user, data) => {
 
       return iResp.buildSuccessResponse(
         200,
-        `Successfully Update carbon transaction ${carbonTransaction.id}`,
-        JSON.parse(result)
+        `Successfully Update carbon transaction ${carbonTransaction.id}`
       )
     }
   } catch (error) {
