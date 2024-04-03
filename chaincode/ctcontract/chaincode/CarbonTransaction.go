@@ -20,7 +20,6 @@ type CTContract struct {
 
 // var logger = flogging.MustGetLogger("PEContract")
 
-
 // Proses Trading
 // 1. Admin Perusahaan Isi Form Membuat CarbonSalesProposal Trading (Hit CC Create Carbon Sales Proposal)
 // 2. Admin perusahaan lain mau membuat transaction dengan CarbonSalesProposal (Carbon Transaction Baru)
@@ -33,23 +32,31 @@ type CTContract struct {
 // 9. if URLBuktiTransaksi Null tidak bisa diapprove sama penjual
 
 type CarbonTransaction struct {
-	ID                  string   `json:"id"`
-	IdPerusahaanPembeli string   `json:"idPerusahaanPembeli"`
-	IdProposalPenjual 	string   	 `json:"idProposalPenjual"`
-	Kuota               int   	 `json:"kuota"`
-	Status              string   `json:"status"`
-	URLBuktiTransaksi   string   `json:"urlBuktiTransaksi"`
+	ID                  string `json:"id"`
+	IdPerusahaanPembeli string `json:"idPerusahaanPembeli"`
+	IdProposalPenjual   string `json:"idProposalPenjual"`
+	Kuota               int    `json:"kuota"`
+	Status              string `json:"status"`
+	URLBuktiTransaksi   string `json:"urlBuktiTransaksi"`
 }
+
 // * Hapus Vote
 // * Ganti IdPerusahaanPenjual dengan CarbonSalesProposal
 type CarbonTransactionResult struct {
-	ID                string      `json:"id"`
-	PerusahaanPembeli *Perusahaan `json:"PerusahaanPembeli"`
-	PerusahaanPenjual *Perusahaan `json:"PerusahaanPenjual"`
-	Kuota             int      `json:"kuota"`
-	Status            string      `json:"status"`
-	Vote              []string    `json:"vote"`
-	URLBuktiTransaksi string      `json:"urlBuktiTransaksi"`
+	ID                string               `json:"id"`
+	PerusahaanPembeli *Perusahaan          `json:"perusahaanPembeli"`
+	ProposalPenjual   *CarbonSalesProposal `json:"proposalPenjual"`
+	Kuota             int                  `json:"kuota"`
+	Status            string               `json:"status"`
+	Vote              []string             `json:"vote"`
+	URLBuktiTransaksi string               `json:"urlBuktiTransaksi"`
+}
+
+type CarbonSalesProposal struct {
+	ID              string `json:"id"`
+	IdPerusahaan    string `json:"idPerusahaan"`
+	KuotaYangDijual int    `json:"kuotaYangDijual"`
+	Status          string `json:"status"`
 }
 
 type Perusahaan struct {
@@ -85,11 +92,10 @@ func (s *CTContract) CreateCT(ctx contractapi.TransactionContextInterface) error
 	status := args[4]
 	urlBuktiTransaksi := args[5]
 
-
 	kuota, err := strconv.Atoi(kuotaStr)
 	if err != nil {
 	}
-	
+
 	exists, err := isCtExists(ctx, id)
 	if err != nil {
 		return err
@@ -101,7 +107,7 @@ func (s *CTContract) CreateCT(ctx contractapi.TransactionContextInterface) error
 	ct := CarbonTransaction{
 		ID:                  id,
 		IdPerusahaanPembeli: idPerusahaanPembeli,
-		IdProposalPenjual: idPerusahaanPenjual,
+		IdProposalPenjual:   idPerusahaanPenjual,
 		Kuota:               kuota,
 		URLBuktiTransaksi:   urlBuktiTransaksi,
 		Status:              status,
@@ -166,7 +172,7 @@ func (s *CTContract) ReadAllCT(ctx contractapi.TransactionContextInterface) ([]*
 	return constructQueryResponseFromIterator(resultsIterator)
 }
 
-func (s *CTContract) GetCTById(ctx contractapi.TransactionContextInterface) (*CarbonTransactionResult, error) {
+func (s *CTContract) GetCTById(ctx contractapi.TransactionContextInterface) (*CarbonTransaction, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 1 {
@@ -176,12 +182,9 @@ func (s *CTContract) GetCTById(ctx contractapi.TransactionContextInterface) (*Ca
 	if err != nil {
 		return nil, err
 	}
-	ctResult, err := getCompleteDataCT(ctx, ct)
-	if err != nil {
-		return nil, err
-	}
 
-	return ctResult, nil
+
+	return ct, nil
 }
 func getCompleteDataCT(ctx contractapi.TransactionContextInterface, ct *CarbonTransaction) (*CarbonTransactionResult, error) {
 	// logger.Infof("Run getCompleteDataKls function with kls id: '%s'.", perusahaan.ID)
@@ -191,12 +194,68 @@ func getCompleteDataCT(ctx contractapi.TransactionContextInterface, ct *CarbonTr
 	ctr.ID = ct.ID
 	ctr.Kuota = ct.Kuota
 	ctr.Status = ct.Status
-	ctr.URLBuktiTransaksi=ct.URLBuktiTransaksi
+	ctr.URLBuktiTransaksi = ct.URLBuktiTransaksi
 	ctr.PerusahaanPembeli = nil
-	ctr.PerusahaanPenjual = nil
+	ctr.ProposalPenjual = nil
 	ctr.Vote = []string{}
 
 	return &ctr, nil
+}
+
+
+
+func (s *CTContract) GetCTbyIdPerusahaan(ctx contractapi.TransactionContextInterface) ([]*CarbonTransaction, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	idPerusahaan := args[0]
+
+	queryString := fmt.Sprintf(`{"selector":{"idPerusahaanPembeli":"%s"}}`, idPerusahaan)
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+
+	var ctList []*CarbonTransaction
+
+	for _, ct := range queryResult {
+		
+
+		ctList = append(ctList, ct)
+	}
+
+	return ctList, nil
+}
+
+func (s *CTContract) GetCTbyIdProposal(ctx contractapi.TransactionContextInterface) ([]*CarbonTransaction, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	idProposal := args[0]
+
+	queryString := fmt.Sprintf(`{"selector":{"idProposalPenjual":"%s"}}`, idProposal)
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+
+	var ctList []*CarbonTransaction
+
+	for _, ct := range queryResult {
+		
+
+		ctList = append(ctList, ct)
+	}
+
+	return ctList, nil
+}
+func getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) ([]*CarbonTransaction, error) {
+
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, fmt.Errorf("ER32", err)
+	}
+	defer resultsIterator.Close()
+
+	return constructQueryResponseFromIterator(resultsIterator)
 }
 func getCTStateById(ctx contractapi.TransactionContextInterface, id string) (*CarbonTransaction, error) {
 
@@ -215,44 +274,37 @@ func getCTStateById(ctx contractapi.TransactionContextInterface, id string) (*Ca
 }
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
-func (s *CTContract) UpdateCT(ctx contractapi.TransactionContextInterface) error {
-	args := ctx.GetStub().GetStringArgs()[1:]
+func (s *CTContract) UpdateCT(ctx contractapi.TransactionContextInterface , jsonData string) error {
 
-	// logger.Infof("Run UpdateKls function with args: %+q.", args)
-
-	if len(args) != 6 {
+	var ct CarbonTransaction
+	err := json.Unmarshal([]byte(jsonData), &ct)
+   
+	if err != nil {
+	 return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
 	}
+   
 
-	id := args[0]
-	idPerusahaanPembeli := args[1]
-	idPerusahaanPenjual := args[2]
-	kuotaStr := args[3]
-	status := args[4]
-	urlBuktiTransaksi := args[5]
 
-	ct, err := getCTStateById(ctx, id)
+	ctRes, err := getCTStateById(ctx, ct.ID)
 	if err != nil {
 		return err
 	}
 
-	kuota, err := strconv.Atoi(kuotaStr)
-	if err != nil {
-	}
+	ctRes.ID = ct.ID
+	ctRes.IdPerusahaanPembeli = ct.IdPerusahaanPembeli
+	ctRes.IdProposalPenjual = ct.IdProposalPenjual
+	ctRes.Status = ct.Status
+	ctRes.Kuota = ct.Kuota
+	ctRes.URLBuktiTransaksi = ct.URLBuktiTransaksi
 
-	ct.ID = id
-	ct.IdPerusahaanPembeli = idPerusahaanPembeli
-	ct.IdProposalPenjual = idPerusahaanPenjual
-	ct.Kuota = kuota
-	ct.Status = status
-	ct.URLBuktiTransaksi = urlBuktiTransaksi
-
-	ctJSON, err := json.Marshal(ct)
+	ctJSON, err := json.Marshal(ctRes)
 	if err != nil {
 		return err
 	}
 
-	err = ctx.GetStub().PutState(id, ctJSON)
+	err = ctx.GetStub().PutState(ctRes.ID, ctJSON)
 	if err != nil {
+		return fmt.Errorf("Failed to Update CT: %v", err)
 	}
 
 	return err

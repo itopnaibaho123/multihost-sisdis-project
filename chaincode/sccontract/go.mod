@@ -18,7 +18,6 @@ require (
 	github.com/gobuffalo/packd v1.0.1 // indirect
 	github.com/gobuffalo/packr v1.30.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/hyperledger/fabric v2.1.1+incompatible
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
@@ -32,11 +31,4 @@ require (
 	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f // indirect
 	google.golang.org/grpc v1.53.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-)
-
-require (
-	github.com/pkg/errors v0.9.1 // indirect
-	github.com/sykesm/zap-logfmt v0.0.4 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
-	go.uber.org/zap v1.27.0 // indirect
 )

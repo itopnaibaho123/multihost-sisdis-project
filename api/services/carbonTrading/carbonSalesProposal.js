@@ -6,9 +6,9 @@ const { bufferToJson } = require('../../utils/converter.js')
 const getList = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'cspcontract',
-      user
+      user.username
     )
     const result = await network.contract.submitTransaction('ReadAllCSP')
     network.gateway.disconnect()
@@ -24,9 +24,9 @@ const getList = async (user, args) => {
 const getById = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'cspcontract',
-      user
+      user.username
     )
     const result = await network.contract.submitTransaction('GetCSPById', args)
     network.gateway.disconnect()
@@ -43,11 +43,17 @@ const getById = async (user, args) => {
 const create = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'cspcontract',
-      user
+      user.username
     )
-    await network.contract.submitTransaction('CreateProposal', ...args)
+
+    args.id = uuidv4()
+
+    await network.contract.submitTransaction(
+      'CreateProposal',
+      JSON.stringify(args)
+    )
     network.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(
       200,
@@ -57,13 +63,36 @@ const create = async (user, args) => {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
+const getAllCspPerusahaan = async (user, args) => {
+  try {
+    const idPerusahaan = args
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'cspcontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetAllCSPByIdPerusahaan',
+      idPerusahaan
+    )
+
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get carbon Sales Proposal With Company Id: ${idPerusahaan}`,
+      JSON.parse(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
 
 const update = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'cspcontract',
-      user
+      user.username
     )
     await network.contract.submitTransaction('UpdateCSP', ...args)
     network.gateway.disconnect()
@@ -79,9 +108,9 @@ const update = async (user, args) => {
 const remove = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
-      'supplychain',
+      user.organizationName,
       'cspcontract',
-      user
+      user.username
     )
     await network.contract.submitTransaction('DeleteCSP', args)
     network.gateway.disconnect()
@@ -94,4 +123,11 @@ const remove = async (user, args) => {
   }
 }
 
-module.exports = { getList, getById, create, update, remove }
+module.exports = {
+  getList,
+  getById,
+  create,
+  update,
+  remove,
+  getAllCspPerusahaan,
+}

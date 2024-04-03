@@ -13,75 +13,55 @@ type SCContract struct {
 	contractapi.Contract
 }
 
+type SupplyChain struct {
+	ID                  string   `json:"id"`
+	ListPerusahaan      []string `json:"listPerusahaan"`
+	Status              string   `json:"status"`
+	ProposalSupplyChain []ProposalSupplyChain `json:"proposalSupplyChain"`
+}
+
+type ProposalSupplyChain struct {
+	IdPerusahaan string `json:"id"`
+	Status       string `json:"status"`
+}
+
 // Asset describes basic details of what makes up a simple asset
 // Insert struct field in alphabetic order => to achieve determinism across languages
 // golang keeps the order when marshal to json but doesn't order automatically
 
 // var logger = flogging.MustGetLogger("PEContract")
 
-type SupplyChain struct {
-	ID             			string   `json:"id"`
-	ListPerusahaan 			[]string `json:"listPerusahaan"`
-	Status         			int      `json:"status"`
-	ProposalSupplyChain 	[]ProposalSupplyChain `json: "proposalSupplyChain"`
-}
-
-type SupplyChainResult struct {
-	ID             			string   `json:"id"`
-	ListPerusahaan 			[]Perusahaan `json:"listPerusahaan"`
-	Status         			int      `json:"status"`
-	ProposalSupplyChain 	[]ProposalSupplyChain `json: "proposalSupplyChain"`
-}
-
-type ProposalSupplyChain struct{
-	IdPerusahaan string `json:"id"`
-	Status 		string `json:"status"`
-	IdSupplyChain string `supplyChain`
-}
-type Perusahaan struct {
-	ID                  string   `json:"id"`
-	NomorTelepon        string   `json:"nomorTelepon"`
-	Email               string   `json:"email"`
-	Nama                string   `json:"nama"`
-	Lokasi              string   `json:"lokasi"`
-	Deskripsi           string   `json:"deskripsi"`
-	URLSuratProposal    string   `json:"urlSuratProposal"`
-	ApprovalStatus      int      `json:"approvalStatus"`
-	ParticipantStatus   int      `json:"participantStatus"`
-	SupplyChain         []string `json:"supplyChain"`
-	ProposalSupplyChain []string `json:"proposalSupplyChain"`
-	IdEmisiKarbon       string   `json:"emisiKarbon"`
-	IdManajer           string   `json:"manajer"`
-	Kuota               int      `json:"kuota"`
-	SisaKuota           int      `json:"sisaKuota"`
-}
-
 // CreateAsset issues a new asset to the world state with given details.
-func (s *SCContract) CreateSupplyChainInitial(ctx contractapi.TransactionContextInterface, args string) error {
-	var supplyChain SupplyChain
-	err := json.Unmarshal([]byte(args), &supplyChain)
-	if(err!=nil){
-		return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
-	}
-	supplyChainJSON, err := json.Marshal(supplyChain)
-	if(err!=nil){
-		return err
-	}
+func (s *SCContract) CreateSC(ctx contractapi.TransactionContextInterface, jsonData string) error {
 
-	err = ctx.GetStub().PutState(supplyChain.ID, supplyChainJSON)
+	var sc SupplyChain
+	err := json.Unmarshal([]byte(jsonData), &sc)
+   
 	if err != nil {
-		fmt.Errorf(err.Error())
+	 return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
 	}
+   
+	scJSON, err := json.Marshal(sc)
+	if err != nil {
+	 return err
+	}
+   
+	err = ctx.GetStub().PutState(sc.ID, scJSON)
+	if err != nil {
+	 fmt.Errorf(err.Error())
+	}
+   
 	return err
 }
-func isScExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 
-	cspJSON, err := ctx.GetStub().GetState(id)
+func isSCExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+
+	scJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return false, fmt.Errorf(err.Error())
 	}
 
-	return cspJSON != nil, nil
+	return scJSON != nil, nil
 }
 func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*SupplyChain, error) {
 	// logger.Infof("Run constructQueryResponseFromIterator function.")
@@ -120,7 +100,18 @@ func (s *SCContract) ReadAllSC(ctx contractapi.TransactionContextInterface) ([]*
 	return constructQueryResponseFromIterator(resultsIterator)
 }
 
-func (s *SCContract) GetSCById(ctx contractapi.TransactionContextInterface) (*SupplyChainResult, error) {
+func getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) ([]*SupplyChain, error) {
+
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, fmt.Errorf("ER32", err)
+	}
+	defer resultsIterator.Close()
+
+	return constructQueryResponseFromIterator(resultsIterator)
+}
+
+func (s *SCContract) GetSCById(ctx contractapi.TransactionContextInterface) (*SupplyChain, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 1 {
@@ -130,25 +121,13 @@ func (s *SCContract) GetSCById(ctx contractapi.TransactionContextInterface) (*Su
 	if err != nil {
 		return nil, err
 	}
-	cspResult, err := getCompleteDataSupplyChain(ctx, csp)
-	if err != nil {
-		return nil, err
-	}
 
-	return cspResult, nil
+	return csp, nil
 }
-func getCompleteDataSupplyChain(ctx contractapi.TransactionContextInterface, sc *SupplyChain) (*SupplyChainResult, error) {
+func getCompleteDataPerusahaan(ctx contractapi.TransactionContextInterface, sc *SupplyChain) (*SupplyChain, error) {
 	// logger.Infof("Run getCompleteDataKls function with kls id: '%s'.", perusahaan.ID)
 
-	var scr SupplyChainResult
-
-	scr.ID = sc.ID
-	scr.ListPerusahaan = nil
-	scr.Status = sc.Status
-	scr.ProposalSupplyChain = nil
-	
-
-	return &scr, nil
+	return sc, nil
 }
 func getSCStateById(ctx contractapi.TransactionContextInterface, id string) (*SupplyChain, error) {
 
@@ -167,28 +146,44 @@ func getSCStateById(ctx contractapi.TransactionContextInterface, id string) (*Su
 }
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
-func (s *SCContract) UpdateCSP(ctx contractapi.TransactionContextInterface, args string) error {
-	var supplyChain SupplyChain
-	err := json.Unmarshal([]byte(args), &supplyChain)
+func (s *SCContract) UpdateSC(ctx contractapi.TransactionContextInterface, jsonData string) error {
 
-	if(err!=nil){
-		return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
+
+	// logger.Infof("Run UpdateKls function with args: %+q.", args)
+
+	var sc SupplyChain
+	err := json.Unmarshal([]byte(jsonData), &sc)
+   
+	if err != nil {
+	 return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
 	}
-	supplyChainJSON, err := json.Marshal(supplyChain)
-	if(err!=nil){
+   
+
+
+	scRes, err := getSCStateById(ctx, sc.ID)
+	if err != nil {
 		return err
 	}
 
-	err = ctx.GetStub().PutState(supplyChain.ID, supplyChainJSON)
-	if err != nil {
-		fmt.Errorf(err.Error())
-	}
-	return err
+	scRes.ID = sc.ID
+	scRes.ListPerusahaan = sc.ListPerusahaan
+	scRes.Status = sc.Status
+	scRes.ProposalSupplyChain = sc.ProposalSupplyChain
 
+	scJSON, err := json.Marshal(scRes)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(scRes.ID, scJSON)
+	if err != nil {
+	}
+
+	return err
 }
 
 // DeleteAsset deletes an given asset from the world state.
-func (s *SCContract) DeleteCSP(ctx contractapi.TransactionContextInterface) error {
+func (s *SCContract) DeleteSC(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 1 {
@@ -196,7 +191,7 @@ func (s *SCContract) DeleteCSP(ctx contractapi.TransactionContextInterface) erro
 
 	id := args[0]
 
-	exists, err := isScExists(ctx, id)
+	exists, err := isSCExists(ctx, id)
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,7 @@ const companyController = require('../controllers/company/company.js')
 const divisionController = require('../controllers/company/division.js')
 const shipmentController = require('../controllers/company/shipment.js')
 const carbonEmissionController = require('../controllers/company/carbonEmission.js')
+const supplyChainController = require('../controllers/company/supplyChain.js')
 const auth = require('../middleware/auth.js')
 
 companyRouter.get(
@@ -104,6 +105,44 @@ companyRouter.delete(
   '/carbon_emission/:carbonEmissionId',
   auth.verifyToken,
   carbonEmissionController.remove
+)
+
+companyRouter.get(
+  '/supply_chain/',
+  auth.verifyToken,
+  supplyChainController.getList
+)
+companyRouter.get(
+  '/supply_chain/:supplyId',
+  auth.verifyToken,
+  supplyChainController.getById
+)
+companyRouter.post(
+  '/supply_chain',
+  auth.verifyToken,
+  supplyChainController.create
+)
+
+companyRouter.post(
+  '/supply_chain/approve_kementerian/:supplyId',
+  auth.onlyAdminKementerian,
+  supplyChainController.ApproveKementerian
+)
+
+companyRouter.post(
+  '/supply_chain/approve_perusahaan/:supplyId',
+  auth.onlyAdminPerusahaan,
+  supplyChainController.ApprovePerusahaan
+)
+companyRouter.put(
+  '/supply_chain/:supplyId',
+  auth.verifyToken,
+  supplyChainController.update
+)
+companyRouter.delete(
+  '/supply_chain/:supplyId',
+  auth.verifyToken,
+  supplyChainController.remove
 )
 
 companyRouter.get('/', auth.verifyToken, companyController.getList)
