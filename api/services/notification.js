@@ -56,7 +56,7 @@ const getNotification = async (user, data) => {
 
       const carbonTransactionQuery = carbonTransactionPerusahaan.filter(
         function (item) {
-          return (item.status = 'pending')
+          return item.status == 'pending'
         }
       )
       const result = {
