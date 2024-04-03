@@ -54,35 +54,66 @@ const getNotification = async (user) => {
         JSON.parse(result)
       )
     } else if (user.userType === 'admin-perusahaan') {
-      const idPerusahaan = user.idPerusahaan
-      const network = await fabric.connectToNetwork(
+      // Status Pending => Carbon Transaction
+      const carbonTransactionNet = await fabric.connectToNetwork(
         user.organizationName,
         'ctcontract',
         user.username
       )
       const carbonTransactionPerusahaan =
-        await network.contract.submitTransaction(
+        await carbonTransactionNet.contract.submitTransaction(
           'GetCTbyIdPerusahaan',
-          idPerusahaan
+          user.idPerusahaan
         )
-      network.gateway.disconnect()
+      carbonTransactionNet.gateway.disconnect()
 
       const carbonTransactionQuery = carbonTransactionPerusahaan.filter(
         function (item) {
           return item.status == 'pending'
         }
       )
+
+      // Status Menunggu Persetujuan Perusahaan => supply Chain
+      const companyNet = await fabric.connectToNetwork(
+        user.organizationName,
+        'pecontract',
+        user.username
+      )
+      let company = await companyNet.contract.submitTransaction(
+        'GetPerusahaanById',
+        user.idPerusahaan
+      )
+      companyNet.gateway.disconnect()
+      company = bufferToJson(company)
+
+      const supplyChainNet = await fabric.connectToNetwork(
+        user.organizationName,
+        'sccontract',
+        user.username
+      )
+      const listSupplyChain = company.supplyChain
+
+      const transactionResults = await Promise.all(
+        listSupplyChain.map(async (idSupplyChain) => {
+          const result = await companyNet.contract.submitTransaction(
+            'GetSCById',
+            idSupplyChain
+          )
+          return result
+        })
+      )
+
       const result = {
         carbonTransaction: carbonTransactionQuery,
-        supplyChain: [],
+        supplyChain: transactionResults.filter(function (item) {
+          return item.status == 'menunggu persetujuan perusahaan'
+        }),
       }
       return iResp.buildSuccessResponse(
         200,
         'Successfully get all Notification',
         JSON.parse(result)
       )
-      // Status Menunggu Persetujuan Perusahaan => supply Chain
-      // Status Pending => Carbon Transaction
     } else {
       const network = await fabric.connectToNetwork(
         user.organizationName,

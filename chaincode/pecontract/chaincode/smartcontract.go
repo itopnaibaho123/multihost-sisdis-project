@@ -240,7 +240,7 @@ func (s *PEContract) ReadAllPendingPerusahaan(ctx contractapi.TransactionContext
     return pendingPerusahaan, nil
 }
 
-func (s *PEContract) GetPerusahaanById(ctx contractapi.TransactionContextInterface) (*PerusahaanResult, error) {
+func (s *PEContract) GetPerusahaanById(ctx contractapi.TransactionContextInterface) (*Perusahaan, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 1 {
@@ -250,12 +250,8 @@ func (s *PEContract) GetPerusahaanById(ctx contractapi.TransactionContextInterfa
 	if err != nil {
 		return nil, err
 	}
-	perusahaanResult, err := getCompleteDataPerusahaan(ctx, perusahaan)
-	if err != nil {
-		return nil, err
-	}
 
-	return perusahaanResult, nil
+	return perusahaan, nil
 }
 
 // ApprovePerusahaan updates the status field of a Perusahaan entity on the ledger.
