@@ -1,7 +1,7 @@
 const iResp = require('../../utils/response.interface.js')
 
 const carbonTransactionService = require('../../services/carbonTrading/carbonTransaction.js')
-
+const { v4: uuidv4 } = require('uuid')
 const getList = async (req, res) => {
   const result = await carbonTransactionService.getList(req.user, [])
 
@@ -49,12 +49,12 @@ const verifikasiTransferKarbon = async (req, res) => {
 const create = async (req, res) => {
   const data = req.body
   const args = [
-    data.id,
+    uuidv4(),
     data.idPerusahaanPembeli,
-    data.idPerusahaanPenjual,
+    data.idProposalPenjual,
     data.kuota,
     data.status,
-    data.urlBuktiTransfer,
+    data.urlBuktiTransaksi,
   ]
   const result = await carbonTransactionService.create(req.user, args)
 

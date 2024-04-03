@@ -73,14 +73,15 @@ const ApproveKementerian = async (user, data) => {
     if (data.status === 'Menunggu Persetujuan Perusahaan') {
       data.listPerusahaan.forEach(function (item, index) {
         const tempData = {
-          IdPerusahaan: item,
+          id: item,
           status: 'pending',
         }
+        console.log(tempData)
         proposalSupplyChain.push(tempData)
       })
     }
 
-    const args = {
+    let args = {
       id: data.id,
       listPerusahaan: data.listPerusahaan,
       status: data.status,
@@ -91,7 +92,7 @@ const ApproveKementerian = async (user, data) => {
       'sccontract',
       user.username
     )
-    await network1.contract.submitTransaction('UpdateSC', ...args)
+    await network1.contract.submitTransaction('UpdateSC', JSON.stringify(args))
     network1.gateway.disconnect()
 
     if (data.status === 'Menunggu Persetujuan Perusahaan') {
@@ -100,11 +101,16 @@ const ApproveKementerian = async (user, data) => {
         'pecontract',
         user.username
       )
+      args = {}
       for (var i = 0; i < data.listPerusahaan.length; i++) {
-        await network2.contract.submitTransaction('AddSupplyChaintoArray', [
-          data.listPerusahaan[i],
-          data.id,
-        ])
+        args = {
+          idPerusahaan: data.listPerusahaan[i],
+          idSupplyChain: data.id,
+        }
+        await network2.contract.submitTransaction(
+          'AddSupplyChaintoArray',
+          JSON.stringify(args)
+        )
       }
       network2.gateway.disconnect()
 
@@ -136,23 +142,32 @@ const ApprovePerusahaan = async (user, data) => {
     const supplyChain = JSON.parse(
       await network1.contract.submitTransaction('GetSCById', data.idSupplyChain)
     )
+
     let objProposal = supplyChain.proposalSupplyChain.findIndex(
-      (obj) => obj.id == data.IdPerusahaan
+      (obj) => obj.id == data.idPerusahaan
     )
+
     supplyChain.proposalSupplyChain[objProposal].status = data.status
 
     if (data.status === 'reject') {
       supplyChain.status = 'reject'
-      await network1.contract.submitTransaction('UpdateSC', supplyChain)
+      await network1.contract.submitTransaction(
+        'UpdateSC',
+        JSON.stringify(supplyChain)
+      )
       const network2 = await fabric.connectToNetwork(
         user.organizationName,
         'pecontract',
         user.username
       )
       for (var i = 0; i < supplyChain.proposalSupplyChain.length; i++) {
+        let args = {
+          idPerusahaan: supplyChain.proposalSupplyChain[i].id,
+          idSupplyChain: supplyChain.id,
+        }
         await network2.contract.submitTransaction(
           'DeleteSupplyChainfromArray',
-          [supplyChain.proposalSupplyChain[i].id, supplyChain.id]
+          JSON.stringify(args)
         )
       }
       network1.gateway.disconnect()
@@ -162,8 +177,9 @@ const ApprovePerusahaan = async (user, data) => {
         'Successfully Reject The SupplyChain'
       )
     } else if (data.status === 'approve') {
-      const count = 0
-      for (var i = 0; i > supplyChain.proposalSupplyChain.length; i++) {
+      let count = 0
+
+      for (var i = 0; i < supplyChain.proposalSupplyChain.length; i++) {
         if (supplyChain.proposalSupplyChain[i].status === 'approve') {
           count++
         }
@@ -171,7 +187,11 @@ const ApprovePerusahaan = async (user, data) => {
       if (count === supplyChain.proposalSupplyChain.length) {
         supplyChain.status = 'approve'
       }
-      await network1.contract.submitTransaction('UpdateSC', supplyChain)
+      await network1.contract.submitTransaction(
+        'UpdateSC',
+        JSON.stringify(supplyChain)
+      )
+
       network1.gateway.disconnect()
       return iResp.buildSuccessResponseWithoutData(
         200,
@@ -193,7 +213,7 @@ const update = async (user, args) => {
       'sccontract',
       user.username
     )
-    await network.contract.submitTransaction('UpdateSC', ...args)
+    await network.contract.submitTransaction('UpdateSC', JSON.stringify(args))
     network.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(
       200,

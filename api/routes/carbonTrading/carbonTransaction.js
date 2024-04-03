@@ -29,7 +29,7 @@ carbonTransactionRouter.post(
 )
 carbonTransactionRouter.post(
   '/',
-  auth.verifyToken,
+  auth.onlyAdminPerusahaan,
   carbonTransactionController.create
 )
 carbonTransactionRouter.put(

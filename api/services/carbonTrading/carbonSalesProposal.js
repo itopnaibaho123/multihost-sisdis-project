@@ -1,6 +1,7 @@
 'use strict'
 const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric.js')
+const { v4: uuidv4 } = require('uuid')
 
 const getList = async (user, args) => {
   try {
@@ -46,7 +47,13 @@ const create = async (user, args) => {
       'cspcontract',
       user.username
     )
-    await network.contract.submitTransaction('CreateProposal', ...args)
+
+    args.id = uuidv4()
+
+    await network.contract.submitTransaction(
+      'CreateProposal',
+      JSON.stringify(args)
+    )
     network.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(
       200,
@@ -68,6 +75,7 @@ const getAllCspPerusahaan = async (user, args) => {
       'GetAllCSPByIdPerusahaan',
       idPerusahaan
     )
+
     network.gateway.disconnect()
     return iResp.buildSuccessResponse(
       200,

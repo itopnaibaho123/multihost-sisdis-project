@@ -20,6 +20,11 @@ type PEContract struct {
 
 // var logger = flogging.MustGetLogger("PEContract")
 
+type UpdateSupplyChain struct {
+	IdPerusahaan string `json:"idPerusahaan"`
+	IdSupplyChain string `json:"idSupplyChain`
+}
+
 type SupplyChain struct {
 	ID                  string                `json:"id"`
 	ListPerusahaan      []string              `json:"listPerusahaan"`
@@ -245,17 +250,23 @@ func (s *PEContract) ApprovePerusahaan(ctx contractapi.TransactionContextInterfa
 	return nil
 }
 
-func (s *PEContract) AddSupplyChaintoArray(ctx contractapi.TransactionContextInterface) error {
+func (s *PEContract) AddSupplyChaintoArray(ctx contractapi.TransactionContextInterface, jsonData string) error {
 	// Retrieve the existing Perusahaan entity from the ledger
 
-	args := ctx.GetStub().GetStringArgs()[1:]
-	perusahaan, err := getPerusahaanStateById(ctx, args[0])
+	var us UpdateSupplyChain
+	err := json.Unmarshal([]byte(jsonData), &us)
+	if err != nil {
+		return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
+	}
+	
+	
+	perusahaan, err := getPerusahaanStateById(ctx, us.IdPerusahaan)
 	if err != nil {
 		return err
 	}
 
 	// Update the status field
-	perusahaan.SupplyChain = append(perusahaan.SupplyChain, args[1])
+	perusahaan.SupplyChain = append(perusahaan.SupplyChain, us.IdSupplyChain)
 
 	// Marshal the updated Perusahaan struct to JSON
 	perusahaanJSON, err := json.Marshal(perusahaan)
@@ -264,7 +275,7 @@ func (s *PEContract) AddSupplyChaintoArray(ctx contractapi.TransactionContextInt
 	}
 
 	// Put the updated Perusahaan JSON back to the ledger
-	err = ctx.GetStub().PutState(args[0], perusahaanJSON)
+	err = ctx.GetStub().PutState(us.IdPerusahaan, perusahaanJSON)
 	if err != nil {
 		return err
 	}
@@ -281,18 +292,22 @@ func remove(s []string, r string) []string {
 	return s
 }
 
-func (s *PEContract) DeleteSupplyChainfromArray(ctx contractapi.TransactionContextInterface) error {
+func (s *PEContract) DeleteSupplyChainfromArray(ctx contractapi.TransactionContextInterface, jsonData string) error {
 	// Retrieve the existing Perusahaan entity from the ledger
-
-	args := ctx.GetStub().GetStringArgs()[1:]
-	perusahaan, err := getPerusahaanStateById(ctx, args[0])
+	var us UpdateSupplyChain
+	err := json.Unmarshal([]byte(jsonData), &us)
+	if err != nil {
+		return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
+	}
+	
+	perusahaan, err := getPerusahaanStateById(ctx, us.IdPerusahaan)
 	if err != nil {
 		return err
 	}
 
 	// Update the status field
 	// perusahaan.SupplyChain = append(perusahaan.SupplyChain, args[1])
-	perusahaan.SupplyChain = remove(perusahaan.SupplyChain, args[1])
+	perusahaan.SupplyChain = remove(perusahaan.SupplyChain, us.IdSupplyChain)
 
 	// Marshal the updated Perusahaan struct to JSON
 	perusahaanJSON, err := json.Marshal(perusahaan)
@@ -301,7 +316,7 @@ func (s *PEContract) DeleteSupplyChainfromArray(ctx contractapi.TransactionConte
 	}
 
 	// Put the updated Perusahaan JSON back to the ledger
-	err = ctx.GetStub().PutState(args[0], perusahaanJSON)
+	err = ctx.GetStub().PutState(us.IdPerusahaan, perusahaanJSON)
 	if err != nil {
 		return err
 	}

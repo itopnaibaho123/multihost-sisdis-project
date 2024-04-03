@@ -35,12 +35,12 @@ const ApprovePerusahaan = async (req, res) => {
 
 const update = async (req, res) => {
   const data = req.body
-  const args = [
-    data.id,
-    data.listPerusahaan,
-    data.status,
-    data.proposalSupplyChain,
-  ]
+  const args = {
+    id: data.id,
+    listPerusahaan: data.listPerusahaan,
+    status: data.status,
+    proposalSupplyChain: data.proposalSupplyChain,
+  }
   const result = await supplyChainService.update(req.user, args)
 
   res.status(result.code).send(result)

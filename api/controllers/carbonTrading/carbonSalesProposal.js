@@ -1,5 +1,5 @@
 const iResp = require('../../utils/response.interface.js')
-
+const { v4: uuidv4 } = require('uuid')
 const salesProposalService = require('../../services/carbonTrading/carbonSalesProposal.js')
 
 const getList = async (req, res) => {
@@ -21,8 +21,7 @@ const getById = async (req, res) => {
 
 const create = async (req, res) => {
   const data = req.body
-  const args = [data.id, data.idPerusahaan, data.kuotaYangDijual, data.status]
-  const result = await salesProposalService.create(req.user, args)
+  const result = await salesProposalService.create(req.user, data)
 
   res.status(result.code).send(result)
 }

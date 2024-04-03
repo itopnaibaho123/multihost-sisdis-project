@@ -3,7 +3,6 @@ package chaincode
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -52,47 +51,22 @@ type Perusahaan struct {
 }
 
 // CreateAsset issues a new asset to the world state with given details.
-func (s *CSPContract) CreateProposal(ctx contractapi.TransactionContextInterface) error {
-	args := ctx.GetStub().GetStringArgs()[1:]
-
-	if len(args) != 4 {
-
-	}
-
-	id := args[0]
-	idPerusahaan := args[1]
-	kuotaYangDijualStr := args[2]
-	status := args[3]
-
-	kuotaYangDijual, err := strconv.Atoi(kuotaYangDijualStr)
+func (s *CSPContract) CreateProposal(ctx contractapi.TransactionContextInterface, jsonData string) error {
+	var csp CarbonSalesProposal
+	err:=json.Unmarshal([]byte(jsonData), &csp)
 	if err != nil {
+		return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
 	}
-
-	exists, err := isCspExists(ctx, id)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return fmt.Errorf(id)
-	}
-
-	csp := CarbonSalesProposal{
-		ID:              id,
-		IdPerusahaan:    idPerusahaan,
-		KuotaYangDijual: kuotaYangDijual,
-		Status:          status,
-	}
-
 	cspJSON, err := json.Marshal(csp)
 	if err != nil {
-		return err
+	 return err
 	}
-
-	err = ctx.GetStub().PutState(id, cspJSON)
+   
+	err = ctx.GetStub().PutState(csp.ID, cspJSON)
 	if err != nil {
-		fmt.Errorf(err.Error())
+	 fmt.Errorf(err.Error())
 	}
-
+   
 	return err
 }
 
@@ -144,7 +118,7 @@ func (s *CSPContract) ReadAllCSP(ctx contractapi.TransactionContextInterface) ([
 
 func (s *CSPContract) GetAllCSPByIdPerusahaan(ctx contractapi.TransactionContextInterface) ([]*CarbonSalesProposal, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
-	queryString := fmt.Sprintf(`{"selector":{"idPerusahaan":"%s"}}`, args)
+	queryString := fmt.Sprintf(`{"selector":{"idPerusahaan":"%s"}}`, args[0])
 	queryResult, err := getQueryResultForQueryString(ctx, queryString)
 	if err != nil {
 		return nil, err
@@ -213,39 +187,36 @@ func getCSPStateById(ctx contractapi.TransactionContextInterface, id string) (*C
 }
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
-func (s *CSPContract) UpdateCSP(ctx contractapi.TransactionContextInterface) error {
-	args := ctx.GetStub().GetStringArgs()[1:]
+func (s *CSPContract) UpdateCSP(ctx contractapi.TransactionContextInterface, jsonData string) error {
+	
 
 	// logger.Infof("Run UpdateKls function with args: %+q.", args)
 
-	if len(args) != 4 {
+	var csp CarbonSalesProposal
+	err := json.Unmarshal([]byte(jsonData), &csp)
+   
+	if err != nil {
+	 return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
 	}
+   
 
-	id := args[0]
-	idPerusahaan := args[1]
-	kuotaYangDijualStr := args[2]
-	status := args[3]
 
-	csp, err := getCSPStateById(ctx, id)
+	cspRes, err := getCSPStateById(ctx, csp.ID)
 	if err != nil {
 		return err
 	}
 
-	kuotaYangDijual, err := strconv.Atoi(kuotaYangDijualStr)
-	if err != nil {
-	}
+	cspRes.ID = csp.ID
+	cspRes.IdPerusahaan = csp.IdPerusahaan
+	cspRes.Status = csp.Status
+	cspRes.KuotaYangDijual = csp.KuotaYangDijual
 
-	csp.ID = id
-	csp.IdPerusahaan = idPerusahaan
-	csp.KuotaYangDijual = kuotaYangDijual
-	csp.Status = status
-
-	cspJSON, err := json.Marshal(csp)
+	cspJSON, err := json.Marshal(cspRes)
 	if err != nil {
 		return err
 	}
 
-	err = ctx.GetStub().PutState(id, cspJSON)
+	err = ctx.GetStub().PutState(cspRes.ID, cspJSON)
 	if err != nil {
 	}
 

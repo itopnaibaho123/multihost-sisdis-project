@@ -6,7 +6,7 @@ salesProposalRouter.get('/', auth.verifyToken, salesProposalController.getList)
 salesProposalRouter.get(
   '/perusahaan/:idPerusahaan',
   auth.onlyAdminPerusahaan,
-  salesProposalController.getById
+  salesProposalController.getAllCspPerusahaan
 )
 salesProposalRouter.get(
   '/:salesProposalId',
