@@ -42,26 +42,6 @@ type PerjalananResult struct {
 	EmisiKarbon    int      `json:"emisiKarbon"`
 }
 
-// Butuh Konfirmasi
-// Status Dibatalkan kalau dibatalin pihak sebelah
-// Status Dalam Perjalanan
-// Status Sampai
-
-
-// Proses Pembuatan Perjalanan
-// 1. Login Manajer
-// 2. Membuka halaman Perjalanan
-// 3. Membuat perjalanan oleh manajer yang menginisiasi di divisi tersebut Sehingga status Butuh Dikonfirmasi
-// 4. Pihak Sebelah menerima Status Dalam Perjalanan
-// 5. Manajer penerima mengubah status menjadi sampai, field waktuSampai diisi
-// 6. Ketika field waktuSampai, status menajdi sampai, mengkalkulasi emisi karbon, kirim ke api Update Perjalanan
-
-// * Setiap status selesai, akumulasi ke object EmisiKarbon di perusahaan tersebut hit update CarbonEmission API
-
-// Asset describes basic details of what makes up a simple asset
-// Insert struct field in alphabetic order => to achieve determinism across languages
-// golang keeps the order when marshal to json but doesn't order automatically
-
 // var logger = flogging.MustGetLogger("PEContract")
 
 type Divisi struct {
@@ -240,6 +220,17 @@ func (s *SHContract) ReadAllShipment(ctx contractapi.TransactionContextInterface
 
 func (s *SHContract) GetShipmentsByPerusahaan(ctx contractapi.TransactionContextInterface, idPerusahaan string) ([]*Perjalanan, error) {
     queryString := fmt.Sprintf(`{"selector":{"idPerusahaan":"%s"}}`, idPerusahaan)
+
+    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+    if err != nil {
+        return nil, fmt.Errorf("failed to execute query: %v", err)
+    }
+    defer resultsIterator.Close()
+
+    return constructQueryResponseFromIterator(resultsIterator)
+}
+func (s *SHContract) GetShipmentsNeedApprovalByDivisiPenerima(ctx contractapi.TransactionContextInterface, idDivisiPenerima string) ([]*Perjalanan, error) {
+    queryString := fmt.Sprintf(`{"selector":{"idDivisiPenerima":"%s", "status":"Need Approval"}}`, idDivisiPenerima)
 
     resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
     if err != nil {
