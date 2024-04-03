@@ -202,7 +202,9 @@ func getCompleteDataCT(ctx contractapi.TransactionContextInterface, ct *CarbonTr
 	return &ctr, nil
 }
 
-func (t *CTContract) getCTbyIdPerusahaan(ctx contractapi.TransactionContextInterface) ([]*CarbonTransaction, error) {
+
+
+func (s *CTContract) GetCTbyIdPerusahaan(ctx contractapi.TransactionContextInterface) ([]*CarbonTransaction, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	idPerusahaan := args[0]
@@ -224,7 +226,7 @@ func (t *CTContract) getCTbyIdPerusahaan(ctx contractapi.TransactionContextInter
 	return ctList, nil
 }
 
-func (t *CTContract) getCTbyIdProposal(ctx contractapi.TransactionContextInterface) ([]*CarbonTransaction, error) {
+func (s *CTContract) GetCTbyIdProposal(ctx contractapi.TransactionContextInterface) ([]*CarbonTransaction, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	idProposal := args[0]
@@ -272,44 +274,37 @@ func getCTStateById(ctx contractapi.TransactionContextInterface, id string) (*Ca
 }
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
-func (s *CTContract) UpdateCT(ctx contractapi.TransactionContextInterface) error {
-	args := ctx.GetStub().GetStringArgs()[1:]
+func (s *CTContract) UpdateCT(ctx contractapi.TransactionContextInterface , jsonData string) error {
 
-	// logger.Infof("Run UpdateKls function with args: %+q.", args)
-
-	if len(args) != 6 {
+	var ct CarbonTransaction
+	err := json.Unmarshal([]byte(jsonData), &ct)
+   
+	if err != nil {
+	 return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
 	}
+   
 
-	id := args[0]
-	idPerusahaanPembeli := args[1]
-	idPerusahaanPenjual := args[2]
-	kuotaStr := args[3]
-	status := args[4]
-	urlBuktiTransaksi := args[5]
 
-	ct, err := getCTStateById(ctx, id)
+	ctRes, err := getCTStateById(ctx, ct.ID)
 	if err != nil {
 		return err
 	}
 
-	kuota, err := strconv.Atoi(kuotaStr)
-	if err != nil {
-	}
+	ctRes.ID = ct.ID
+	ctRes.IdPerusahaanPembeli = ct.IdPerusahaanPembeli
+	ctRes.IdProposalPenjual = ct.IdProposalPenjual
+	ctRes.Status = ct.Status
+	ctRes.Kuota = ct.Kuota
+	ctRes.URLBuktiTransaksi = ct.URLBuktiTransaksi
 
-	ct.ID = id
-	ct.IdPerusahaanPembeli = idPerusahaanPembeli
-	ct.IdProposalPenjual = idPerusahaanPenjual
-	ct.Kuota = kuota
-	ct.Status = status
-	ct.URLBuktiTransaksi = urlBuktiTransaksi
-
-	ctJSON, err := json.Marshal(ct)
+	ctJSON, err := json.Marshal(ctRes)
 	if err != nil {
 		return err
 	}
 
-	err = ctx.GetStub().PutState(id, ctJSON)
+	err = ctx.GetStub().PutState(ctRes.ID, ctJSON)
 	if err != nil {
+		return fmt.Errorf("Failed to Update CT: %v", err)
 	}
 
 	return err

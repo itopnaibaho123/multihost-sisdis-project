@@ -75,6 +75,11 @@ type Admin struct {
 	ID             	string 	`json:"id"`
 	Username 		string 	`json:"username"`
 }
+type UpdateSisaKuota struct{
+	PerusahaanPembeli     string               `json:"perusahaanPembeli"`
+	PerusahaanPenjual     string               `json:"perusahaanPenjual"`
+	Kuota           	  int                  `json:"kuota"`
+}
 
 type Perusahaan struct {
 	ID                  string   `json:"id"`
@@ -381,6 +386,7 @@ func getPerusahaanStateById(ctx contractapi.TransactionContextInterface, id stri
 
 	perusahaanJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
+		return &Perusahaan{}, fmt.Errorf("Failed to Get Perusahaan with ERror: %v", err)
 	}
 	if perusahaanJSON == nil {
 	}
@@ -392,22 +398,26 @@ func getPerusahaanStateById(ctx contractapi.TransactionContextInterface, id stri
 
 	return &perusahaan, nil
 }
-func (s *PEContract) UpdateSisaKuota(ctx contractapi.TransactionContextInterface) error {
-	args := ctx.GetStub().GetStringArgs()[1:]
-	perusahaanPembeli, err := getPerusahaanStateById(ctx, args[0])
+func (s *PEContract) UpdateSisaKuota(ctx contractapi.TransactionContextInterface, jsondata string) error {
+	
+	var usk UpdateSisaKuota
+	err := json.Unmarshal([]byte(jsondata), &usk)
+   
 	if err != nil {
-		return err
+	 return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
+	}
+	perusahaanPembeli, err := getPerusahaanStateById(ctx, usk.PerusahaanPembeli)
+	if err != nil {
+		return fmt.Errorf("Failed to Get Perusahaan: %v", err)
 	}
 
-	perusahaanPenjual, err := getPerusahaanStateById(ctx, args[1])
+	perusahaanPenjual, err := getPerusahaanStateById(ctx,usk.PerusahaanPenjual)
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to Get Perusahaan with ERror: %v", err)
 	}
-	kuota, err := strconv.Atoi(args[2])
-	if err != nil {
-	}
-	perusahaanPembeli.Kuota += kuota
-	perusahaanPenjual.Kuota -= kuota
+	
+	perusahaanPembeli.SisaKuota += usk.Kuota
+	perusahaanPenjual.SisaKuota -= usk.Kuota
 	perusahaanPembeliJSON, err := json.Marshal(perusahaanPembeli)
 	if err != nil {
 		return err

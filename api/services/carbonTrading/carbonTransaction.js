@@ -47,7 +47,7 @@ const getCarbonTransactionByIdPerusahaan = async (user, data) => {
       user.username
     )
     const result = await network.contract.submitTransaction(
-      'getCTbyIdPerusahaan',
+      'GetCTbyIdPerusahaan',
       idPerusahaan
     )
     network.gateway.disconnect()
@@ -69,8 +69,9 @@ const getCarbonTransactionByIdProposal = async (user, data) => {
       'ctcontract',
       user.username
     )
+
     const result = await network.contract.submitTransaction(
-      'getCTbyIdProposal',
+      'GetCTbyIdProposal',
       idProposal
     )
     network.gateway.disconnect()
@@ -97,41 +98,29 @@ const verifikasiTransferKarbon = async (user, data) => {
     )
     if (data.status === 'reject') {
       carbonTransaction.status = 'reject'
-      const updateArgs = [
-        carbonTransaction.id,
-        carbonTransaction.idPerusahaanPembeli,
-        carbonTransaction.idProposalPenjual,
-        carbonTransaction.kuota,
-        carbonTransaction.status,
-        carbonTransaction.urlBuktiTransaksi,
-      ]
-      await network.contract.submitTransaction('UpdateCT', updateArgs)
+      const result = await network.contract.submitTransaction(
+        'UpdateCT',
+        JSON.stringify(carbonTransaction)
+      )
+
       network.gateway.disconnect()
       return iResp.buildSuccessResponse(
         200,
-        `Successfully Update carbon transaction ${id}`,
-        JSON.parse(result)
+        `Successfully Update carbon transaction ${carbonTransaction.id}`
       )
     } else if (data.status === 'approve') {
       carbonTransaction.status = 'approve'
-      const updateArgs = [
-        carbonTransaction.id,
-        carbonTransaction.idPerusahaanPembeli,
-        carbonTransaction.idProposalPenjual,
-        carbonTransaction.kuota,
-        carbonTransaction.status,
-        carbonTransaction.urlBuktiTransaksi,
-      ]
-      await network.contract.submitTransaction('UpdateCT', updateArgs)
-      const network2 = await fabric.connectToNetwork(
-        user.organizationName,
-        'pecontract',
-        user
+
+      await network.contract.submitTransaction(
+        'UpdateCT',
+        JSON.stringify(carbonTransaction)
       )
+      network.gateway.disconnect()
+
       const network3 = await fabric.connectToNetwork(
         user.organizationName,
         'cspcontract',
-        user
+        user.username
       )
 
       const carbonSalesProposal = JSON.parse(
@@ -140,30 +129,44 @@ const verifikasiTransferKarbon = async (user, data) => {
           carbonTransaction.idProposalPenjual
         )
       )
+
+      network3.gateway.disconnect()
+      const network2 = await fabric.connectToNetwork(
+        user.organizationName,
+        'pecontract',
+        user.username
+      )
+
       carbonSalesProposal.kuotaYangDijual =
         carbonSalesProposal.kuotaYangDijual - carbonTransaction.kuota
-      updateArgs = [
-        carbonTransaction.idPerusahaanPembeli,
-        carbonSalesProposal.idPerusahaan,
-        carbonTransaction.kuota,
-      ]
-      await network2.contract.submitTransaction('UpdateSisaKuota', updateArgs)
-      updateArgs = [
-        carbonSalesProposal.id,
-        carbonSalesProposal.idPerusahaan,
-        carbonSalesProposal.kuotaYangDijual,
-        carbonSalesProposal.status,
-      ]
+      let updateArgs = {
+        perusahaanPembeli: carbonTransaction.idPerusahaanPembeli,
+        perusahaanPenjual: carbonSalesProposal.idPerusahaan,
+        kuota: carbonTransaction.kuota,
+      }
+      await network2.contract.submitTransaction(
+        'UpdateSisaKuota',
+        JSON.stringify(updateArgs)
+      )
+      network2.gateway.disconnect()
+
       if (carbonSalesProposal.kuotaYangDijual <= 0) {
         carbonSalesProposal.status = 'Sudah Habis'
       }
-      await network3.contract.submitTransaction('UpdateCSP', updateArgs)
-      network.gateway.disconnect()
-      network2.gateway.disconnect()
-      network3.gateway.disconnect()
+      const network4 = await fabric.connectToNetwork(
+        user.organizationName,
+        'cspcontract',
+        user.username
+      )
+      await network4.contract.submitTransaction(
+        'UpdateCSP',
+        JSON.stringify(carbonSalesProposal)
+      )
+      network4.gateway.disconnect()
+
       return iResp.buildSuccessResponse(
         200,
-        `Successfully Update carbon transaction ${id}`,
+        `Successfully Update carbon transaction ${carbonTransaction.id}`,
         JSON.parse(result)
       )
     }
@@ -179,6 +182,7 @@ const create = async (user, args) => {
       'ctcontract',
       user.username
     )
+    console.log(args)
     await network.contract.submitTransaction('CreateCT', ...args)
     network.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(

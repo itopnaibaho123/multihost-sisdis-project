@@ -125,7 +125,7 @@ companyRouter.post(
 
 companyRouter.post(
   '/supply_chain/approve_kementerian/:supplyId',
-  auth.onlyAdminPerusahaan,
+  auth.onlyAdminKementerian,
   supplyChainController.ApproveKementerian
 )
 
