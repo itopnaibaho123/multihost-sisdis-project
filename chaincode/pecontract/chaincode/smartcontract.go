@@ -211,6 +211,35 @@ func (s *PEContract) ReadAllPerusahaan(ctx contractapi.TransactionContextInterfa
 	return constructQueryResponseFromIterator(resultsIterator)
 }
 
+func (s *PEContract) ReadAllPendingPerusahaan(ctx contractapi.TransactionContextInterface) ([]*Perusahaan, error) {
+    resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
+    if err != nil {
+        return nil, fmt.Errorf("error retrieving Perusahaan: %v", err)
+    }
+    defer resultsIterator.Close()
+
+    var pendingPerusahaan []*Perusahaan
+
+    for resultsIterator.HasNext() {
+        queryResult, err := resultsIterator.Next()
+        if err != nil {
+            return nil, fmt.Errorf("error iterating over Perusahaan: %v", err)
+        }
+
+        var perusahaan Perusahaan
+        err = json.Unmarshal(queryResult.Value, &perusahaan)
+        if err != nil {
+            return nil, fmt.Errorf("error unmarshalling Perusahaan JSON: %v", err)
+        }
+
+        if perusahaan.ApprovalStatus == 0 {
+            pendingPerusahaan = append(pendingPerusahaan, &perusahaan)
+        }
+    }
+
+    return pendingPerusahaan, nil
+}
+
 func (s *PEContract) GetPerusahaanById(ctx contractapi.TransactionContextInterface) (*PerusahaanResult, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
