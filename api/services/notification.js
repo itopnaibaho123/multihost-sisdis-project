@@ -1,7 +1,8 @@
 const iResp = require('../utils/response.interface.js')
 const fabric = require('../utils/fabric.js')
+const { bufferToJson } = require('../utils/converter.js')
 
-const getNotification = async (user, data) => {
+const getNotification = async (user) => {
   try {
     if (
       user.userType === 'admin-kementerian' ||
@@ -31,9 +32,21 @@ const getNotification = async (user, data) => {
       )
       supplyChain.gateway.disconnect()
 
+      // Company ApprovalStatus => 0
+      const Company = await fabric.connectToNetwork(
+        user.organizationName,
+        'pecontract',
+        user.username
+      )
+      const companyList = await Company.contract.submitTransaction(
+        'ReadAllPendingPerusahaan'
+      )
+      Company.gateway.disconnect()
+
       const result = {
         supplyChain: supplyChainList,
         carbonSalesProposal: cspList,
+        company: companyList,
       }
       return iResp.buildSuccessResponse(
         200,
@@ -41,7 +54,7 @@ const getNotification = async (user, data) => {
         JSON.parse(result)
       )
     } else if (user.userType === 'admin-perusahaan') {
-      const idPerusahaan = data.idPerusahaan
+      const idPerusahaan = user.idPerusahaan
       const network = await fabric.connectToNetwork(
         user.organizationName,
         'ctcontract',
@@ -70,6 +83,26 @@ const getNotification = async (user, data) => {
       )
       // Status Menunggu Persetujuan Perusahaan => supply Chain
       // Status Pending => Carbon Transaction
+    } else {
+      const network = await fabric.connectToNetwork(
+        user.organizationName,
+        'shcontract',
+        user.username
+      )
+      const shipment = await network.contract.submitTransaction(
+        'GetShipmentsNeedApprovalByDivisiPenerima',
+        user.idDivisi
+      )
+      network.gateway.disconnect()
+      console.log(shipment)
+      const result = {
+        shipment: bufferToJson(shipment),
+      }
+      return iResp.buildSuccessResponse(
+        200,
+        'Successfully get all Notification',
+        result
+      )
     }
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
