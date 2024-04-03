@@ -16,3 +16,7 @@ app.post('/test-post', (req, res) => res.send('Received data:', req.body))
 app.listen(PORT, () =>
   console.log(`Express app running on host ${HOST}:${PORT}`)
 )
+
+process.on('uncaughtException', (error) => {
+  console.log(error)
+})

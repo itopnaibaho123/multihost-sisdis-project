@@ -258,58 +258,6 @@ const loginUser = async (username, password) => {
   }
 }
 
-const editUser = async (
-  organizationName,
-  username,
-  password,
-  role,
-  dataUser
-) => {
-  const ccp = await fabric.getCcp(organizationName)
-  const wallet = await fabric.getWallet(organizationName)
-
-  // Create a new CA client for interacting with the CA.
-  const caURL =
-    ccp.certificateAuthorities[
-      `ca.${organizationName.toLowerCase()}.example.com`
-    ].url
-  const ca = new FabricCAServices(
-    caURL,
-    undefined,
-    `ca.${organizationName.toLowerCase()}.example.com`
-  )
-
-  // Check to see if we've already enrolled the admin user.
-  const adminIdentity = await wallet.get('admin')
-  if (!adminIdentity) {
-    throw new Error('Admin network does not exist')
-  }
-
-  // build a user object for authenticating with the CA
-  const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type)
-  const adminUser = await provider.getUserContext(adminIdentity, 'admin')
-
-  // retrieve the registered identity
-  const identityService = ca.newIdentityService()
-  const encryptedPassword = await bcrypt.hash(password, 10)
-  const updateObj = {
-    affiliation: `${organizationName.toLowerCase()}.department1`,
-    role: 'client',
-    attrs: [
-      { name: 'userType', value: role, ecert: true },
-      { name: 'password', value: encryptedPassword, ecert: true },
-      { name: 'dataUser', value: JSON.stringify(dataUser), ecert: true },
-    ],
-  }
-  identityService.update(username, updateObj, adminUser)
-
-  const userIdentity = await identityService.getOne(username, adminUser)
-
-  // Get user attr
-  const userAttrs = userIdentity.result.attrs
-  return userAttrs
-}
-
 const editPassword = async (user, data) => {
   // try {
   const currentUserAttrs = await fabric.getUserAttrs(
@@ -335,7 +283,7 @@ const editPassword = async (user, data) => {
   const ca = new FabricCAServices(
     caURL,
     undefined,
-    `ca.${user.organizationName.toLowerCase()}.example.com`
+    `ca-${user.organizationName.toLowerCase()}`
   )
 
   // Check to see if we've already enrolled the admin user.
@@ -390,9 +338,6 @@ const editPassword = async (user, data) => {
     `Successfully Update Password`,
     payload
   )
-  // } catch (error) {
-  //   return iResp.buildErrorResponse(500, 'Something wrong', error.message)
-  // }
 }
 
 const editEmail = async (user, data) => {
@@ -403,7 +348,7 @@ const editEmail = async (user, data) => {
       user.username
     )
 
-    await network.contract.evaluateTransaction(
+    await network.contract.submitTransaction(
       'UpdateUserData',
       ...[user.id, data.email]
     )
