@@ -1,7 +1,7 @@
 'use strict'
 const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric.js')
-const { v4: uuidv4 } = require('uuid')
+const { bufferToJson } = require('../../utils/converter.js')
 
 const getList = async (user, args) => {
   try {
@@ -15,7 +15,7 @@ const getList = async (user, args) => {
     return iResp.buildSuccessResponse(
       200,
       'Successfully get all carbon sales proposal',
-      JSON.parse(result)
+      bufferToJson(result)
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)

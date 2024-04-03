@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt')
 const path = require('path')
 const fs = require('fs')
 const { v4: uuidv4 } = require('uuid')
+const { bufferToJson } = require('../utils/converter.js')
 
 const enrollAdmin = async (adminId, adminSecret, organizationName) => {
   try {
@@ -397,7 +398,7 @@ const getAllManagerByIdPerusahaan = async (user) => {
   return iResp.buildSuccessResponse(
     200,
     'Sucessfully get all manager',
-    JSON.parse(result)
+    bufferToJson(result)
   )
 }
 

@@ -2,6 +2,7 @@
 const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric')
 const { v4: uuidv4 } = require('uuid')
+const { bufferToJson } = require('../../utils/converter.js')
 
 const getList = async (user, idDivisi) => {
   try {
@@ -19,7 +20,7 @@ const getList = async (user, idDivisi) => {
     return iResp.buildSuccessResponse(
       200,
       'Successfully get all vehicle',
-      JSON.parse(result)
+      bufferToJson(result)
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)

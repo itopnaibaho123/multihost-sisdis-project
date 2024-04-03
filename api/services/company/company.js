@@ -9,6 +9,7 @@ const bcrypt = require('bcrypt')
 const path = require('path')
 const fs = require('fs')
 const { v4: uuidv4 } = require('uuid')
+const { bufferToJson } = require('../../utils/converter.js')
 
 const getList = async (user, args) => {
   try {
@@ -22,7 +23,7 @@ const getList = async (user, args) => {
     return iResp.buildSuccessResponse(
       200,
       'Successfully get all company',
-      JSON.parse(result)
+      bufferToJson(result)
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
