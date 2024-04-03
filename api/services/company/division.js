@@ -52,7 +52,7 @@ const create = async (user, data) => {
       idDivisi,
       data.name,
       user.idPerusahaan,
-      data.lan,
+      data.lat,
       data.long,
       data.lokasi,
       data.idManajer,
@@ -62,6 +62,7 @@ const create = async (user, data) => {
       'divcontract',
       user.username
     )
+
     await network.contract.submitTransaction('CreateDivisi', ...args)
     network.gateway.disconnect()
 
