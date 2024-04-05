@@ -397,6 +397,47 @@ func (s *UserContract) DeleteUser(ctx contractapi.TransactionContextInterface) e
 	return err
 }
 
+// DeleteUserByUsername deletes a user from the ledger using their username.
+func (s *UserContract) DeleteUserByUsername(ctx contractapi.TransactionContextInterface) error {
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	if len(args) != 1 {
+		logger.Errorf(ER11, 1, len(args))
+		return fmt.Errorf(ER11, 1, len(args))
+	}
+
+	username := args[0]
+
+	// Query the ledger to find the user by their username
+	queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, username)
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return fmt.Errorf(ER32, err)
+	}
+	defer resultsIterator.Close()
+
+	// Check if the user exists
+	if !resultsIterator.HasNext() {
+		return fmt.Errorf(ER15, username)
+	}
+
+	// Iterate through the query results (should be only one) and delete the user
+	for resultsIterator.HasNext() {
+		queryResult, err := resultsIterator.Next()
+		if err != nil {
+			return fmt.Errorf(ER33, err)
+		}
+
+		err = ctx.GetStub().DelState(queryResult.Key)
+		if err != nil {
+			logger.Errorf(ER31, err)
+			return err
+		}
+	}
+
+	return nil
+}
+
 func isUserExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 
 	user, err := ctx.GetStub().GetState(id)

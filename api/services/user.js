@@ -454,6 +454,17 @@ const deleteUser = async (username, organizationName) => {
     // Remove the user's identity from the wallet
     await wallet.remove(username)
 
+    const network = await fabric.connectToNetwork(
+      organizationName,
+      'usercontract',
+      username
+    )
+    await network.contract.submitTransaction(
+      'DeleteUserByUsername',
+      ...[username]
+    )
+    network.gateway.disconnect()
+
     return iResp.buildSuccessResponse(
       200,
       `Successfully deleted user ${username}`
@@ -476,6 +487,7 @@ module.exports = {
   editEmail,
   getAllManagerByIdPerusahaan,
   getAllStafKementerian,
+  deleteUser,
 }
 
 const createUser = async (username, email, organizationName, userType) => {
@@ -574,7 +586,6 @@ const invokeRegisterUserCc = async (
     'usercontract',
     username
   )
-  console.log(userId, username, email, role, idPerusahaan)
   await network.contract.submitTransaction(
     'RegisterUser',
     ...[userId, username, email, role, idPerusahaan]
