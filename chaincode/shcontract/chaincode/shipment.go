@@ -229,6 +229,18 @@ func (s *SHContract) GetShipmentsByPerusahaan(ctx contractapi.TransactionContext
 
     return constructQueryResponseFromIterator(resultsIterator)
 }
+func (s *SHContract) GetShipmentsByDivisi(ctx contractapi.TransactionContextInterface, idDivisi string) ([]*Perjalanan, error) {
+    queryString := fmt.Sprintf(`{"selector":{"$or":[{"idDivisiPengirim":"%s"},{"idDivisiPenerima":"%s"}]}}`, idDivisi, idDivisi)
+
+    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+    if err != nil {
+        return nil, fmt.Errorf("failed to execute query: %v", err)
+    }
+    defer resultsIterator.Close()
+
+    return constructQueryResponseFromIterator(resultsIterator)
+}
+
 func (s *SHContract) GetShipmentsNeedApprovalByDivisiPenerima(ctx contractapi.TransactionContextInterface, idDivisiPenerima string) ([]*Perjalanan, error) {
     queryString := fmt.Sprintf(`{"selector":{"idDivisiPenerima":"%s", "status":"Need Approval"}}`, idDivisiPenerima)
 
@@ -240,7 +252,6 @@ func (s *SHContract) GetShipmentsNeedApprovalByDivisiPenerima(ctx contractapi.Tr
 
     return constructQueryResponseFromIterator(resultsIterator)
 }
-
 
 func (s *SHContract) GetShipmentById(ctx contractapi.TransactionContextInterface) (*PerjalananResult, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]

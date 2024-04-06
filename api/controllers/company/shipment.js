@@ -3,8 +3,16 @@ const shipmentService = require('../../services/company/shipment.js')
 const getList = async (req, res) => {
   const user = req.user
   const idPerusahaan =
-    user.idPerusahaan == '' ? req.params.idPerusahaan : user.idPerusahaan
+    user.idPerusahaan == '' ? req.params.companyId : user.idPerusahaan
   const result = await shipmentService.getList(user, idPerusahaan)
+
+  res.status(result.code).send(result)
+}
+
+const getListByDivisi = async (req, res) => {
+  const user = req.user
+  const idDivisi = user.idDivisi == '' ? req.params.divisionId : user.idDivisi
+  const result = await shipmentService.getListByDivisi(user, idDivisi)
 
   res.status(result.code).send(result)
 }
@@ -50,4 +58,4 @@ const remove = async (req, res) => {
   res.status(result.code).send(result)
 }
 
-module.exports = { getList, getById, create, update, remove }
+module.exports = { getList, getListByDivisi, getById, create, update, remove }

@@ -27,6 +27,27 @@ const getList = async (user, idPerusahaan) => {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
+const getListByDivisi = async (user, idDivisi) => {
+  try {
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetShipmentsByDivisi',
+      idDivisi
+    )
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      'Successfully get all shipment',
+      bufferToJson(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
 const getById = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
