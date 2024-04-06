@@ -21,70 +21,46 @@ type DIVContract struct {
 
 type Divisi struct {
 	ID           string `json:"id"`
+	Name 		 string `json:"name"`
 	IdPerusahaan string `json:"perusahaan"`
+	Latitude 	 string `json:"lat"`
+	Longitude	 string `json:"long"`
 	Lokasi       string `json:"lokasi"`
 	IdManajer    string `json:"manajer"`
 }
 
-type DivisiResult struct {
-	ID           string `json:"id"`
-	Perusahaan 	*Perusahaan `json:"perusahaan"`
-	Lokasi       string `json:"lokasi"`
-	IdManajer    *Manajer `json:"manajer"`
-}
-
-type Manajer struct {
-	ID             string   `json:"id"`
-	IdPerusahaan   string   `json:"idPerusahaan"`
-	Email          string   `json:"email"`
-	Nama           string   `json:"nama"`
-	NIK            string   `json:"nik"`
-	IdDivisi       string   `json:"idDivisi"`
-	ListPerjalanan []string `json:"listPerjalanan"`
-}
-
-type Perusahaan struct {
-	ID                  string   `json:"id"`
-	NomorTelepon        string   `json:"nomorTelepon"`
-	Email               string   `json:"email"`
-	Nama                string   `json:"nama"`
-	Lokasi              string   `json:"lokasi"`
-	Deskripsi           string   `json:"deskripsi"`
-	URLSuratProposal    string   `json:"urlSuratProposal"`
-	ApprovalStatus      int      `json:"approvalStatus"`
-	ParticipantStatus   int      `json:"participantStatus"`
-	SupplyChain         []string `json:"supplyChain"`
-	ProposalSupplyChain []string `json:"proposalSupplyChain"`
-	IdEmisiKarbon       string   `json:"emisiKarbon"`
-	IdManajer           string   `json:"manajer"`
-	Kuota               int      `json:"kuota"`
-	SisaKuota           int      `json:"sisaKuota"`
-}
-
 // CreateAsset issues a new asset to the world state with given details.
+// CreateDivisi issues a new division to the world state with given details.
 func (s *DIVContract) CreateDivisi(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 5 {
-
+	if len(args) != 7 {
+		return fmt.Errorf("incorrect number of arguments, expected 7")
 	}
 
 	id := args[0]
-	idPerusahaan := args[1]
-	lokasi := args[2]
-	idManajer := args[3]
+	name := args[1]
+	idPerusahaan := args[2]
+	latitude := args[3]
+	longitude := args[4]
+	lokasi := args[5]
+	idManajer := args[6]
 
-	exists, err := isDvsExists(ctx, id)
+	// Check if division with the same name and idPerusahaan already exists
+	exists, err := CheckIfDivisiNameExists(ctx, name, idPerusahaan)
 	if err != nil {
 		return err
 	}
 	if exists {
-		return fmt.Errorf(id)
+		return fmt.Errorf("division with name %s already exists in the company %s", name, idPerusahaan)
 	}
 
 	dvs := Divisi{
 		ID:           id,
+		Name:         name,
 		IdPerusahaan: idPerusahaan,
+		Latitude: 	  latitude,
+		Longitude: 	  longitude,
 		Lokasi:       lokasi,
 		IdManajer:    idManajer,
 	}
@@ -96,21 +72,29 @@ func (s *DIVContract) CreateDivisi(ctx contractapi.TransactionContextInterface) 
 
 	err = ctx.GetStub().PutState(id, dvsJSON)
 	if err != nil {
-		fmt.Errorf(err.Error())
+		return fmt.Errorf("failed to put state: %v", err)
 	}
 
-	return err
+	return nil
 }
 
-func isDvsExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+// CheckIfDivisiNameExists checks if the name of a division is already used by another company
+func CheckIfDivisiNameExists(ctx contractapi.TransactionContextInterface, name string, idPerusahaan string) (bool, error) {
+    // Construct the composite key using the pattern "name~perusahaan"
+    compositeKey, err := ctx.GetStub().CreateCompositeKey("name~perusahaan", []string{name, idPerusahaan})
+    if err != nil {
+        return false, fmt.Errorf("failed to create composite key: %v", err)
+    }
 
-	dvsJSON, err := ctx.GetStub().GetState(id)
-	if err != nil {
-		return false, fmt.Errorf(err.Error())
-	}
+    // Check if the composite key exists
+    exists, err := ctx.GetStub().GetState(compositeKey)
+    if err != nil {
+        return false, fmt.Errorf("failed to read from world state: %v", err)
+    }
 
-	return dvsJSON != nil, nil
+    return exists != nil, nil
 }
+
 func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*Divisi, error) {
 	// logger.Infof("Run constructQueryResponseFromIterator function.")
 
@@ -119,11 +103,13 @@ func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorI
 	for resultsIterator.HasNext() {
 		queryResult, err := resultsIterator.Next()
 		if err != nil {
+			return nil, err
 		}
 
 		var divisi Divisi
 		err = json.Unmarshal(queryResult.Value, &divisi)
 		if err != nil {
+			return nil, err
 		}
 		divisiList = append(divisiList, &divisi)
 	}
@@ -131,68 +117,54 @@ func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorI
 	return divisiList, nil
 }
 
-// ReadAsset returns the asset stored in the world state with given id.
-func (s *DIVContract) ReadAllDivisi(ctx contractapi.TransactionContextInterface) ([]*Divisi, error) {
-	args := ctx.GetStub().GetStringArgs()[1:]
+// ReadAllDivisiByPerusahaan returns all divisions belonging to a specific company (idPerusahaan) from the ledger
+func (s *DIVContract) ReadAllDivisiByPerusahaan(ctx contractapi.TransactionContextInterface, idPerusahaan string) ([]*Divisi, error) {
+    // Construct a query string to retrieve divisions by idPerusahaan
+    queryString := fmt.Sprintf(`{"selector":{"perusahaan":"%s"}}`, idPerusahaan)
 
-	if len(args) != 0 {
+    // Get query results from the ledger
+    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+    if err != nil {
+        return nil, fmt.Errorf("failed to get query result: %v", err)
+    }
+    defer resultsIterator.Close()
 
-	}
-
-	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
-	if err != nil {
-		return nil, fmt.Errorf(err.Error())
-	}
-	defer resultsIterator.Close()
-
-	return constructQueryResponseFromIterator(resultsIterator)
+    // Construct and return the response from the query results
+    return constructQueryResponseFromIterator(resultsIterator)
 }
 
-func (s *DIVContract) GetDivisiById(ctx contractapi.TransactionContextInterface) (*DivisiResult, error) {
+func (s *DIVContract) GetDivisiById(ctx contractapi.TransactionContextInterface) (*Divisi, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 1 {
 	}
 	id := args[0]
-	vehicle, err := getDivisiStateById(ctx, id)
+	
+	divisi, err := getDivisiStateById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	perusahaanResult, err := getCompleteDataDivisi(ctx, vehicle)
-	if err != nil {
-		return nil, err
-	}
 
-	return perusahaanResult, nil
-}
-func getCompleteDataDivisi(ctx contractapi.TransactionContextInterface, divisi *Divisi) (*DivisiResult, error) {
-	// logger.Infof("Run getCompleteDataKls function with kls id: '%s'.", perusahaan.ID)
-
-	var divisiResult DivisiResult
-
-	divisiResult.ID = divisi.ID
-	divisiResult.Lokasi = divisi.Lokasi
-	divisiResult.IdManajer = nil
-	divisiResult.Perusahaan = nil
-
-
-	return &divisiResult, nil
+	return divisi, nil
 }
 func getDivisiStateById(ctx contractapi.TransactionContextInterface, id string) (*Divisi, error) {
+    divisiJSON, err := ctx.GetStub().GetState(id)
+    if err != nil {
+        return nil, fmt.Errorf("failed to read state for division %s: %v", id, err)
+    }
+    if divisiJSON == nil {
+        return nil, fmt.Errorf("division with ID %s does not exist", id)
+    }
 
-	divisiJSON, err := ctx.GetStub().GetState(id)
-	if err != nil {
-	}
-	if divisiJSON == nil {
-	}
+    var divisi Divisi
+    err = json.Unmarshal(divisiJSON, &divisi)
+    if err != nil {
+        return nil, fmt.Errorf("failed to unmarshal division JSON for ID %s: %v", id, err)
+    }
 
-	var divisi Divisi
-	err = json.Unmarshal(divisiJSON, &divisi)
-	if err != nil {
-	}
-
-	return &divisi, nil
+    return &divisi, nil
 }
+
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
 func (s *DIVContract) UpdateDivisi(ctx contractapi.TransactionContextInterface) error {
@@ -246,4 +218,14 @@ func (s *DIVContract) DeleteDivisi(ctx contractapi.TransactionContextInterface) 
 	}
 
 	return err
+}
+
+func isDvsExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+
+	dvsJSON, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return false, fmt.Errorf(err.Error())
+	}
+
+	return dvsJSON != nil, nil
 }

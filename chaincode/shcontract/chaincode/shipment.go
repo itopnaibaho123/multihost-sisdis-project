@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -16,35 +17,30 @@ type SHContract struct {
 
 type Perjalanan struct {
 	ID               string   `json:"id"`
+	IdPerusahaan 	 string   `json:"idPerusahaan"`
 	IdSupplyChain    string   `json:"idSupplyChain"`
 	IdDivisiPengirim string   `json:"idDivisiPengirim"`
 	IdDivisiPenerima string   `json:"idDivisiPenerima"`
-	Vote             []string `json:"vote"`
 	Status           string   `json:"status"`
 	WaktuBerangkat   string   `json:"waktuBerangkat"`
 	WaktuSampai      string   `json:"waktuSampai"`
 	IdTransportasi   string   `json:"idTransportasi"`
-	BeratMuatan      int   `json:"beratMuatan"`
-	EmisiKarbon      int   `json:"emisiKarbon"`
+	BeratMuatan      int      `json:"beratMuatan"`
+	EmisiKarbon      int      `json:"emisiKarbon"`
 }
 
 type PerjalananResult struct {
-	ID             string          `json:"id"`
-	IdSupplyChain  string          `json:"idSupplyChain"`
-	DivisiPengirim *Divisi         `json:"divisiPengirim"`
-	DivisiPenerima *Divisi         `json:"divisiPenerima"`
-	Vote           []string        `json:"vote"`
-	Status         string          `json:"status"`
-	WaktuBerangkat string          `json:"waktuBerangkat"`
-	WaktuSampai    string          `json:"waktuSampai"`
-	Transportasi   *Vehicle        `json:"transportasi"`
-	BeratMuatan    int        	   `json:"beratMuatan"`
-	EmisiKarbon    int             `json:"emisiKarbonStr"`
+	ID             string   `json:"id"`
+	IdSupplyChain  string   `json:"idSupplyChain"`
+	DivisiPengirim *Divisi  `json:"divisiPengirim"`
+	DivisiPenerima *Divisi  `json:"divisiPenerima"`
+	Status         string   `json:"status"`
+	WaktuBerangkat string   `json:"waktuBerangkat"`
+	WaktuSampai    string   `json:"waktuSampai"`
+	Transportasi   *Vehicle `json:"transportasi"`
+	BeratMuatan    int      `json:"beratMuatan"`
+	EmisiKarbon    int      `json:"emisiKarbon"`
 }
-
-// Asset describes basic details of what makes up a simple asset
-// Insert struct field in alphabetic order => to achieve determinism across languages
-// golang keeps the order when marshal to json but doesn't order automatically
 
 // var logger = flogging.MustGetLogger("PEContract")
 
@@ -74,51 +70,30 @@ type Vehicle struct {
 func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 11 {
+	if len(args) != 9 {
 
 	}
 
 	id := args[0]
-	idSupplyChain := args[1]
-	divisiPengirim := args[2]
-	divisiPenerima := args[3]
-	vote := []string{}
-	status := args[4]
+	idPerusahaan := args[1]
+	idSupplyChain := args[2]
+	divisiPengirim := args[3]
+	divisiPenerima := args[4]
+	status := "Need Approval"
 	waktuBerangkat := args[5]
-	waktuSampai := args[6]
-	transportasi := args[7]
-	beratMuatanstr := args[8]
-	emisiKarbonstr := args[9]
-	
-	emisiKarbon, err := strconv.Atoi(emisiKarbonstr)
-	if err != nil {
-	}
-
-	beratMuatan, err := strconv.Atoi(beratMuatanstr)
-	if err != nil {
-	}
-
-
-	exists, err := isShipmentExists(ctx, id)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return fmt.Errorf(id)
-	}
+	transportasi := args[6]
+	beratMuatan, _ := strconv.Atoi(args[7])
 
 	perjalanan := Perjalanan{
 		ID:               id,
+		IdPerusahaan: 	  idPerusahaan,
 		IdSupplyChain:    idSupplyChain,
 		IdDivisiPengirim: divisiPengirim,
 		IdDivisiPenerima: divisiPenerima,
-		Vote:             vote,
 		Status:           status,
 		WaktuBerangkat:   waktuBerangkat,
-		WaktuSampai:      waktuSampai,
 		IdTransportasi:   transportasi,
 		BeratMuatan:      beratMuatan,
-		EmisiKarbon:      emisiKarbon,
 	}
 
 	perjalananJSON, err := json.Marshal(perjalanan)
@@ -129,6 +104,69 @@ func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface)
 	err = ctx.GetStub().PutState(id, perjalananJSON)
 	if err != nil {
 		fmt.Errorf(err.Error())
+	}
+
+	return err
+}
+
+// UpdateAsset updates an existing asset in the world state with provided parameters.
+func (s *SHContract) UpdateStatusShipment(ctx contractapi.TransactionContextInterface) error {
+	// logger.Infof("Run UpdateKls function with args: %+q.", args)
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	if len(args) != 2 {
+
+	}
+
+	shipmentId := args[0]
+	newStatus := args[1]
+
+	perjalanan, err := getShipmentStateById(ctx, shipmentId)
+	if err != nil {
+		return err
+	}
+
+	perjalanan.Status = newStatus
+
+	perjalananJSON, err := json.Marshal(perjalanan)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(shipmentId, perjalananJSON)
+	if err != nil {
+	}
+
+	return err
+}
+
+func (s *SHContract) CompleteShipment(ctx contractapi.TransactionContextInterface) error {
+	// logger.Infof("Run UpdateKls function with args: %+q.", args)
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	if len(args) != 2 {
+
+	}
+
+	shipmentId := args[0]
+	emisiKarbon, _ := strconv.Atoi(args[1])
+
+	perjalanan, err := getShipmentStateById(ctx, shipmentId)
+	if err != nil {
+		return err
+	}
+
+	perjalanan.Status = "Completed"
+	perjalanan.WaktuSampai = time.Now().Format(time.RFC3339)
+	perjalanan.EmisiKarbon = emisiKarbon
+
+	perjalananJSON, err := json.Marshal(perjalanan)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(shipmentId, perjalananJSON)
+	if err != nil {
 	}
 
 	return err
@@ -180,6 +218,41 @@ func (s *SHContract) ReadAllShipment(ctx contractapi.TransactionContextInterface
 	return constructQueryResponseFromIterator(resultsIterator)
 }
 
+func (s *SHContract) GetShipmentsByPerusahaan(ctx contractapi.TransactionContextInterface, idPerusahaan string) ([]*Perjalanan, error) {
+    queryString := fmt.Sprintf(`{"selector":{"idPerusahaan":"%s"}}`, idPerusahaan)
+
+    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+    if err != nil {
+        return nil, fmt.Errorf("failed to execute query: %v", err)
+    }
+    defer resultsIterator.Close()
+
+    return constructQueryResponseFromIterator(resultsIterator)
+}
+func (s *SHContract) GetShipmentsByDivisi(ctx contractapi.TransactionContextInterface, idDivisi string) ([]*Perjalanan, error) {
+    queryString := fmt.Sprintf(`{"selector":{"$or":[{"idDivisiPengirim":"%s"},{"idDivisiPenerima":"%s"}]}}`, idDivisi, idDivisi)
+
+    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+    if err != nil {
+        return nil, fmt.Errorf("failed to execute query: %v", err)
+    }
+    defer resultsIterator.Close()
+
+    return constructQueryResponseFromIterator(resultsIterator)
+}
+
+func (s *SHContract) GetShipmentsNeedApprovalByDivisiPenerima(ctx contractapi.TransactionContextInterface, idDivisiPenerima string) ([]*Perjalanan, error) {
+    queryString := fmt.Sprintf(`{"selector":{"idDivisiPenerima":"%s", "status":"Need Approval"}}`, idDivisiPenerima)
+
+    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+    if err != nil {
+        return nil, fmt.Errorf("failed to execute query: %v", err)
+    }
+    defer resultsIterator.Close()
+
+    return constructQueryResponseFromIterator(resultsIterator)
+}
+
 func (s *SHContract) GetShipmentById(ctx contractapi.TransactionContextInterface) (*PerjalananResult, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
@@ -212,7 +285,6 @@ func getCompleteDataShipment(ctx contractapi.TransactionContextInterface, perjal
 	PerjalananResult.DivisiPenerima = nil
 	PerjalananResult.DivisiPengirim = nil
 	PerjalananResult.Transportasi = nil
-	PerjalananResult.Vote = []string{}
 
 	return &PerjalananResult, nil
 }
@@ -251,7 +323,6 @@ func (s *SHContract) UpdateShipment(ctx contractapi.TransactionContextInterface)
 	transportasi := args[7]
 	beratMuatanstr := args[8]
 	emisiKarbonstr := args[9]
-
 
 	perjalanan, err := getShipmentStateById(ctx, id)
 	if err != nil {

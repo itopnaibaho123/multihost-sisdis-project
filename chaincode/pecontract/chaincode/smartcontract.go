@@ -20,19 +20,21 @@ type PEContract struct {
 
 // var logger = flogging.MustGetLogger("PEContract")
 
-type ProposalSupplyChain struct {
-	ID            string   `json:"id"`
-	IdPerusahaan  string   `json:"idPerusahaan"`
-	Status        int      `json:"status"`
-	IdSupplyChain string   `json:"idSupplyChain"`
-	Vote          []string `json:"vote"`
+type UpdateSupplyChain struct {
+	IdPerusahaan string `json:"idPerusahaan"`
+	IdSupplyChain string `json:"idSupplyChain`
 }
 
 type SupplyChain struct {
-	ID             string   `json:"id"`
-	ListPerusahaan []string `json:"listPerusahaan"`
-	Status         int      `json:"status"`
-	IdProposal     string   `json:"idProposal"`
+	ID                  string                `json:"id"`
+	ListPerusahaan      []string              `json:"listPerusahaan"`
+	Status              int                   `json:"status"`
+	ProposalSupplyChain []ProposalSupplyChain `json: "proposalSupplyChain"`
+}
+
+type ProposalSupplyChain struct {
+	IdPerusahaan string `json:"id"`
+	Status       string `json:"status"`
 }
 
 type EmisiKarbon struct {
@@ -40,16 +42,6 @@ type EmisiKarbon struct {
 	IdPerusahaan string `json:"idPerusahaan"`
 	IdProposal   string `json:"idProposal"`
 	TotalEmisi   int    `json:"totalEmisi"`
-}
-
-type Manajer struct {
-	ID             string   `json:"id"`
-	IdPerusahaan   string   `json:"idPerusahaan"`
-	Email          string   `json:"email"`
-	Nama           string   `json:"nama"`
-	NIK            string   `json:"nik"`
-	IdDivisi       string   `json:"idDivisi"`
-	ListPerjalanan []string `json:"listPerjalanan"`
 }
 
 type PerusahaanResult struct {
@@ -65,9 +57,28 @@ type PerusahaanResult struct {
 	SupplyChain         []*SupplyChain         `json:"supplyChain"`
 	ProposalSupplyChain []*ProposalSupplyChain `json:"proposalSupplyChain"`
 	EmisiKarbon         *EmisiKarbon           `json:"emisiKarbon"`
-	Manajer             *Manajer               `json:"manajer"`
+	AdminPerusahaan     *Admin                 `json:"adminPerusahaan"`
 	Kuota               int                    `json:"kuota"`
 	SisaKuota           int                    `json:"sisaKuota"`
+}
+
+// ganti manajer menjadi admin perusahaan
+// tambahin list Divisi
+
+// Create Perusahaan
+// 1. Calon Admin Perusahaan Mengisi Form detail perusahaan dan email perusahaan (email admin)
+// 2. Akan masuk ke dashboard staf kementerian,
+// 3. Kalo di Approve, Hit API regiter admin Perusahaan dan hit api create perusahaan
+
+// * Initial Pembuatan perusahaan, lansung membuat OBject EmisiKarbon Hit Create EMission Carbon API
+type Admin struct {
+	ID             	string 	`json:"id"`
+	Username 		string 	`json:"username"`
+}
+type UpdateSisaKuota struct{
+	PerusahaanPembeli     string               `json:"perusahaanPembeli"`
+	PerusahaanPenjual     string               `json:"perusahaanPenjual"`
+	Kuota           	  int                  `json:"kuota"`
 }
 
 type Perusahaan struct {
@@ -83,7 +94,7 @@ type Perusahaan struct {
 	SupplyChain         []string `json:"supplyChain"`
 	ProposalSupplyChain []string `json:"proposalSupplyChain"`
 	IdEmisiKarbon       string   `json:"emisiKarbon"`
-	IdManajer           string   `json:"manajer"`
+	AdminPerusahaan     *Admin   `json:"adminPerusahaan"`
 	Kuota               int      `json:"kuota"`
 	SisaKuota           int      `json:"sisaKuota"`
 }
@@ -92,7 +103,7 @@ type Perusahaan struct {
 func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 7 {
+	if len(args) != 9 {
 
 	}
 
@@ -103,12 +114,15 @@ func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterfac
 	Lokasi := args[4]
 	Deskripsi := args[5]
 	URLSuratProposal := args[6]
+	adminPerusahaan := &Admin{
+		ID:           args[7],
+        Username:     args[8],
+	}
 	ApprovalStatus := 0
 	ParticipantStatus := 0
 	SupplyChain := []string{}
 	ProposalSupplyChain := []string{}
 	EmisiKarbon := ""
-	Manajer := ""
 	Kuota := 0
 	SisaKuota := 0
 
@@ -131,7 +145,7 @@ func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterfac
 		ApprovalStatus:      ApprovalStatus,
 		ParticipantStatus:   ParticipantStatus,
 		IdEmisiKarbon:       EmisiKarbon,
-		IdManajer:           Manajer,
+		AdminPerusahaan:     adminPerusahaan,
 		Kuota:               Kuota,
 		SisaKuota:           SisaKuota,
 		SupplyChain:         SupplyChain,
@@ -197,7 +211,36 @@ func (s *PEContract) ReadAllPerusahaan(ctx contractapi.TransactionContextInterfa
 	return constructQueryResponseFromIterator(resultsIterator)
 }
 
-func (s *PEContract) GetPerusahaanById(ctx contractapi.TransactionContextInterface) (*PerusahaanResult, error) {
+func (s *PEContract) ReadAllPendingPerusahaan(ctx contractapi.TransactionContextInterface) ([]*Perusahaan, error) {
+    resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
+    if err != nil {
+        return nil, fmt.Errorf("error retrieving Perusahaan: %v", err)
+    }
+    defer resultsIterator.Close()
+
+    var pendingPerusahaan []*Perusahaan
+
+    for resultsIterator.HasNext() {
+        queryResult, err := resultsIterator.Next()
+        if err != nil {
+            return nil, fmt.Errorf("error iterating over Perusahaan: %v", err)
+        }
+
+        var perusahaan Perusahaan
+        err = json.Unmarshal(queryResult.Value, &perusahaan)
+        if err != nil {
+            return nil, fmt.Errorf("error unmarshalling Perusahaan JSON: %v", err)
+        }
+
+        if perusahaan.ApprovalStatus == 0 {
+            pendingPerusahaan = append(pendingPerusahaan, &perusahaan)
+        }
+    }
+
+    return pendingPerusahaan, nil
+}
+
+func (s *PEContract) GetPerusahaanById(ctx contractapi.TransactionContextInterface) (*Perusahaan, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 1 {
@@ -207,13 +250,166 @@ func (s *PEContract) GetPerusahaanById(ctx contractapi.TransactionContextInterfa
 	if err != nil {
 		return nil, err
 	}
-	perusahaanResult, err := getCompleteDataPerusahaan(ctx, perusahaan)
+
+	return perusahaan, nil
+}
+
+// ApprovePerusahaan updates the status field of a Perusahaan entity on the ledger.
+func (s *PEContract) ApprovePerusahaan(ctx contractapi.TransactionContextInterface, id string) error {
+	// Retrieve the existing Perusahaan entity from the ledger
+	perusahaan, err := getPerusahaanStateById(ctx, id)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return perusahaanResult, nil
+	// Update the status field
+	perusahaan.ApprovalStatus = 1
+
+	// Marshal the updated Perusahaan struct to JSON
+	perusahaanJSON, err := json.Marshal(perusahaan)
+	if err != nil {
+		return err
+	}
+
+	// Put the updated Perusahaan JSON back to the ledger
+	err = ctx.GetStub().PutState(id, perusahaanJSON)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
+// ApprovePerusahaan updates the status field of a Perusahaan entity on the ledger.
+func (s *PEContract) RejectPerusahaan(ctx contractapi.TransactionContextInterface, id string) error {
+	// Retrieve the existing Perusahaan entity from the ledger
+	perusahaan, err := getPerusahaanStateById(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	// Update the status field
+	perusahaan.ApprovalStatus = -1
+
+	// Marshal the updated Perusahaan struct to JSON
+	perusahaanJSON, err := json.Marshal(perusahaan)
+	if err != nil {
+		return err
+	}
+
+	// Put the updated Perusahaan JSON back to the ledger
+	err = ctx.GetStub().PutState(id, perusahaanJSON)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *PEContract) AddSupplyChaintoArray(ctx contractapi.TransactionContextInterface, jsonData string) error {
+	// Retrieve the existing Perusahaan entity from the ledger
+
+	var us UpdateSupplyChain
+	err := json.Unmarshal([]byte(jsonData), &us)
+	if err != nil {
+		return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
+	}
+	
+	
+	perusahaan, err := getPerusahaanStateById(ctx, us.IdPerusahaan)
+	if err != nil {
+		return err
+	}
+
+	// Update the status field
+	perusahaan.SupplyChain = append(perusahaan.SupplyChain, us.IdSupplyChain)
+
+	// Marshal the updated Perusahaan struct to JSON
+	perusahaanJSON, err := json.Marshal(perusahaan)
+	if err != nil {
+		return err
+	}
+
+	// Put the updated Perusahaan JSON back to the ledger
+	err = ctx.GetStub().PutState(us.IdPerusahaan, perusahaanJSON)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func remove(s []string, r string) []string {
+	for i, v := range s {
+		if v == r {
+			return append(s[:i], s[i+1:]...)
+		}
+	}
+	return s
+}
+
+func (s *PEContract) DeleteSupplyChainfromArray(ctx contractapi.TransactionContextInterface, jsonData string) error {
+	// Retrieve the existing Perusahaan entity from the ledger
+	var us UpdateSupplyChain
+	err := json.Unmarshal([]byte(jsonData), &us)
+	if err != nil {
+		return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
+	}
+	
+	perusahaan, err := getPerusahaanStateById(ctx, us.IdPerusahaan)
+	if err != nil {
+		return err
+	}
+
+	// Update the status field
+	// perusahaan.SupplyChain = append(perusahaan.SupplyChain, args[1])
+	perusahaan.SupplyChain = remove(perusahaan.SupplyChain, us.IdSupplyChain)
+
+	// Marshal the updated Perusahaan struct to JSON
+	perusahaanJSON, err := json.Marshal(perusahaan)
+	if err != nil {
+		return err
+	}
+
+	// Put the updated Perusahaan JSON back to the ledger
+	err = ctx.GetStub().PutState(us.IdPerusahaan, perusahaanJSON)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *PEContract) RemoveSupplyChaintoArray(ctx contractapi.TransactionContextInterface) error {
+	// Retrieve the existing Perusahaan entity from the ledger
+
+	args := ctx.GetStub().GetStringArgs()[1:]
+	perusahaan, err := getPerusahaanStateById(ctx, args[0])
+	if err != nil {
+		return err
+	}
+
+	// Update the status field
+	for i, str := range perusahaan.SupplyChain {
+		if str == args[1] {
+			perusahaan.SupplyChain = append(perusahaan.SupplyChain[:i], perusahaan.SupplyChain[i+1:]...)
+		}
+	}
+
+	// Marshal the updated Perusahaan struct to JSON
+	perusahaanJSON, err := json.Marshal(perusahaan)
+	if err != nil {
+		return err
+	}
+
+	// Put the updated Perusahaan JSON back to the ledger
+	err = ctx.GetStub().PutState(args[0], perusahaanJSON)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func getCompleteDataPerusahaan(ctx contractapi.TransactionContextInterface, perusahaan *Perusahaan) (*PerusahaanResult, error) {
 	// logger.Infof("Run getCompleteDataKls function with kls id: '%s'.", perusahaan.ID)
 
@@ -227,6 +423,7 @@ func getCompleteDataPerusahaan(ctx contractapi.TransactionContextInterface, peru
 	perusahaanResult.Deskripsi = perusahaan.Deskripsi
 	perusahaanResult.URLSuratProposal = perusahaan.URLSuratProposal
 	perusahaanResult.ApprovalStatus = perusahaan.ApprovalStatus
+	perusahaanResult.AdminPerusahaan = perusahaan.AdminPerusahaan
 	perusahaanResult.ParticipantStatus = perusahaan.ParticipantStatus
 	perusahaanResult.Kuota = perusahaan.Kuota
 	perusahaanResult.SisaKuota = perusahaan.SisaKuota
@@ -239,6 +436,7 @@ func getPerusahaanStateById(ctx contractapi.TransactionContextInterface, id stri
 
 	perusahaanJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
+		return &Perusahaan{}, fmt.Errorf("Failed to Get Perusahaan with ERror: %v", err)
 	}
 	if perusahaanJSON == nil {
 	}
@@ -249,6 +447,46 @@ func getPerusahaanStateById(ctx contractapi.TransactionContextInterface, id stri
 	}
 
 	return &perusahaan, nil
+}
+func (s *PEContract) UpdateSisaKuota(ctx contractapi.TransactionContextInterface, jsondata string) error {
+	
+	var usk UpdateSisaKuota
+	err := json.Unmarshal([]byte(jsondata), &usk)
+   
+	if err != nil {
+	 return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
+	}
+	perusahaanPembeli, err := getPerusahaanStateById(ctx, usk.PerusahaanPembeli)
+	if err != nil {
+		return fmt.Errorf("Failed to Get Perusahaan: %v", err)
+	}
+
+	perusahaanPenjual, err := getPerusahaanStateById(ctx,usk.PerusahaanPenjual)
+	if err != nil {
+		return fmt.Errorf("Failed to Get Perusahaan with ERror: %v", err)
+	}
+	
+	perusahaanPembeli.SisaKuota += usk.Kuota
+	perusahaanPenjual.SisaKuota -= usk.Kuota
+	perusahaanPembeliJSON, err := json.Marshal(perusahaanPembeli)
+	if err != nil {
+		return err
+	}
+	perusahaanPenjualJSON, err := json.Marshal(perusahaanPenjual)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(perusahaanPembeli.ID, perusahaanPembeliJSON)
+	if err != nil {
+	}
+
+	err = ctx.GetStub().PutState(perusahaanPenjual.ID, perusahaanPenjualJSON)
+	if err != nil {
+	}
+
+	return err
+
 }
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
@@ -319,11 +557,10 @@ func (s *PEContract) UpdatePerusahaan(ctx contractapi.TransactionContextInterfac
 func (s *PEContract) DeletePerusahaan(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-
 	if len(args) != 1 {
 	}
 
-	id:= args[0]
+	id := args[0]
 
 	exists, err := isPeExists(ctx, id)
 	if err != nil {

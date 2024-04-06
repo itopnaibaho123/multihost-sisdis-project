@@ -21,6 +21,7 @@ type VEContract struct {
 
 type Divisi struct {
 	ID           string `json:"id"`
+	Name 		 string `json:"name"`
 	IdPerusahaan string `json:"perusahaan"`
 	Lokasi       string `json:"lokasi"`
 	IdManajer    string `json:"manajer"`
@@ -41,6 +42,8 @@ type Vehicle struct {
 	FuelType string `json:"fuelType"`
 	KmUsage  string `json:"kmUsage"`
 }
+// Create Vehicle
+// 1. Manajer Create Vehicle
 
 // CreateAsset issues a new asset to the world state with given details.
 func (s *VEContract) CreateVehicle(ctx contractapi.TransactionContextInterface) error {
@@ -132,6 +135,20 @@ func (s *VEContract) ReadAllVehicle(ctx contractapi.TransactionContextInterface)
 	return constructQueryResponseFromIterator(resultsIterator)
 }
 
+// GetVehiclesByDivisi retrieves all vehicles belonging to a specific division (idDivisi)
+func (s *VEContract) GetVehiclesByDivisi(ctx contractapi.TransactionContextInterface, idDivisi string) ([]*Vehicle, error) {
+    queryString := fmt.Sprintf(`{"selector":{"divisi":"%s"}}`, idDivisi)
+
+    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+    if err != nil {
+        return nil, fmt.Errorf("failed to execute query: %v", err)
+    }
+    defer resultsIterator.Close()
+
+    return constructQueryResponseFromIterator(resultsIterator)
+}
+
+
 func (s *VEContract) GetVehicleById(ctx contractapi.TransactionContextInterface) (*VehicleResult, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
@@ -159,6 +176,8 @@ func getCompleteDataVehicle(ctx contractapi.TransactionContextInterface, vehicle
 	vehicleResult.FuelType = vehicle.FuelType
 	vehicleResult.KmUsage = vehicle.KmUsage
 	vehicleResult.IdDivisi = nil
+
+	// response := ctx.GetStub().InvokeChaincode(PDContract, queryArgs, AcademicChannel)
 
 	return &vehicleResult, nil
 }

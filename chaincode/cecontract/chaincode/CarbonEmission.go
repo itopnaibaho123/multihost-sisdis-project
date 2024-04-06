@@ -34,6 +34,7 @@ type CarbonEmissionResult struct {
 	Perjalanan  []* Perjalanan 	`json:"perjalanan"`
 }
 
+
 type Perjalanan struct {
 	ID                  string   `json:"id"`
 	IdSupplyChain       string   `json:"idSupplyChain"`

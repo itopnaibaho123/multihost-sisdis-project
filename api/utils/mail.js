@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer')
 
-const sendEmail = async (email, password) => {
+const sendEmail = async (email, text) => {
   try {
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
@@ -12,7 +12,6 @@ const sendEmail = async (email, password) => {
       },
     })
 
-    const text = `Berikut ini adalah akun untuk website Carbon Supply Chain\n email: ${email}\n Password: ${password}`
     const mailOptions = {
       from: 'tacarbonfootprint@gmail.com',
       to: email,
