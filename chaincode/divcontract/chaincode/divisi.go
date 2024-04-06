@@ -139,6 +139,7 @@ func (s *DIVContract) GetDivisiById(ctx contractapi.TransactionContextInterface)
 	if len(args) != 1 {
 	}
 	id := args[0]
+	
 	divisi, err := getDivisiStateById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -147,20 +148,23 @@ func (s *DIVContract) GetDivisiById(ctx contractapi.TransactionContextInterface)
 	return divisi, nil
 }
 func getDivisiStateById(ctx contractapi.TransactionContextInterface, id string) (*Divisi, error) {
+    divisiJSON, err := ctx.GetStub().GetState(id)
+    if err != nil {
+        return nil, fmt.Errorf("failed to read state for division %s: %v", id, err)
+    }
+    if divisiJSON == nil {
+        return nil, fmt.Errorf("division with ID %s does not exist", id)
+    }
 
-	divisiJSON, err := ctx.GetStub().GetState(id)
-	if err != nil {
-	}
-	if divisiJSON == nil {
-	}
+    var divisi Divisi
+    err = json.Unmarshal(divisiJSON, &divisi)
+    if err != nil {
+        return nil, fmt.Errorf("failed to unmarshal division JSON for ID %s: %v", id, err)
+    }
 
-	var divisi Divisi
-	err = json.Unmarshal(divisiJSON, &divisi)
-	if err != nil {
-	}
-
-	return &divisi, nil
+    return &divisi, nil
 }
+
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
 func (s *DIVContract) UpdateDivisi(ctx contractapi.TransactionContextInterface) error {
