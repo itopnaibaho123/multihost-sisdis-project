@@ -145,6 +145,51 @@ const reject = async (user, id) => {
     peNetwork.gateway.disconnect()
     company = JSON.parse(company)
 
+    const ccp = await fabric.getCcp(organizationName)
+    const wallet = await fabric.getWallet(organizationName)
+    const caURL =
+      ccp.certificateAuthorities[
+        `ca.${organizationName.toLowerCase()}.example.com`
+      ].url
+
+    // Create a new CA client for interacting with the CA
+    const ca = new FabricCAServices(caURL)
+
+    // Check if the user exists in the wallet
+    const identity = await wallet.get(username)
+    if (!identity) {
+      throw new Error(`User ${username} does not exist in the wallet`)
+    }
+
+    // Retrieve the admin identity from the wallet
+    const adminIdentity = await wallet.get('admin')
+    if (!adminIdentity) {
+      throw new Error('Admin identity does not exist in the wallet')
+    }
+
+    // Build a user object for authenticating with the CA
+    const provider = wallet
+      .getProviderRegistry()
+      .getProvider(adminIdentity.type)
+    const adminUser = await provider.getUserContext(adminIdentity, 'admin')
+
+    // Revoke user's identity from the CA
+    await ca.revoke({ enrollmentID: username }, adminUser)
+
+    // Remove the user's identity from the wallet
+    await wallet.remove(username)
+
+    const network = await fabric.connectToNetwork(
+      'supplychain',
+      'usercontract',
+      data.username
+    )
+    await network.contract.submitTransaction(
+      'DeleteUserByUsername',
+      ...[username]
+    )
+    network.gateway.disconnect()
+
     await sendEmail(
       company.email,
       'Mohon maaf, perusahaan Anda tidak kami terima'

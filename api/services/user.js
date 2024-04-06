@@ -420,6 +420,17 @@ const getAllStafKementerian = async (user) => {
 
 const deleteUser = async (username, organizationName) => {
   try {
+    const network = await fabric.connectToNetwork(
+      organizationName,
+      'usercontract',
+      username
+    )
+    await network.contract.submitTransaction(
+      'DeleteUserByUsername',
+      ...[username]
+    )
+    network.gateway.disconnect()
+
     const ccp = await fabric.getCcp(organizationName)
     const wallet = await fabric.getWallet(organizationName)
     const caURL =
@@ -454,17 +465,6 @@ const deleteUser = async (username, organizationName) => {
     // Remove the user's identity from the wallet
     await wallet.remove(username)
 
-    const network = await fabric.connectToNetwork(
-      organizationName,
-      'usercontract',
-      username
-    )
-    await network.contract.submitTransaction(
-      'DeleteUserByUsername',
-      ...[username]
-    )
-    network.gateway.disconnect()
-
     return iResp.buildSuccessResponse(
       200,
       `Successfully deleted user ${username}`
@@ -473,7 +473,7 @@ const deleteUser = async (username, organizationName) => {
     return iResp.buildErrorResponse(
       500,
       'Something went wrong while deleting the user',
-      error.message
+      error
     )
   }
 }
