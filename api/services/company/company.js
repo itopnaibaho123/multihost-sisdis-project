@@ -137,14 +137,26 @@ const reject = async (user, id) => {
       'pecontract',
       user.username
     )
-    await peNetwork.contract.submitTransaction('RejectPerusahaan', id)
     let company = await peNetwork.contract.submitTransaction(
       'GetPerusahaanById',
       id
     )
-    peNetwork.gateway.disconnect()
     company = JSON.parse(company)
 
+    await peNetwork.contract.submitTransaction('RejectPerusahaan', id)
+    peNetwork.gateway.disconnect()
+
+    const username = company.adminPerusahaan.username
+    const organizationName = 'supplychain'
+    const network = await fabric.connectToNetwork(
+      organizationName,
+      'usercontract',
+      username
+    )
+    await network.contract.submitTransaction(
+      'DeleteUserByUsername',
+      ...[username]
+    )
     const ccp = await fabric.getCcp(organizationName)
     const wallet = await fabric.getWallet(organizationName)
     const caURL =
@@ -179,15 +191,6 @@ const reject = async (user, id) => {
     // Remove the user's identity from the wallet
     await wallet.remove(username)
 
-    const network = await fabric.connectToNetwork(
-      'supplychain',
-      'usercontract',
-      data.username
-    )
-    await network.contract.submitTransaction(
-      'DeleteUserByUsername',
-      ...[username]
-    )
     network.gateway.disconnect()
 
     await sendEmail(
@@ -196,10 +199,9 @@ const reject = async (user, id) => {
     )
     // Tembak smartcontract buat delete user
 
-    return iResp.buildSuccessResponse(
+    return iResp.buildSuccessResponseWithoutData(
       200,
-      'Successfully approve a company',
-      company
+      'Successfully reject a company'
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
