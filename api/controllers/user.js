@@ -88,6 +88,15 @@ const getAllStafKementerian = async (req, res) => {
   res.status(result.code).send(result)
 }
 
+const deleteUser = async (req, res) => {
+  const data = req.body
+  const result = await userService.deleteUser(
+    data.username,
+    data.organizationName
+  )
+  res.status(result.code).send(result)
+}
+
 module.exports = {
   enrollAdmin,
   registerAdminKementrian,
@@ -97,4 +106,5 @@ module.exports = {
   editEmail,
   getAllManagerByIdPerusahaan,
   getAllStafKementerian,
+  deleteUser,
 }
