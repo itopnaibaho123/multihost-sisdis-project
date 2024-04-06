@@ -27,7 +27,7 @@ const approve = async (req, res) => {
 
 const reject = async (req, res) => {
   const id = req.params.companyId
-  const result = await companyService.approve(req.user, id)
+  const result = await companyService.reject(req.user, id)
 
   res.status(result.code).send(result)
 }

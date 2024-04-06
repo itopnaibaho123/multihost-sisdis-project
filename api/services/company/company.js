@@ -137,13 +137,61 @@ const reject = async (user, id) => {
       'pecontract',
       user.username
     )
-    await peNetwork.contract.submitTransaction('RejectPerusahaan', id)
     let company = await peNetwork.contract.submitTransaction(
       'GetPerusahaanById',
       id
     )
-    peNetwork.gateway.disconnect()
     company = JSON.parse(company)
+
+    await peNetwork.contract.submitTransaction('RejectPerusahaan', id)
+    peNetwork.gateway.disconnect()
+
+    const username = company.adminPerusahaan.username
+    const organizationName = 'supplychain'
+    const network = await fabric.connectToNetwork(
+      organizationName,
+      'usercontract',
+      username
+    )
+    await network.contract.submitTransaction(
+      'DeleteUserByUsername',
+      ...[username]
+    )
+    const ccp = await fabric.getCcp(organizationName)
+    const wallet = await fabric.getWallet(organizationName)
+    const caURL =
+      ccp.certificateAuthorities[
+        `ca.${organizationName.toLowerCase()}.example.com`
+      ].url
+
+    // Create a new CA client for interacting with the CA
+    const ca = new FabricCAServices(caURL)
+
+    // Check if the user exists in the wallet
+    const identity = await wallet.get(username)
+    if (!identity) {
+      throw new Error(`User ${username} does not exist in the wallet`)
+    }
+
+    // Retrieve the admin identity from the wallet
+    const adminIdentity = await wallet.get('admin')
+    if (!adminIdentity) {
+      throw new Error('Admin identity does not exist in the wallet')
+    }
+
+    // Build a user object for authenticating with the CA
+    const provider = wallet
+      .getProviderRegistry()
+      .getProvider(adminIdentity.type)
+    const adminUser = await provider.getUserContext(adminIdentity, 'admin')
+
+    // Revoke user's identity from the CA
+    await ca.revoke({ enrollmentID: username }, adminUser)
+
+    // Remove the user's identity from the wallet
+    await wallet.remove(username)
+
+    network.gateway.disconnect()
 
     await sendEmail(
       company.email,
@@ -151,10 +199,9 @@ const reject = async (user, id) => {
     )
     // Tembak smartcontract buat delete user
 
-    return iResp.buildSuccessResponse(
+    return iResp.buildSuccessResponseWithoutData(
       200,
-      'Successfully approve a company',
-      company
+      'Successfully reject a company'
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
