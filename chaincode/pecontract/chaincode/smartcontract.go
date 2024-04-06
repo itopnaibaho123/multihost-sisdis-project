@@ -279,6 +279,31 @@ func (s *PEContract) ApprovePerusahaan(ctx contractapi.TransactionContextInterfa
 
 	return nil
 }
+// ApprovePerusahaan updates the status field of a Perusahaan entity on the ledger.
+func (s *PEContract) RejectPerusahaan(ctx contractapi.TransactionContextInterface, id string) error {
+	// Retrieve the existing Perusahaan entity from the ledger
+	perusahaan, err := getPerusahaanStateById(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	// Update the status field
+	perusahaan.ApprovalStatus = -1
+
+	// Marshal the updated Perusahaan struct to JSON
+	perusahaanJSON, err := json.Marshal(perusahaan)
+	if err != nil {
+		return err
+	}
+
+	// Put the updated Perusahaan JSON back to the ledger
+	err = ctx.GetStub().PutState(id, perusahaanJSON)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func (s *PEContract) AddSupplyChaintoArray(ctx contractapi.TransactionContextInterface, jsonData string) error {
 	// Retrieve the existing Perusahaan entity from the ledger
