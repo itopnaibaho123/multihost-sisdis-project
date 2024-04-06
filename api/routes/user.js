@@ -28,4 +28,6 @@ userRouter.get(
   userController.getAllStafKementerian
 )
 
+userRouter.post('/delete/user', userController.deleteUser)
+
 module.exports = userRouter
