@@ -15,7 +15,6 @@ const getList = async (user, idDivisi) => {
       'GetVehiclesByDivisi',
       idDivisi
     )
-    console.log(result)
     network.gateway.disconnect()
     return iResp.buildSuccessResponse(
       200,

@@ -42,7 +42,6 @@ const update = async (req, res) => {
 
 const remove = async (req, res) => {
   const result = await shipmentService.remove(req.user, req.params.shipmentId)
-  console.log(req.params.shipmentId)
 
   if (!result.success) {
     res.status(200).send(result)

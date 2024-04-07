@@ -7,7 +7,6 @@ const { bufferToJson } = require('../../utils/converter.js')
 
 const getList = async (user, idPerusahaan) => {
   try {
-    console.log(user)
     const network = await fabric.connectToNetwork(
       user.organizationName,
       'shcontract',

@@ -51,7 +51,6 @@ const remove = async (req, res) => {
     req.user,
     req.params.shipmentId
   )
-  console.log(req.params.shipmentId)
 
   if (!result.success) {
     res.status(200).send(result)

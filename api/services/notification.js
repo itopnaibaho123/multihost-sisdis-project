@@ -108,11 +108,11 @@ const getNotification = async (user) => {
 
     const result = {
       carbonTransaction: bufferToJson(carbonTransactionQuery),
-      supplyChain: transactionResults.filter(function (item) {
+      supplyChainPending: transactionResults.filter(function (item) {
         return item.status == 'menunggu persetujuan perusahaan'
       }),
     }
-    console.log(result)
+
     return iResp.buildSuccessResponse(
       200,
       'Successfully get all Notification',
@@ -129,7 +129,6 @@ const getNotification = async (user) => {
       user.idDivisi
     )
     network.gateway.disconnect()
-    console.log(shipment)
     const result = {
       shipment: bufferToJson(shipment),
     }
