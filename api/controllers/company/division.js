@@ -2,8 +2,9 @@ const divisionService = require('../../services/company/division.js')
 
 const getList = async (req, res) => {
   const user = req.user
-  const idPerusahaan =
-    user.idPerusahaan == '' ? req.params.idPerusahaan : user.idPerusahaan
+  const idPerusahaan = !user.idPerusahaan
+    ? req.params.idPerusahaan
+    : user.idPerusahaan
   const result = await divisionService.getList(user, idPerusahaan)
 
   res.status(result.code).send(result)

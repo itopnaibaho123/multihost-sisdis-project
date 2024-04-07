@@ -23,7 +23,7 @@ const getNotification = async (user) => {
     // Status Pending => CSP
     const CarbonSalesProposal = await fabric.connectToNetwork(
       user.organizationName,
-      'cspontract',
+      'cspcontract',
       user.username
     )
     const cspList = await CarbonSalesProposal.contract.submitTransaction(
@@ -38,20 +38,23 @@ const getNotification = async (user) => {
       'pecontract',
       user.username
     )
+
     const companyList = await Company.contract.submitTransaction(
       'ReadAllPendingPerusahaan'
     )
+
     Company.gateway.disconnect()
 
     const result = {
-      supplyChain: supplyChainList,
-      carbonSalesProposal: cspList,
-      company: companyList,
+      supplyChain: bufferToJson(supplyChainList),
+      carbonSalesProposal: bufferToJson(cspList),
+      company: bufferToJson(companyList),
     }
+
     return iResp.buildSuccessResponse(
       200,
       'Successfully get all Notification',
-      JSON.parse(result)
+      result
     )
   } else if (user.userType === 'admin-perusahaan') {
     // Status Pending => Carbon Transaction
