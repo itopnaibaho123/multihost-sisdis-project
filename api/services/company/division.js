@@ -88,8 +88,9 @@ const create = async (user, data) => {
   }
 }
 
-const update = async (user, args) => {
+const update = async (user, id, data) => {
   try {
+    const args = [id, data.name, data.lokasi, data.lat, data.long]
     const network = await fabric.connectToNetwork(
       user.organizationName,
       'divcontract',

@@ -50,7 +50,7 @@ companyRouter.post(
 )
 companyRouter.put(
   '/division/:divisionId',
-  auth.verifyToken,
+  auth.onlyPerusahaan,
   divisionController.update
 )
 companyRouter.delete(

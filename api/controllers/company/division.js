@@ -25,8 +25,11 @@ const create = async (req, res) => {
 
 const update = async (req, res) => {
   const data = req.body
-  const args = [req.params.divisionId, data.lokasi]
-  const result = await divisionService.update(req.user, args)
+  const result = await divisionService.update(
+    req.user,
+    req.params.divisionId,
+    data
+  )
 
   res.status(result.code).send(result)
 }

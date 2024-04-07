@@ -172,18 +172,52 @@ func (s *DIVContract) UpdateDivisi(ctx contractapi.TransactionContextInterface) 
 
 	// logger.Infof("Run UpdateKls function with args: %+q.", args)
 
-	if len(args) != 2 {
+	if len(args) != 5 {
 	}
 
 	id := args[0]
-	lokasi := args[1]
+	name := args[1]
+	lokasi := args[2]
+	latitude := args[3]
+	longitude := args[4]
 	divisi, err := getDivisiStateById(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	divisi.ID = id
+	divisi.Name = name
 	divisi.Lokasi = lokasi
+	divisi.Latitude = latitude
+	divisi.Longitude = longitude
+
+	divisiJSON, err := json.Marshal(divisi)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(id, divisiJSON)
+	if err != nil {
+	}
+
+	return err
+}
+func (s *DIVContract) UpdateManagerDivisi(ctx contractapi.TransactionContextInterface) error {
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	// logger.Infof("Run UpdateKls function with args: %+q.", args)
+
+	if len(args) != 2 {
+	}
+
+	id := args[0]
+	manager := args[1]
+
+	divisi, err := getDivisiStateById(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	divisi.IdManajer = manager
 
 	divisiJSON, err := json.Marshal(divisi)
 	if err != nil {
