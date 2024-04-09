@@ -13,6 +13,7 @@ userRouter.post('/enroll', userController.enrollAdmin)
 userRouter.post('/login', userController.loginUser)
 
 userRouter.post('/edit/password', auth.verifyToken, userController.editPassword)
+userRouter.post('/forgot', userController.forgotPassword)
 
 userRouter.post('/edit/email', auth.verifyToken, userController.editEmail)
 

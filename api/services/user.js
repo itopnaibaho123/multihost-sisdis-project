@@ -260,85 +260,157 @@ const loginUser = async (username, password) => {
 }
 
 const editPassword = async (user, data) => {
-  // try {
-  const currentUserAttrs = await fabric.getUserAttrs(
-    user.username,
-    user.organizationName
-  )
-  const currentPassword = currentUserAttrs.find(
-    (e) => e.name == 'password'
-  ).value
+  try {
+    const currentUserAttrs = await fabric.getUserAttrs(
+      user.username,
+      user.organizationName
+    )
+    const currentPassword = currentUserAttrs.find(
+      (e) => e.name == 'password'
+    ).value
 
-  if (!(await bcrypt.compare(data.currentPassword, currentPassword))) {
-    return iResp.buildErrorResponse(400, 'Invalid current password', null)
+    if (!(await bcrypt.compare(data.currentPassword, currentPassword))) {
+      return iResp.buildErrorResponse(400, 'Invalid current password', null)
+    }
+
+    const ccp = await fabric.getCcp(user.organizationName)
+    const wallet = await fabric.getWallet(user.organizationName)
+
+    // Create a new CA client for interacting with the CA.
+    const caURL =
+      ccp.certificateAuthorities[
+        `ca.${user.organizationName.toLowerCase()}.example.com`
+      ].url
+    const ca = new FabricCAServices(
+      caURL,
+      undefined,
+      `ca-${user.organizationName.toLowerCase()}`
+    )
+
+    // Check to see if we've already enrolled the admin user.
+    const adminIdentity = await wallet.get('admin')
+    if (!adminIdentity) {
+      throw new Error('Admin network does not exist')
+    }
+
+    // build a user object for authenticating with the CA
+    const provider = wallet
+      .getProviderRegistry()
+      .getProvider(adminIdentity.type)
+    const adminUser = await provider.getUserContext(adminIdentity, 'admin')
+
+    // retrieve the registered identity
+    const identityService = ca.newIdentityService()
+    const encryptedPassword = await bcrypt.hash(data.newPassword, 10)
+    const updateObj = {
+      affiliation: `${user.organizationName.toLowerCase()}.department1`,
+      role: 'client',
+      attrs: [
+        { name: 'userType', value: user.userType, ecert: true },
+        { name: 'password', value: encryptedPassword, ecert: true },
+      ],
+    }
+    identityService.update(user.username, updateObj, adminUser)
+
+    // Get user attr
+    const payload = {
+      id: user.id,
+      username: user.username,
+      email: data.email,
+      userType: user.userType,
+      organizationName: user.organizationName,
+    }
+
+    if (user.userType === 'manager-perusahaan') {
+      payload.nik = user.nik
+      payload.idDivisi = user.idDivisi
+      payload.idPerusahaan = user.idPerusahaan
+      payload.idPerjalanan = user.idPerjalanan
+    } else if (user.userType === 'admin-perusahaan') {
+      payload.idPerusahaan = user.idPerusahaan
+    } else {
+      payload.idPerusahaan = ''
+    }
+
+    const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
+
+    payload.token = token
+
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully Update Password`,
+      payload
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
+}
 
-  const ccp = await fabric.getCcp(user.organizationName)
-  const wallet = await fabric.getWallet(user.organizationName)
+const forgotPassword = async (email) => {
+  try {
+    const network = await fabric.connectToNetwork(
+      'supplychain',
+      'usercontract',
+      'admin'
+    )
+    let user = await network.contract.submitTransaction(
+      'GetUserByEmail',
+      ...[email]
+    )
+    network.gateway.disconnect()
 
-  // Create a new CA client for interacting with the CA.
-  const caURL =
-    ccp.certificateAuthorities[
-      `ca.${user.organizationName.toLowerCase()}.example.com`
-    ].url
-  const ca = new FabricCAServices(
-    caURL,
-    undefined,
-    `ca-${user.organizationName.toLowerCase()}`
-  )
+    user = bufferToJson(user)
 
-  // Check to see if we've already enrolled the admin user.
-  const adminIdentity = await wallet.get('admin')
-  if (!adminIdentity) {
-    throw new Error('Admin network does not exist')
+    const ccp = await fabric.getCcp('supplychain')
+    const wallet = await fabric.getWallet('supplychain')
+
+    // Create a new CA client for interacting with the CA.
+    const caURL =
+      ccp.certificateAuthorities[
+        `ca.${'supplychain'.toLowerCase()}.example.com`
+      ].url
+    const ca = new FabricCAServices(
+      caURL,
+      undefined,
+      `ca-${'supplychain'.toLowerCase()}`
+    )
+
+    // Check to see if we've already enrolled the admin user.
+    const adminIdentity = await wallet.get('admin')
+    if (!adminIdentity) {
+      throw new Error('Admin network does not exist')
+    }
+
+    // build a user object for authenticating with the CA
+    const provider = wallet
+      .getProviderRegistry()
+      .getProvider(adminIdentity.type)
+    const adminUser = await provider.getUserContext(adminIdentity, 'admin')
+
+    // retrieve the registered identity
+    const identityService = ca.newIdentityService()
+
+    const password = crypto.randomBytes(4).toString('hex')
+    const encryptedPassword = await bcrypt.hash(password, 10)
+
+    const updateObj = {
+      affiliation: `${'supplychain'.toLowerCase()}.department1`,
+      role: 'client',
+      attrs: [
+        { name: 'userType', value: user.userType, ecert: true },
+        { name: 'password', value: encryptedPassword, ecert: true },
+      ],
+    }
+    identityService.update(user.username, updateObj, adminUser)
+    await sendEmail(email, `Berikut password terbaru Anda ${password}`)
+
+    return iResp.buildSuccessResponseWithoutData(
+      200,
+      'Successfully sent a new password'
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
-
-  // build a user object for authenticating with the CA
-  const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type)
-  const adminUser = await provider.getUserContext(adminIdentity, 'admin')
-
-  // retrieve the registered identity
-  const identityService = ca.newIdentityService()
-  const encryptedPassword = await bcrypt.hash(data.newPassword, 10)
-  const updateObj = {
-    affiliation: `${user.organizationName.toLowerCase()}.department1`,
-    role: 'client',
-    attrs: [
-      { name: 'userType', value: user.userType, ecert: true },
-      { name: 'password', value: encryptedPassword, ecert: true },
-    ],
-  }
-  identityService.update(user.username, updateObj, adminUser)
-
-  // Get user attr
-  const payload = {
-    id: user.id,
-    username: user.username,
-    email: data.email,
-    userType: user.userType,
-    organizationName: user.organizationName,
-  }
-
-  if (user.userType === 'manager-perusahaan') {
-    payload.nik = user.nik
-    payload.idDivisi = user.idDivisi
-    payload.idPerusahaan = user.idPerusahaan
-    payload.idPerjalanan = user.idPerjalanan
-  } else if (user.userType === 'admin-perusahaan') {
-    payload.idPerusahaan = user.idPerusahaan
-  } else {
-    payload.idPerusahaan = ''
-  }
-
-  const token = jwt.sign(payload, 'secret_key', { expiresIn: '2h' })
-
-  payload.token = token
-
-  return iResp.buildSuccessResponse(
-    200,
-    `Successfully Update Password`,
-    payload
-  )
 }
 
 const editEmail = async (user, data) => {
@@ -484,6 +556,7 @@ module.exports = {
   registerAdminKementrian,
   loginUser,
   editPassword,
+  forgotPassword,
   editEmail,
   getAllManagerByIdPerusahaan,
   getAllStafKementerian,
