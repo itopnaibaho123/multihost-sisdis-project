@@ -55,8 +55,24 @@ const create = async (user, data) => {
       'sccontract',
       user.username
     )
-    await network.contract.submitTransaction('CreateSC', JSON.stringify(args))
+    const args2 = {
+      idPerusahaan: user.idPerusahaan,
+      idSupplyChain: args.id,
+    }
+    await network.contract.submitTransaction('CreateSC', JSON.stringify(args2))
     network.gateway.disconnect()
+
+    const network2 = await fabric.connectToNetwork(
+      user.organizationName,
+      'pecontract',
+      user.username
+    )
+
+    await network2.contract.submitTransaction(
+      'AddSupplyChaintoArray',
+      JSON.stringify(args)
+    )
+    network2.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(
       200,
       'Successfully Proposed SupplyChain'

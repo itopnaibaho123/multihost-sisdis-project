@@ -320,6 +320,13 @@ func (s *PEContract) AddSupplyChaintoArray(ctx contractapi.TransactionContextInt
 		return err
 	}
 
+
+	for _, search := range perusahaan.SupplyChain {
+		if(search == us.IdSupplyChain) {
+			return nil
+		}
+	}
+
 	// Update the status field
 	perusahaan.SupplyChain = append(perusahaan.SupplyChain, us.IdSupplyChain)
 
