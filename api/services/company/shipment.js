@@ -73,7 +73,7 @@ const getAllSHByDivisiPengirim = async (user, data) => {
 
 const getAllSHByVehicle = async (user, data) => {
   try {
-    const idProposal = data
+    const idVehicle = data
     const network = await fabric.connectToNetwork(
       user.organizationName,
       'shcontract',
@@ -81,7 +81,7 @@ const getAllSHByVehicle = async (user, data) => {
     )
     const result = await network.contract.submitTransaction(
       'GetAllSHByVehicle',
-      idProposal
+      idVehicle
     )
     network.gateway.disconnect()
     return iResp.buildSuccessResponse(
