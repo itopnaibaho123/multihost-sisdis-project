@@ -109,6 +109,8 @@ func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface)
 	return err
 }
 
+
+
 // UpdateAsset updates an existing asset in the world state with provided parameters.
 func (s *SHContract) UpdateStatusShipment(ctx contractapi.TransactionContextInterface) error {
 	// logger.Infof("Run UpdateKls function with args: %+q.", args)
@@ -240,6 +242,63 @@ func (s *SHContract) GetShipmentsNeedApprovalByDivisiPenerima(ctx contractapi.Tr
 
     return constructQueryResponseFromIterator(resultsIterator)
 }
+
+func (s *SHContract) GetAllSHByDivisiPengirim(ctx contractapi.TransactionContextInterface) ([]*Perjalanan, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"idDivisiPengirim":"%s"}}`, args[0])
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var scList []*Perjalanan
+
+
+	for _, sc := range queryResult {
+		scList = append(scList, sc)
+	}
+	return scList, nil
+}
+func (s *SHContract) GetAllSHByVehicle(ctx contractapi.TransactionContextInterface) ([]*Perjalanan, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"idTransportasi":"%s"}}`, args[0])
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var scList []*Perjalanan
+
+
+	for _, sc := range queryResult {
+		scList = append(scList, sc)
+	}
+	return scList, nil
+}
+func (s *SHContract) GetAllSHByCompany(ctx contractapi.TransactionContextInterface) ([]*Perjalanan, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"idPerusahaan":"%s"}}`, args[0])
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var scList []*Perjalanan
+
+
+	for _, sc := range queryResult {
+		scList = append(scList, sc)
+	}
+	return scList, nil
+}
+func getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) ([]*Perjalanan, error) {
+
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, fmt.Errorf("ER32", err)
+	}
+	defer resultsIterator.Close()
+
+	return constructQueryResponseFromIterator(resultsIterator)
+}
+
 
 
 func (s *SHContract) GetShipmentById(ctx contractapi.TransactionContextInterface) (*PerjalananResult, error) {

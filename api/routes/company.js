@@ -65,9 +65,19 @@ companyRouter.get(
   shipmentController.getList
 )
 companyRouter.get(
-  '/shipment/detail/:shipmentId',
+  '/shipment/vehicle/:idVehicle',
   auth.verifyToken,
-  shipmentController.getById
+  shipmentController.getAllSHByVehicle
+)
+companyRouter.get(
+  '/shipment/company/:idPerusahaan',
+  auth.verifyToken,
+  shipmentController.getAllSHByCompany
+)
+companyRouter.get(
+  '/shipment/divisi/:idDivisi',
+  auth.verifyToken,
+  shipmentController.getAllSHByDivisiPengirim
 )
 companyRouter.post('/shipment/', auth.verifyToken, shipmentController.create)
 companyRouter.put(

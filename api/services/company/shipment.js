@@ -48,6 +48,75 @@ const getById = async (user, args) => {
   }
 }
 
+const getAllSHByDivisiPengirim = async (user, data) => {
+  try {
+    const idDivisi = data
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetAllSHByDivisiPengirim',
+      idDivisi
+    )
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get shipment ${id}`,
+      JSON.parse(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
+
+const getAllSHByVehicle = async (user, data) => {
+  try {
+    const idProposal = data
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetAllSHByVehicle',
+      idProposal
+    )
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get shipment ${id}`,
+      JSON.parse(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
+
+const GetAllSHByCompany = async (user, data) => {
+  try {
+    const idPerusahaan = data
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetAllSHByCompany',
+      idPerusahaan
+    )
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get shipment ${id}`,
+      JSON.parse(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
+
 const create = async (user, data) => {
   try {
     const args = [
@@ -112,4 +181,13 @@ const remove = async (user, args) => {
   }
 }
 
-module.exports = { getList, getById, create, update, remove }
+module.exports = {
+  getList,
+  getById,
+  create,
+  update,
+  remove,
+  getAllSHByDivisiPengirim,
+  getAllSHByVehicle,
+  GetAllSHByCompany,
+}

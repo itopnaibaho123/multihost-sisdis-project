@@ -12,7 +12,30 @@ const getList = async (req, res) => {
 
 const getById = async (req, res) => {
   const result = await shipmentService.getById(req.user, req.params.shipmentId)
+  res.status(result.code).send(result)
+}
 
+const getAllSHByDivisiPengirim = async (req, res) => {
+  const result = await shipmentService.getAllSHByDivisiPengirim(
+    req.user,
+    req.params.idDivisi
+  )
+  res.status(result.code).send(result)
+}
+
+const getAllSHByVehicle = async (req, res) => {
+  const result = await shipmentService.getAllSHByVehicle(
+    req.user,
+    req.params.idVehicle
+  )
+  res.status(result.code).send(result)
+}
+
+const getAllSHByCompany = async (req, res) => {
+  const result = await shipmentService.GetAllSHByCompany(
+    req.user,
+    req.params.idPerusahaan
+  )
   res.status(result.code).send(result)
 }
 
@@ -50,4 +73,13 @@ const remove = async (req, res) => {
   res.status(result.code).send(result)
 }
 
-module.exports = { getList, getById, create, update, remove }
+module.exports = {
+  getList,
+  getById,
+  create,
+  update,
+  remove,
+  getAllSHByDivisiPengirim,
+  getAllSHByVehicle,
+  getAllSHByCompany,
+}
