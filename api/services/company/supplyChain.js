@@ -45,6 +45,8 @@ const create = async (user, data) => {
     console.log(data.listPerusahaan)
     const args = {
       id: uuidv4(),
+      nama: data.nama,
+      deskripsi: data.deskripsi,
       listPerusahaan: data.listPerusahaan,
       status: 'pending',
       proposalSupplyChain: [],
