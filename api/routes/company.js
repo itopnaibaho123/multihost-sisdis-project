@@ -38,6 +38,12 @@ companyRouter.get(
   auth.verifyToken,
   divisionController.getList
 )
+
+companyRouter.get(
+  '/supplychain/:idSupplyChain',
+  auth.verifyToken,
+  divisionController.getListBySupplyChain
+)
 companyRouter.get(
   '/division/detail/:divisionId',
   auth.verifyToken,

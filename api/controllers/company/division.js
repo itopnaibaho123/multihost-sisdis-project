@@ -22,6 +22,13 @@ const create = async (req, res) => {
 
   res.status(result.code).send(result)
 }
+const getListBySupplyChain = async (req, res) => {
+  const result = await divisionService.getListBySupplyChain(
+    req.user,
+    req.params.idSupplyChain
+  )
+  res.status(result.code).send(result)
+}
 
 const update = async (req, res) => {
   const data = req.body
@@ -40,4 +47,11 @@ const remove = async (req, res) => {
   res.status(result.code).send(result)
 }
 
-module.exports = { getList, getById, create, update, remove }
+module.exports = {
+  getList,
+  getById,
+  create,
+  update,
+  remove,
+  getListBySupplyChain,
+}

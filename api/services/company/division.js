@@ -27,6 +27,45 @@ const getList = async (user, idPerusahaan) => {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
+
+const getListBySupplyChain = async (user, idSupplyChain) => {
+  try {
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'sccontract',
+      user.username
+    )
+    const supplyChain = await network.contract.submitTransaction(
+      'GetSCById',
+      idSupplyChain
+    )
+    network.gateway.disconnect()
+    const divisiNetwork = await fabric.connectToNetwork(
+      user.organizationName,
+      'divcontract',
+      user.username
+    )
+    const divSupplyChain = []
+    for (var i = 0; i < supplyChain.listPerusahaan.length; i++) {
+      if (supplyChain.listPerusahaan[i] !== user.idPerusahaan) {
+        let perusahaanDivisi = await divisiNetwork.contract.submitTransaction(
+          'GetAllDIVByIdPerusahaan',
+          supplyChain.listPerusahaan[i]
+        )
+        divSupplyChain.concat(perusahaanDivisi)
+      }
+    }
+    divisiNetwork.gateway.disconnect()
+
+    return iResp.buildSuccessResponse(
+      200,
+      'Successfully get all division',
+      bufferToJson(divSupplyChain)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
 const getById = async (user, id) => {
   try {
     const network = await fabric.connectToNetwork(
@@ -125,4 +164,11 @@ const remove = async (user, args) => {
   }
 }
 
-module.exports = { getList, getById, create, update, remove }
+module.exports = {
+  getList,
+  getById,
+  create,
+  update,
+  remove,
+  getListBySupplyChain,
+}

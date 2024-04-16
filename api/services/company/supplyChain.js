@@ -61,7 +61,7 @@ const create = async (user, data) => {
       idPerusahaan: user.idPerusahaan,
       idSupplyChain: args.id,
     }
-    await network.contract.submitTransaction('CreateSC', JSON.stringify(args2))
+    await network.contract.submitTransaction('CreateSC', JSON.stringify(args))
     network.gateway.disconnect()
 
     const network2 = await fabric.connectToNetwork(
@@ -72,7 +72,7 @@ const create = async (user, data) => {
 
     await network2.contract.submitTransaction(
       'AddSupplyChaintoArray',
-      JSON.stringify(args)
+      JSON.stringify(args2)
     )
     network2.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(

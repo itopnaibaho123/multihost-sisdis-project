@@ -95,6 +95,32 @@ func CheckIfDivisiNameExists(ctx contractapi.TransactionContextInterface, name s
     return exists != nil, nil
 }
 
+func (s *DIVContract) GetAllDIVByIdPerusahaan(ctx contractapi.TransactionContextInterface) ([]*Divisi, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"perusahaan":"%s"}}`, args[0])
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var divList []*Divisi
+
+
+	for _, div := range queryResult {
+		divList = append(divList, div)
+	}
+	return divList, nil
+}
+func getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) ([]*Divisi, error) {
+
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, fmt.Errorf("ER32", err)
+	}
+	defer resultsIterator.Close()
+
+	return constructQueryResponseFromIterator(resultsIterator)
+}
+
 func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*Divisi, error) {
 	// logger.Infof("Run constructQueryResponseFromIterator function.")
 
