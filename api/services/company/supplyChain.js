@@ -2,6 +2,7 @@
 const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric.js')
 const { v4: uuidv4 } = require('uuid')
+const { bufferToJson } = require('../../utils/converter.js')
 
 const getList = async (user, args) => {
   try {
@@ -15,7 +16,7 @@ const getList = async (user, args) => {
     return iResp.buildSuccessResponse(
       200,
       'Successfully get all shipment',
-      JSON.parse(result)
+      bufferToJson(result)
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
@@ -32,7 +33,7 @@ const getById = async (user, args) => {
     network.gateway.disconnect()
     return iResp.buildSuccessResponse(
       200,
-      `Successfully get shipment ${id}`,
+      `Successfully get supply chain details`,
       JSON.parse(result)
     )
   } catch (error) {
@@ -42,7 +43,6 @@ const getById = async (user, args) => {
 
 const create = async (user, data) => {
   try {
-    console.log(data.listPerusahaan)
     const args = {
       id: uuidv4(),
       nama: data.nama,
@@ -57,10 +57,12 @@ const create = async (user, data) => {
       'sccontract',
       user.username
     )
+
     const args2 = {
       idPerusahaan: user.idPerusahaan,
       idSupplyChain: args.id,
     }
+
     await network.contract.submitTransaction('CreateSC', JSON.stringify(args))
     network.gateway.disconnect()
 
@@ -94,7 +96,6 @@ const ApproveKementerian = async (user, data) => {
           id: item,
           status: 'pending',
         }
-        console.log(tempData)
         proposalSupplyChain.push(tempData)
       })
     }

@@ -486,7 +486,7 @@ const getAllStafKementerian = async (user) => {
   return iResp.buildSuccessResponse(
     200,
     'Sucessfully get all staf kementerian',
-    JSON.parse(result)
+    bufferToJson(result)
   )
 }
 

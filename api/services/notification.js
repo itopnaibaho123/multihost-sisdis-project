@@ -82,34 +82,35 @@ const getNotification = async (user) => {
       'pecontract',
       user.username
     )
-    let company = await companyNet.contract.submitTransaction(
+    const companyNetResponse = await companyNet.contract.submitTransaction(
       'GetPerusahaanById',
       user.idPerusahaan
     )
     companyNet.gateway.disconnect()
-    company = bufferToJson(company)
+
+    const company = bufferToJson(companyNetResponse)
+    const listSupplyChain = company.supplyChain
 
     const supplyChainNet = await fabric.connectToNetwork(
       user.organizationName,
       'sccontract',
       user.username
     )
-    const listSupplyChain = company.supplyChain
 
     const transactionResults = await Promise.all(
       listSupplyChain.map(async (idSupplyChain) => {
-        const result = await companyNet.contract.submitTransaction(
+        const result = await supplyChainNet.contract.submitTransaction(
           'GetSCById',
           idSupplyChain
         )
-        return result
+        return JSON.parse(result)
       })
     )
 
     const result = {
       carbonTransaction: bufferToJson(carbonTransactionQuery),
       supplyChainPending: transactionResults.filter(function (item) {
-        return item.status == 'menunggu persetujuan perusahaan'
+        return item.status == 'Menunggu Persetujuan Perusahaan'
       }),
     }
 

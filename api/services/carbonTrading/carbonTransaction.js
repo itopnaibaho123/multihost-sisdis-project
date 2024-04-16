@@ -182,7 +182,6 @@ const create = async (user, args) => {
       'ctcontract',
       user.username
     )
-    console.log(args)
     await network.contract.submitTransaction('CreateCT', ...args)
     network.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(
