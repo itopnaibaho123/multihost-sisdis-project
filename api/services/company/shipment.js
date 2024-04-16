@@ -63,8 +63,8 @@ const getAllSHByDivisiPengirim = async (user, data) => {
     network.gateway.disconnect()
     return iResp.buildSuccessResponse(
       200,
-      `Successfully get shipment ${id}`,
-      JSON.parse(result)
+      `Successfully get shipment ${idDivisi}`,
+      bufferToJson(result)
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
@@ -86,8 +86,8 @@ const getAllSHByVehicle = async (user, data) => {
     network.gateway.disconnect()
     return iResp.buildSuccessResponse(
       200,
-      `Successfully get shipment ${id}`,
-      JSON.parse(result)
+      `Successfully get shipment ${idVehicle}`,
+      bufferToJson(result)
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
@@ -109,8 +109,8 @@ const GetAllSHByCompany = async (user, data) => {
     network.gateway.disconnect()
     return iResp.buildSuccessResponse(
       200,
-      `Successfully get shipment ${id}`,
-      JSON.parse(result)
+      `Successfully get shipment ${idPerusahaan}`,
+      bufferToJson(result)
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)

@@ -35,7 +35,7 @@ const getListBySupplyChain = async (user, idSupplyChain) => {
       'sccontract',
       user.username
     )
-    const supplyChain = await network.contract.submitTransaction(
+    const supplyChainResponse = await network.contract.submitTransaction(
       'GetSCById',
       idSupplyChain
     )
@@ -46,13 +46,16 @@ const getListBySupplyChain = async (user, idSupplyChain) => {
       user.username
     )
     const divSupplyChain = []
+
+    const supplyChain = JSON.parse(supplyChainResponse)
+    console.log(supplyChain)
     for (var i = 0; i < supplyChain.listPerusahaan.length; i++) {
       if (supplyChain.listPerusahaan[i] !== user.idPerusahaan) {
         let perusahaanDivisi = await divisiNetwork.contract.submitTransaction(
           'GetAllDIVByIdPerusahaan',
           supplyChain.listPerusahaan[i]
         )
-        divSupplyChain.concat(perusahaanDivisi)
+        divSupplyChain.push(...JSON.parse(perusahaanDivisi))
       }
     }
     divisiNetwork.gateway.disconnect()
@@ -60,7 +63,7 @@ const getListBySupplyChain = async (user, idSupplyChain) => {
     return iResp.buildSuccessResponse(
       200,
       'Successfully get all division',
-      bufferToJson(divSupplyChain)
+      divSupplyChain
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
