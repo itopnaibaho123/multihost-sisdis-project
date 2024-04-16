@@ -101,6 +101,8 @@ const ApproveKementerian = async (user, data) => {
 
     let args = {
       id: data.id,
+      nama: data.nama,
+      deskripsi: data.deskripsi,
       listPerusahaan: data.listPerusahaan,
       status: data.status,
       proposalSupplyChain: proposalSupplyChain,
