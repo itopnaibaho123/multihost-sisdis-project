@@ -45,7 +45,7 @@ companyRouter.get(
   divisionController.getListBySupplyChain
 )
 companyRouter.get(
-  '/division/detail/:divisionId',
+  '/division/:divisionId',
   auth.verifyToken,
   divisionController.getById
 )
