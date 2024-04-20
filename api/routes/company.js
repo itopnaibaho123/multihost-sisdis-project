@@ -44,21 +44,25 @@ companyRouter.get(
   auth.verifyToken,
   divisionController.getListBySupplyChain
 )
+
 companyRouter.get(
-  '/division/:divisionId',
+  '/division/detail/:divisionId',
   auth.verifyToken,
   divisionController.getById
 )
+
 companyRouter.post(
   '/division',
   auth.onlyAdminPerusahaan,
   divisionController.create
 )
+
 companyRouter.put(
   '/division/:divisionId',
   auth.onlyPerusahaan,
   divisionController.update
 )
+
 companyRouter.delete(
   '/division/:divisionId',
   auth.verifyToken,
@@ -69,6 +73,11 @@ companyRouter.get(
   '/shipment/:companyId',
   auth.verifyToken,
   shipmentController.getList
+)
+companyRouter.get(
+  '/shipment/detail/:shipmentId',
+  auth.verifyToken,
+  shipmentController.getById
 )
 companyRouter.get(
   '/shipment/vehicle/:idVehicle',

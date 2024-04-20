@@ -49,11 +49,11 @@ const getListBySupplyChain = async (user, idSupplyChain) => {
 
     const supplyChain = JSON.parse(supplyChainResponse)
     for (var i = 0; i < supplyChain.listPerusahaan.length; i++) {
-      let perusahaanDivisi = await divisiNetwork.contract.submitTransaction(
-        'GetAllDIVByIdPerusahaan',
+      const result = await divisiNetwork.contract.submitTransaction(
+        'ReadAllDivisiByPerusahaan',
         supplyChain.listPerusahaan[i]
       )
-      divSupplyChain.push(...JSON.parse(perusahaanDivisi))
+      divSupplyChain.push(...bufferToJson(result))
     }
     divisiNetwork.gateway.disconnect()
 

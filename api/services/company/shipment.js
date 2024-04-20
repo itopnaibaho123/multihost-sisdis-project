@@ -26,7 +26,7 @@ const getList = async (user, idPerusahaan) => {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
-const getById = async (user, args) => {
+const getById = async (user, shipmentId) => {
   try {
     const network = await fabric.connectToNetwork(
       user.organizationName,
@@ -35,12 +35,12 @@ const getById = async (user, args) => {
     )
     const result = await network.contract.submitTransaction(
       'GetShipmentById',
-      args
+      shipmentId
     )
     network.gateway.disconnect()
     return iResp.buildSuccessResponse(
       200,
-      `Successfully get shipment ${id}`,
+      `Successfully get shipment ${shipmentId}`,
       JSON.parse(result)
     )
   } catch (error) {
