@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"math/rand"
+	"github.com/google/uuid"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -581,4 +583,55 @@ func (s *PEContract) DeletePerusahaan(ctx contractapi.TransactionContextInterfac
 	}
 
 	return err
+}
+
+
+func (s *PEContract) SeedDb(ctx contractapi.TransactionContextInterface) error {
+	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	
+	string idPerusahaan := "7f5c4a2b-3e4d-4b8b-9a0a-1e8f9e6f5d0a"
+	string idSupplyChain := "8a3e8b6d-2g5d-6b8b-9f5c-2g8f9e6f5d0a"
+	for i:=1; i < 100000; i++ {
+		pe := Perusahaan{
+			ID:                  idPerusahaan,
+			NomorTelepon:        RandString(10),
+			Email:               RandString(10),
+			Nama:                RandString(10),
+			Lokasi:              RandString(10),
+			Deskripsi:           RandString(10),
+			URLSuratProposal:    RandString(10),
+			ApprovalStatus:      0,
+			ParticipantStatus:   0,
+			IdEmisiKarbon:       "",
+			AdminPerusahaan:     &Admin{
+				ID:           uuid.New(),
+				Username:     RandString(10),
+			},
+			Kuota:               0,
+			SisaKuota:           0,
+			SupplyChain:         idSupplyChain,
+			ProposalSupplyChain: "",
+		}
+		
+		if(i==1) {
+			pe.ID = idPerusahaan
+		}
+
+		peJSON, err := json.Marshal(pe)
+		if err != nil {
+			return err
+		}
+
+		err = ctx.GetStub().PutState(id, peJSON)
+		if err != nil {
+			fmt.Errorf(err.Error())
+		}
+	}
+}
+func RandString(n int) string {
+    b := make([]byte, n)
+    for i := range b {
+        b[i] = letterBytes[rand.Intn(len(letterBytes))]
+    }
+    return string(b)
 }

@@ -231,6 +231,7 @@ func (s *SHContract) GetShipmentsByPerusahaan(ctx contractapi.TransactionContext
 
     return constructQueryResponseFromIterator(resultsIterator)
 }
+
 func (s *SHContract) GetShipmentsNeedApprovalByDivisiPenerima(ctx contractapi.TransactionContextInterface, idDivisiPenerima string) ([]*Perjalanan, error) {
     queryString := fmt.Sprintf(`{"selector":{"idDivisiPenerima":"%s", "status":"Need Approval"}}`, idDivisiPenerima)
 
@@ -258,6 +259,7 @@ func (s *SHContract) GetAllSHByDivisiPengirim(ctx contractapi.TransactionContext
 	}
 	return scList, nil
 }
+
 func (s *SHContract) GetAllSHByVehicle(ctx contractapi.TransactionContextInterface) ([]*Perjalanan, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 	queryString := fmt.Sprintf(`{"selector":{"idTransportasi":"%s"}}`, args[0])
@@ -273,6 +275,7 @@ func (s *SHContract) GetAllSHByVehicle(ctx contractapi.TransactionContextInterfa
 	}
 	return scList, nil
 }
+
 func (s *SHContract) GetAllSHByCompany(ctx contractapi.TransactionContextInterface) ([]*Perjalanan, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 	queryString := fmt.Sprintf(`{"selector":{"idPerusahaan":"%s"}}`, args[0])
@@ -288,6 +291,7 @@ func (s *SHContract) GetAllSHByCompany(ctx contractapi.TransactionContextInterfa
 	}
 	return scList, nil
 }
+
 func getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) ([]*Perjalanan, error) {
 
 	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
@@ -298,8 +302,6 @@ func getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, q
 
 	return constructQueryResponseFromIterator(resultsIterator)
 }
-
-
 
 func (s *SHContract) GetShipmentById(ctx contractapi.TransactionContextInterface) (*PerjalananResult, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
@@ -318,6 +320,7 @@ func (s *SHContract) GetShipmentById(ctx contractapi.TransactionContextInterface
 
 	return PerjalananResult, nil
 }
+
 func getCompleteDataShipment(ctx contractapi.TransactionContextInterface, perjalanan *Perjalanan) (*PerjalananResult, error) {
 	// logger.Infof("Run getCompleteDataKls function with kls id: '%s'.", perusahaan.ID)
 
@@ -336,6 +339,7 @@ func getCompleteDataShipment(ctx contractapi.TransactionContextInterface, perjal
 
 	return &PerjalananResult, nil
 }
+
 func getShipmentStateById(ctx contractapi.TransactionContextInterface, id string) (*Perjalanan, error) {
 
 	perjalananJSON, err := ctx.GetStub().GetState(id)
@@ -428,4 +432,41 @@ func (s *SHContract) DeleteShipment(ctx contractapi.TransactionContextInterface)
 	}
 
 	return err
+}
+func (s *SHContract) SeedDb(ctx contractapi.TransactionContextInterface) error {
+	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	
+	string idPerusahaan := "7f5c4a2b-3e4d-4b8b-9a0a-1e8f9e6f5d0a"
+	string idSupplyChain := "8a3e8b6d-2g5d-6b8b-9f5c-2g8f9e6f5d0a"
+	for i:=1; i < 100000; i++ {
+		perjalanan := Perjalanan{
+			ID:               uuid.New(),
+			IdPerusahaan: 	  idPerusahaan,
+			IdSupplyChain:    idSupplyChain,
+			IdDivisiPengirim: uuid.New(),
+			IdDivisiPenerima: uuid.New(),
+			Status:           "Selesai",
+			WaktuBerangkat:   time.Now().Format(time.RFC3339),
+			IdTransportasi:   uuid.New(),
+			BeratMuatan:      100,
+		}
+
+		perjalananJSON, err := json.Marshal(perjalanan)
+		if err != nil {
+			return err
+		}
+
+		err = ctx.GetStub().PutState(id, perjalananJSON)
+		if err != nil {
+			fmt.Errorf(err.Error())
+		}
+
+	}
+}
+func RandString(n int) string {
+    b := make([]byte, n)
+    for i := range b {
+        b[i] = letterBytes[rand.Intn(len(letterBytes))]
+    }
+    return string(b)
 }
