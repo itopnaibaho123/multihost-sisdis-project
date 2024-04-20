@@ -256,3 +256,36 @@ func (s *VEContract) DeleteVehicle(ctx contractapi.TransactionContextInterface) 
 
 	return err
 }
+
+func (s *VEContract) SeedDb(ctx contractapi.TransactionContextInterface) error {
+	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	
+	string idDivisi := "9f5c4a2b-3e4d-6b8b-9a0a-1e8f9e6f5d0a"
+	for i:=1; i < 100000; i++ {
+		vhc := Vehicle{
+			ID:       uuid.New(),
+			IdDivisi: idDivisi,
+			CarModel: RandString(10),
+			FuelType: RandString(10),
+			KmUsage:  0,
+		}
+
+		vhcJSON, err := json.Marshal(vhc)
+		if err != nil {
+			return err
+		}
+
+		err = ctx.GetStub().PutState(id, vhcJSON)
+		if err != nil {
+			fmt.Errorf(err.Error())
+		}
+
+	}
+}
+func RandString(n int) string {
+    b := make([]byte, n)
+    for i := range b {
+        b[i] = letterBytes[rand.Intn(len(letterBytes))]
+    }
+    return string(b)
+}
