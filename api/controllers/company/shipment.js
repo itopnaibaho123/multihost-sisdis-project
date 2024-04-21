@@ -20,6 +20,7 @@ const getAllSHByDivisiPengirim = async (req, res) => {
     req.user,
     req.params.idDivisi
   )
+  console.log(req.params)
   res.status(result.code).send(result)
 }
 
@@ -54,17 +55,19 @@ const create = async (req, res) => {
 }
 
 const update = async (req, res) => {
+  console.log('hi')
+  const data = req.body
   const args = [
     req.params.shipmentId,
     data.idSupplyChain,
-    data.idDivisiPengirim,
-    data.idDivisiPenerima,
+    data.divisiPengirim,
+    data.divisiPenerima,
     data.status,
     data.waktuBerangkat,
     data.waktuSampai,
-    data.idTransportasi,
+    data.transportasi,
     data.beratMuatan,
-    data.emisiKarbonstr,
+    data.emisiKarbon,
   ]
   const result = await shipmentService.update(req.user, args)
 
