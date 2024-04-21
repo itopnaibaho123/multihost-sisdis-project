@@ -60,7 +60,7 @@ type CarbonEmission struct {
 
 type Vehicle struct {
 	ID       string `json:"id"`
-	IdDivisi string `json:"divisi"`
+	IdDivisi *Divisi `json:"divisi"`
 	CarModel string `json:"carModel"`
 	FuelType string `json:"fuelType"`
 	KmUsage  string `json:"kmUsage"`
