@@ -23,6 +23,14 @@ const getAllSHByDivisiPengirim = async (req, res) => {
   res.status(result.code).send(result)
 }
 
+const getAllSHByDivisiPenerima = async (req, res) => {
+  const result = await shipmentService.getAllSHByDivisiPenerima(
+    req.user,
+    req.params.idDivisi
+  )
+  res.status(result.code).send(result)
+}
+
 const getAllSHByVehicle = async (req, res) => {
   const result = await shipmentService.getAllSHByVehicle(
     req.user,
@@ -80,6 +88,7 @@ module.exports = {
   update,
   remove,
   getAllSHByDivisiPengirim,
+  getAllSHByDivisiPenerima,
   getAllSHByVehicle,
   getAllSHByCompany,
 }

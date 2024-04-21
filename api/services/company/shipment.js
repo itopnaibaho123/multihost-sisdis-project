@@ -70,6 +70,28 @@ const getAllSHByDivisiPengirim = async (user, data) => {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
+const getAllSHByDivisiPenerima = async (user, data) => {
+  try {
+    const idDivisi = data
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetAllSHByDivisiPenerima',
+      idDivisi
+    )
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get shipment ${idDivisi}`,
+      bufferToJson(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
 
 const getAllSHByVehicle = async (user, data) => {
   try {
@@ -188,6 +210,7 @@ module.exports = {
   update,
   remove,
   getAllSHByDivisiPengirim,
+  getAllSHByDivisiPenerima,
   getAllSHByVehicle,
   GetAllSHByCompany,
 }

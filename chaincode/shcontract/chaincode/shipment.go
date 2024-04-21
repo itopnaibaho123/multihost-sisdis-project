@@ -278,6 +278,22 @@ func (s *SHContract) GetAllSHByDivisiPengirim(ctx contractapi.TransactionContext
 	return scList, nil
 }
 
+func (s *SHContract) GetAllSHByDivisiPenerima(ctx contractapi.TransactionContextInterface) ([]*Perjalanan, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"idDivisiPenerima":"%s"}}`, args[0])
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var scList []*Perjalanan
+
+
+	for _, sc := range queryResult {
+		scList = append(scList, sc)
+	}
+	return scList, nil
+}
+
 func (s *SHContract) GetAllSHByVehicle(ctx contractapi.TransactionContextInterface) ([]*Perjalanan, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 	queryString := fmt.Sprintf(`{"selector":{"idTransportasi":"%s"}}`, args[0])
