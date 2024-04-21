@@ -66,6 +66,24 @@ type Vehicle struct {
 	KmUsage  string `json:"kmUsage"`
 }
 
+const (
+	ER11 string = "ER11-Incorrect number of arguments. Required %d arguments, but you have %d arguments."
+	ER12        = "ER12-Ijazah with id '%s' already exists."
+	ER13        = "ER13-Ijazah with id '%s' doesn't exist."
+	ER14        = "ER14-Ijazah with id '%s' no longer require approval."
+	ER15        = "ER15-Ijazah with id '%s' already approved by PTK with id '%s'."
+	ER16        = "ER16-Ijazah with id '%s' cannot be approved by PTK with id '%s' in this step."
+	ER31        = "ER31-Failed to change to world state: %v."
+	ER32        = "ER32-Failed to read from world state: %v."
+	ER33        = "ER33-Failed to get result from iterator: %v."
+	ER34        = "ER34-Failed unmarshaling JSON: %v."
+	ER35        = "ER35-Failed parsing string to integer: %v."
+	ER36        = "ER36-Failed parsing string to float: %v."
+	ER37        = "ER37-Failed to query another chaincode (%s): %v."
+	ER41        = "ER41-Access is not permitted with MSDPID '%s'."
+	ER42        = "ER42-Unknown MSPID: '%s'."
+)
+
 // CreateAsset issues a new asset to the world state with given details.
 func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
@@ -333,13 +351,72 @@ func getCompleteDataShipment(ctx contractapi.TransactionContextInterface, perjal
 	PerjalananResult.WaktuSampai = perjalanan.WaktuSampai
 	PerjalananResult.BeratMuatan = perjalanan.BeratMuatan
 	PerjalananResult.EmisiKarbon = perjalanan.EmisiKarbon
-	PerjalananResult.DivisiPenerima = nil
-	PerjalananResult.DivisiPengirim = nil
-	PerjalananResult.Transportasi = nil
+	divPenerima, err := getDivById(ctx, perjalanan.IdDivisiPenerima)
+	if err!=nil {
+		return nil, err
+	}
+	PerjalananResult.DivisiPenerima = divPenerima
+
+	divPengirim, err := getDivById(ctx, perjalanan.IdDivisiPengirim)
+	if err!=nil {
+		return nil, err
+	}
+	PerjalananResult.DivisiPengirim = divPengirim
+
+	vehicle, err := getVeById(ctx, perjalanan.IdTransportasi)
+	if err!=nil {
+		return nil, err
+	}
+	PerjalananResult.Transportasi = vehicle
 
 	return &PerjalananResult, nil
 }
 
+func getVeById(ctx contractapi.TransactionContextInterface, idVehicle string) (*Vehicle, error) {
+	// logger.Infof("Run getSpById function with idSp: '%s'.", idSp)
+
+	params := []string{"GetVehicleById", idVehicle}
+	queryArgs := make([][]byte, len(params))
+	for i, arg := range params {
+		queryArgs[i] = []byte(arg)
+	}
+
+	response := ctx.GetStub().InvokeChaincode("vecontract", queryArgs, "carbonchannel")
+	if response.Status != shim.OK {
+		return nil, fmt.Errorf(ER37, "vecontract", response.Message)
+	}
+
+	var ve Vehicle
+	err := json.Unmarshal([]byte(response.Payload), &ve)
+	if err != nil {
+		return nil, fmt.Errorf(ER34, err)
+	}
+
+	return &ve, nil
+}
+
+func getDivById(ctx contractapi.TransactionContextInterface, idDivisi string) (*Divisi, error) {
+	// logger.Infof("Run getSpById function with idSp: '%s'.", idSp)
+
+	params := []string{"GetDivisiById", idDivisi}
+	queryArgs := make([][]byte, len(params))
+	for i, arg := range params {
+		queryArgs[i] = []byte(arg)
+	}
+
+	response := ctx.GetStub().InvokeChaincode("divcontract", queryArgs, "carbonchannel")
+	if response.Status != shim.OK {
+		return nil, fmt.Errorf(ER37, "divcontract", response.Message)
+	}
+
+	var div Divisi
+	err := json.Unmarshal([]byte(response.Payload), &div)
+	if err != nil {
+		return nil, fmt.Errorf(ER34, err)
+	}
+
+	return &div, nil
+}
 func getShipmentStateById(ctx contractapi.TransactionContextInterface, id string) (*Perjalanan, error) {
 
 	perjalananJSON, err := ctx.GetStub().GetState(id)

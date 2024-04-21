@@ -42,6 +42,23 @@ type Vehicle struct {
 	FuelType string `json:"fuelType"`
 	KmUsage  string `json:"kmUsage"`
 }
+const (
+	ER11 string = "ER11-Incorrect number of arguments. Required %d arguments, but you have %d arguments."
+	ER12        = "ER12-Ijazah with id '%s' already exists."
+	ER13        = "ER13-Ijazah with id '%s' doesn't exist."
+	ER14        = "ER14-Ijazah with id '%s' no longer require approval."
+	ER15        = "ER15-Ijazah with id '%s' already approved by PTK with id '%s'."
+	ER16        = "ER16-Ijazah with id '%s' cannot be approved by PTK with id '%s' in this step."
+	ER31        = "ER31-Failed to change to world state: %v."
+	ER32        = "ER32-Failed to read from world state: %v."
+	ER33        = "ER33-Failed to get result from iterator: %v."
+	ER34        = "ER34-Failed unmarshaling JSON: %v."
+	ER35        = "ER35-Failed parsing string to integer: %v."
+	ER36        = "ER36-Failed parsing string to float: %v."
+	ER37        = "ER37-Failed to query another chaincode (%s): %v."
+	ER41        = "ER41-Access is not permitted with MSDPID '%s'."
+	ER42        = "ER42-Unknown MSPID: '%s'."
+)
 // Create Vehicle
 // 1. Manajer Create Vehicle
 
@@ -170,17 +187,47 @@ func getCompleteDataVehicle(ctx contractapi.TransactionContextInterface, vehicle
 	// logger.Infof("Run getCompleteDataKls function with kls id: '%s'.", perusahaan.ID)
 
 	var vehicleResult VehicleResult
-
+ 
 	vehicleResult.ID = vehicle.ID
 	vehicleResult.CarModel = vehicle.CarModel
 	vehicleResult.FuelType = vehicle.FuelType
 	vehicleResult.KmUsage = vehicle.KmUsage
-	vehicleResult.IdDivisi = nil
+
+	div, err := getDivById(ctx, vehicle.IdDivisi)
+	if err!=nil {
+		return nil, err
+	}
+
+	vehicleResult.IdDivisi = div
 
 	// response := ctx.GetStub().InvokeChaincode(PDContract, queryArgs, AcademicChannel)
 
 	return &vehicleResult, nil
 }
+
+func getDivById(ctx contractapi.TransactionContextInterface, idDivisi string) (*Divisi, error) {
+	// logger.Infof("Run getSpById function with idSp: '%s'.", idSp)
+
+	params := []string{"GetDivisiById", idDivisi}
+	queryArgs := make([][]byte, len(params))
+	for i, arg := range params {
+		queryArgs[i] = []byte(arg)
+	}
+
+	response := ctx.GetStub().InvokeChaincode("divcontract", queryArgs, "carbonchannel")
+	if response.Status != shim.OK {
+		return nil, fmt.Errorf(ER37, "divcontract", response.Message)
+	}
+
+	var div Divisi
+	err := json.Unmarshal([]byte(response.Payload), &div)
+	if err != nil {
+		return nil, fmt.Errorf(ER34, err)
+	}
+
+	return &div, nil
+}
+
 func getVehicleStateById(ctx contractapi.TransactionContextInterface, id string) (*Vehicle, error) {
 
 	vehicleJSON, err := ctx.GetStub().GetState(id)
