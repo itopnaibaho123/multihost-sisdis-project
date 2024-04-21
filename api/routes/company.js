@@ -97,7 +97,7 @@ companyRouter.get(
 companyRouter.get(
   '/shipment/divisi_penerima/:idDivisi',
   auth.verifyToken,
-  shipmentController.getAllSHByDivisiPengirim
+  shipmentController.getAllSHByDivisiPenerima
 )
 companyRouter.post('/shipment/', auth.verifyToken, shipmentController.create)
 companyRouter.put(
