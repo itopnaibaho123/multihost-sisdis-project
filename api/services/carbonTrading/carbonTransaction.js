@@ -34,7 +34,7 @@ const generateIdentifier = async (user, idTransaction) => {
     network = await fabric.connectToNetwork('Kementrian', 'qscc', 'admin')
     const blockCarbonTransaction = await network.contract.evaluateTransaction(
       'GetBlockByTxID',
-      'academicchannel',
+      'carbonchannel',
       carbonTransaction.approvalTxId[carbonTransaction.approvalTxId.length - 1]
     )
 
@@ -53,10 +53,10 @@ const verify = async (user, identifier) => {
   try {
     // find block that block hash == identifier
     console.log(identifier)
-    const network = await fabric.connectToNetwork('Kemdikbud', 'qscc', 'admin')
+    const network = await fabric.connectToNetwork('Kementrian', 'qscc', 'admin')
     const blockCarbonTransaction = await network.contract.evaluateTransaction(
       'GetBlockByHash',
-      'academicchannel',
+      'carbonchannel',
       Buffer.from(identifier.carbonTransaction, 'hex')
     )
 
