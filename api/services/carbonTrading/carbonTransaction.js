@@ -27,15 +27,14 @@ const generateIdentifier = async (user, idTransaction) => {
     await network.contract.evaluateTransaction('GetCTById', idTransaction)
   )
 
-  console.log(ijazah, transkrip)
-  if (ijazah.remainingApprover == 0 && transkrip.remainingApprover == 0) {
+  if (carbonTransaction.status === 'approve') {
     const identifier = {}
 
     network = await fabric.connectToNetwork('Kementrian', 'qscc', 'admin')
     const blockCarbonTransaction = await network.contract.evaluateTransaction(
       'GetBlockByTxID',
       'carbonchannel',
-      carbonTransaction.approvalTxId[carbonTransaction.approvalTxId.length - 1]
+      carbonTransaction.approvalTxId[carbonTransaction.historyTxId.length - 1]
     )
 
     identifier.carbonTransaction = fabric.calculateBlockHash(
@@ -45,7 +44,7 @@ const generateIdentifier = async (user, idTransaction) => {
     network.gateway.disconnect()
     return identifier
   } else {
-    throw 'Ijazah atau transkrip belum selesai disetujui'
+    throw 'Carbon Transaction Belum di Approve'
   }
 }
 
