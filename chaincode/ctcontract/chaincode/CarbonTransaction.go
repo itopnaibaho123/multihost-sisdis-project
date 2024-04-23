@@ -49,6 +49,7 @@ type CarbonTransactionResult struct {
 	Kuota             int                  `json:"kuota"`
 	Status            string               `json:"status"`
 	URLBuktiTransaksi string               `json:"urlBuktiTransaksi"`
+	HistoryTxId	 	 []string 				`json: "historyTxId"`
 }
 
 type CarbonSalesProposal struct {
@@ -219,6 +220,7 @@ func getCompleteDataCT(ctx contractapi.TransactionContextInterface, ct *CarbonTr
 	ctr.Kuota = ct.Kuota
 	ctr.Status = ct.Status
 	ctr.URLBuktiTransaksi = ct.URLBuktiTransaksi
+
 	perusahaan, err := GetPerusahaanById(ctx, ct.IdPerusahaanPembeli)
 	if err!=nil {
 		return nil, err
@@ -229,7 +231,44 @@ func getCompleteDataCT(ctx contractapi.TransactionContextInterface, ct *CarbonTr
 		return nil, err
 	}
 	ctr.ProposalPenjual = csp
+
+	HistoryTxIds, err := getCTHistoryTxIdById(ctx, csp.ID)
+	if err != nil {
+		return nil, err
+	}
+	ctr.HistoryTxId = HistoryTxIds
+
 	return &ctr, nil
+}
+
+func getCTHistoryTxIdById(ctx contractapi.TransactionContextInterface, id string) ([]string, error) {
+	// logger.Infof("Run getIjzAddApprovalTxIdById function with id: %s.", id)
+
+	resultsIterator, err := ctx.GetStub().GetHistoryForKey(id)
+	if err != nil {
+		return []string{}, fmt.Errorf(err.Error())
+	}
+	defer resultsIterator.Close()
+
+	txIdList := []string{}
+
+	for resultsIterator.HasNext() {
+		response, err := resultsIterator.Next()
+		if err != nil {
+			return []string{}, fmt.Errorf(err.Error())
+		}
+
+		var ct CarbonTransaction
+		err = json.Unmarshal([]byte(response.Value), &ct)
+		if err != nil {
+			return nil, fmt.Errorf(ER34, err)
+		}
+
+
+		txIdList = append([]string{response.TxId}, txIdList[0:]...)
+	}
+
+	return txIdList, nil
 }
 
 func GetCSPById(ctx contractapi.TransactionContextInterface, idCSP string) (*CarbonSalesProposal, error) {
