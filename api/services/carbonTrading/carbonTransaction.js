@@ -20,6 +20,84 @@ const getList = async (user, args) => {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
+
+const generateIdentifier = async (user, idTransaction) => {
+  var network = await fabric.connectToNetwork('SupplyChain', 'ctcontract', user)
+  const carbonTransaction = JSON.parse(
+    await network.contract.evaluateTransaction('GetCTById', idTransaction)
+  )
+
+  console.log(ijazah, transkrip)
+  if (ijazah.remainingApprover == 0 && transkrip.remainingApprover == 0) {
+    const identifier = {}
+
+    network = await fabric.connectToNetwork('Kementrian', 'qscc', 'admin')
+    const blockCarbonTransaction = await network.contract.evaluateTransaction(
+      'GetBlockByTxID',
+      'academicchannel',
+      carbonTransaction.approvalTxId[carbonTransaction.approvalTxId.length - 1]
+    )
+
+    identifier.carbonTransaction = fabric.calculateBlockHash(
+      BlockDecoder.decode(blockCarbonTransaction).header
+    )
+
+    network.gateway.disconnect()
+    return identifier
+  } else {
+    throw 'Ijazah atau transkrip belum selesai disetujui'
+  }
+}
+
+const verify = async (user, identifier) => {
+  try {
+    // find block that block hash == identifier
+    console.log(identifier)
+    const network = await fabric.connectToNetwork('Kemdikbud', 'qscc', 'admin')
+    const blockCarbonTransaction = await network.contract.evaluateTransaction(
+      'GetBlockByHash',
+      'academicchannel',
+      Buffer.from(identifier.carbonTransaction, 'hex')
+    )
+
+    // Get data from block
+    const argsCt = BlockDecoder.decode(blockCarbonTransaction).data.data[0]
+      .payload.data.actions[0].payload.chaincode_proposal_payload.input
+      .chaincode_spec.input.args
+    const idCt = Buffer.from(argsCt[1]).toString()
+
+    console.log('ID Carbon Transaction: ', idCt)
+    //query data ijazah, transkrip, nilai
+    network.gateway.disconnect()
+
+    const ctNetwork = await fabric.connectToNetwork(
+      user.organizationName,
+      'ctcontract',
+      user.username
+    )
+    const ct = await ctNetwork.contract.submitTransaction('GetCTById', idCt)
+    ctNetwork.gateway.disconnect()
+
+    const data = {
+      carbonTransaction: ct,
+    }
+
+    const result = {
+      success: true,
+      message: 'Carbon Transaction asli',
+      data: data,
+    }
+    return result
+  } catch (error) {
+    console.log('ERROR', error)
+    const result = {
+      success: true,
+      message: 'Carbon Transaction palsu',
+    }
+    return result
+  }
+}
+
 const getById = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
@@ -238,4 +316,6 @@ module.exports = {
   getCarbonTransactionByIdPerusahaan,
   getCarbonTransactionByIdProposal,
   verifikasiTransferKarbon,
+  generateIdentifier,
+  verify,
 }
