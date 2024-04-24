@@ -2,6 +2,7 @@
 const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric.js')
 const { bufferToJson } = require('../../utils/converter.js')
+const { parse } = require('date-and-time')
 const getList = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
@@ -74,11 +75,13 @@ const verify = async (user, identifier) => {
       'ctcontract',
       user.username
     )
-    const ct = await ctNetwork.contract.submitTransaction('GetCTById', idCt)
+    const ct = await ctNetwork.contract.evaluateTransaction('GetCTById', idCt)
     ctNetwork.gateway.disconnect()
+    const parseData = JSON.parse(ct)
+    parseData.signatures = await fabric.getAllSignature(parseData.historyTxId)
 
     const data = {
-      carbonTransaction: ct,
+      carbonTransaction: parseData,
     }
 
     const result = {

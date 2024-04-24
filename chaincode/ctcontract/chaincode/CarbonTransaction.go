@@ -38,6 +38,8 @@ type CarbonTransaction struct {
 	Kuota               int    `json:"kuota"`
 	Status              string `json:"status"`
 	URLBuktiTransaksi   string `json:"urlBuktiTransaksi"`
+	Approvers			[]string 		`json:"approvers"`
+
 }
 
 // * Hapus Vote
@@ -49,6 +51,7 @@ type CarbonTransactionResult struct {
 	Kuota             int                  `json:"kuota"`
 	Status            string               `json:"status"`
 	URLBuktiTransaksi string               `json:"urlBuktiTransaksi"`
+	Approvers			[]string 		`json:"approvers"`
 	HistoryTxId	 	 []string 				`json: "historyTxId"`
 }
 
@@ -131,6 +134,7 @@ func (s *CTContract) CreateCT(ctx contractapi.TransactionContextInterface) error
 		Kuota:               kuota,
 		URLBuktiTransaksi:   urlBuktiTransaksi,
 		Status:              status,
+		Approvers: []string{},
 	}
 
 	ctJSON, err := json.Marshal(ct)
@@ -231,7 +235,7 @@ func getCompleteDataCT(ctx contractapi.TransactionContextInterface, ct *CarbonTr
 		return nil, err
 	}
 	ctr.ProposalPenjual = csp
-
+	ctr.Approvers = ct.Approvers
 	HistoryTxIds, err := getCTHistoryTxIdById(ctx, csp.ID)
 	if err != nil {
 		return nil, err

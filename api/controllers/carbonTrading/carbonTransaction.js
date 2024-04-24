@@ -71,6 +71,7 @@ const create = async (req, res) => {
     data.kuota,
     data.status,
     data.urlBuktiTransaksi,
+    data.approvers,
   ]
   const result = await carbonTransactionService.create(req.user, args)
 
@@ -86,6 +87,7 @@ const update = async (req, res) => {
     data.kuota,
     data.status,
     data.urlBuktiTransfer,
+    data.approvers,
   ]
   const result = await carbonTransactionService.update(req.user, args)
 
