@@ -191,7 +191,7 @@ const verifikasiTransferKarbon = async (user, data) => {
       )
     } else if (data.status === 'approve') {
       carbonTransaction.status = 'approve'
-      carbonTransaction.historyTxId.push(data.idApproval)
+      carbonTransaction.approvers.push(data.idApproval)
       await network.contract.submitTransaction(
         'UpdateCT',
         JSON.stringify(carbonTransaction)
