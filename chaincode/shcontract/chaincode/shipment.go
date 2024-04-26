@@ -46,6 +46,7 @@ type PerjalananResult struct {
 
 type Divisi struct {
 	ID           string `json:"id"`
+	Nama		 string `json:"name"`
 	IdPerusahaan string `json:"perusahaan"`
 	Lokasi       string `json:"lokasi"`
 	IdManajer    string `json:"manajer"`
