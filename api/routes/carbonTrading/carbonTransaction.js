@@ -38,6 +38,12 @@ carbonTransactionRouter.post(
   auth.onlyAdminPerusahaan,
   carbonTransactionController.verifikasiTransferKarbon
 )
+
+carbonTransactionRouter.post(
+  '/verifikasi_transfer_karbon_kementrian',
+  auth.onlyAdminKementerian,
+  carbonTransactionController.verifikasiTransferKarbonKementrian
+)
 carbonTransactionRouter.post(
   '/',
   auth.onlyAdminPerusahaan,

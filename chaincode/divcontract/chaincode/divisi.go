@@ -3,7 +3,7 @@ package chaincode
 import (
 	"encoding/json"
 	"fmt"
-	"math/rand"
+	// "math/rand"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -293,41 +293,41 @@ func isDvsExists(ctx contractapi.TransactionContextInterface, id string) (bool, 
 	return dvsJSON != nil, nil
 }
 
-func (s *DIVContract) SeedDb(ctx contractapi.TransactionContextInterface) error {
-	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+// func (s *DIVContract) SeedDb(ctx contractapi.TransactionContextInterface) error {
+// 	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	
-	string idPerusahaan := "7f5c4a2b-3e4d-4b8b-9a0a-1e8f9e6f5d0a"
-	string idManajer := "9a3e8b7f-1e4d-4b8b-7f5c-1e8f9e6f5d0a"
-	string idDivisi := "9f5c4a2b-3e4d-6b8b-9a0a-1e8f9e6f5d0a"
-	for i:=1; i < 100000; i++ {
-		dvs := Divisi{
-			ID:           uuid.New(),
-			Name:         RandString(4),
-			IdPerusahaan: idPerusahaan,
-			Latitude: 	  "1.1",
-			Longitude: 	  "1.1",
-			Lokasi:       RandString(10),
-			IdManajer:    idManajer,
-		}
-		if(i==1) {
-			dvs.ID = idDivisi
-		}
+// 	string idPerusahaan := "7f5c4a2b-3e4d-4b8b-9a0a-1e8f9e6f5d0a"
+// 	string idManajer := "9a3e8b7f-1e4d-4b8b-7f5c-1e8f9e6f5d0a"
+// 	string idDivisi := "9f5c4a2b-3e4d-6b8b-9a0a-1e8f9e6f5d0a"
+// 	for i:=1; i < 100000; i++ {
+// 		dvs := Divisi{
+// 			ID:           uuid.New(),
+// 			Name:         RandString(4),
+// 			IdPerusahaan: idPerusahaan,
+// 			Latitude: 	  "1.1",
+// 			Longitude: 	  "1.1",
+// 			Lokasi:       RandString(10),
+// 			IdManajer:    idManajer,
+// 		}
+// 		if(i==1) {
+// 			dvs.ID = idDivisi
+// 		}
 	
-		dvsJSON, err := json.Marshal(dvs)
-		if err != nil {
-			return err
-		}
+// 		dvsJSON, err := json.Marshal(dvs)
+// 		if err != nil {
+// 			return err
+// 		}
 	
-		err = ctx.GetStub().PutState(id, dvsJSON)
-		if err != nil {
-			return fmt.Errorf("failed to put state: %v", err)
-		}
-	}
-}
-func RandString(n int) string {
-    b := make([]byte, n)
-    for i := range b {
-        b[i] = letterBytes[rand.Intn(len(letterBytes))]
-    }
-    return string(b)
-}
+// 		err = ctx.GetStub().PutState(id, dvsJSON)
+// 		if err != nil {
+// 			return fmt.Errorf("failed to put state: %v", err)
+// 		}
+// 	}
+// }
+// func RandString(n int) string {
+//     b := make([]byte, n)
+//     for i := range b {
+//         b[i] = letterBytes[rand.Intn(len(letterBytes))]
+//     }
+//     return string(b)
+// }

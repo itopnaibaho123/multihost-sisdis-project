@@ -27,6 +27,7 @@ type Perjalanan struct {
 	IdTransportasi   string   `json:"idTransportasi"`
 	BeratMuatan      int      `json:"beratMuatan"`
 	EmisiKarbon      int      `json:"emisiKarbon"`
+	Approvers		[]string  `json:"approvers"`
 }
 
 type PerjalananResult struct {
@@ -40,6 +41,8 @@ type PerjalananResult struct {
 	Transportasi   *Vehicle `json:"transportasi"`
 	BeratMuatan    int      `json:"beratMuatan"`
 	EmisiKarbon    int      `json:"emisiKarbon"`
+	Approvers	   []string  `json:"approvers"`
+	HistoryTxId	 []string 	 `json: "historyTxId"`
 }
 
 // var logger = flogging.MustGetLogger("PEContract")
@@ -385,8 +388,44 @@ func getCompleteDataShipment(ctx contractapi.TransactionContextInterface, perjal
 		return nil, err
 	}
 	PerjalananResult.Transportasi = vehicle
+	PerjalananResult.Approvers = perjalanan.Approvers
+	HistoryTxIds, err := getPEHistoryTxIdById(ctx, perjalanan.ID)
+	if err != nil {
+		return nil, err
+	}
+	PerjalananResult.HistoryTxId = HistoryTxIds 
 
 	return &PerjalananResult, nil
+}
+
+func getPEHistoryTxIdById(ctx contractapi.TransactionContextInterface, id string) ([]string, error) {
+	// logger.Infof("Run getIjzAddApprovalTxIdById function with id: %s.", id)
+
+	resultsIterator, err := ctx.GetStub().GetHistoryForKey(id)
+	if err != nil {
+		return []string{}, fmt.Errorf(err.Error())
+	}
+	defer resultsIterator.Close()
+
+	txIdList := []string{}
+
+	for resultsIterator.HasNext() {
+		response, err := resultsIterator.Next()
+		if err != nil {
+			return []string{}, fmt.Errorf(err.Error())
+		}
+
+		var pe Perjalanan
+		err = json.Unmarshal([]byte(response.Value), &pe)
+		if err != nil {
+			return nil, fmt.Errorf(ER34, err)
+		}
+
+
+		txIdList = append([]string{response.TxId}, txIdList[0:]...)
+	}
+
+	return txIdList, nil
 }
 
 func getVeById(ctx contractapi.TransactionContextInterface, idVehicle string) (*Vehicle, error) {
