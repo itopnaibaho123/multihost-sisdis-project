@@ -66,7 +66,7 @@ const complete = async (req, res) => {
   res.status(result.code).send(result)
 }
 const generateIdentifier = async (req, res) => {
-  const data = req.params.shipmentId
+  const data = req.params.idShipment
   const result = await shipmentService.generateIdentifier(req.user, data)
   res.status(result.code).send(result)
 }
