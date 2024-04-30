@@ -131,7 +131,25 @@ func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface)
 	return err
 }
 
+func (s *SHContract) Approve(ctx contractapi.TransactionContextInterface, shipmentId string) error {
+	perjalanan, err := getShipmentStateById(ctx, shipmentId)
+	if err != nil {
+		return err
+	}
 
+	perjalanan.Status = "Approved"
+
+	perjalananJSON, err := json.Marshal(perjalanan)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(shipmentId, perjalananJSON)
+	if err != nil {
+	}
+
+	return err
+}
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
 func (s *SHContract) UpdateStatusShipment(ctx contractapi.TransactionContextInterface) error {
