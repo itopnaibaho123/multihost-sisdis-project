@@ -54,32 +54,14 @@ const create = async (req, res) => {
   res.status(result.code).send(result)
 }
 
-const update = async (req, res) => {
-  console.log('hi')
-  const data = req.body
-  const args = [
-    req.params.shipmentId,
-    data.idSupplyChain,
-    data.divisiPengirim,
-    data.divisiPenerima,
-    data.status,
-    data.waktuBerangkat,
-    data.waktuSampai,
-    data.transportasi,
-    data.beratMuatan,
-    data.emisiKarbon,
-  ]
-  const result = await shipmentService.update(req.user, args)
+const updateStatus = async (req, res) => {
+  const result = await shipmentService.updateStatus(req.user, req.body)
 
   res.status(result.code).send(result)
 }
 
-const remove = async (req, res) => {
-  const result = await shipmentService.remove(req.user, req.params.shipmentId)
-
-  if (!result.success) {
-    res.status(200).send(result)
-  }
+const complete = async (req, res) => {
+  const result = await shipmentService.complete(req.user, req.body)
 
   res.status(result.code).send(result)
 }
@@ -88,8 +70,8 @@ module.exports = {
   getList,
   getById,
   create,
-  update,
-  remove,
+  updateStatus,
+  complete,
   getAllSHByDivisiPengirim,
   getAllSHByDivisiPenerima,
   getAllSHByVehicle,

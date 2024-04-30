@@ -7,6 +7,7 @@ const carbonEmissionController = require('../controllers/company/carbonEmission.
 const supplyChainController = require('../controllers/company/supplyChain.js')
 const auth = require('../middleware/auth.js')
 
+// VEHICLE
 companyRouter.get(
   '/vehicle/:divisionId',
   auth.verifyToken,
@@ -33,6 +34,7 @@ companyRouter.delete(
   vehicleController.remove
 )
 
+// DIVISION
 companyRouter.get(
   '/division/:companyId',
   auth.verifyToken,
@@ -69,6 +71,7 @@ companyRouter.delete(
   divisionController.remove
 )
 
+// SHIPMENT
 companyRouter.get(
   '/shipment/:companyId',
   auth.verifyToken,
@@ -98,62 +101,71 @@ companyRouter.get(
   auth.verifyToken,
   shipmentController.getAllSHByDivisiPengirim
 )
+
 companyRouter.get(
   '/shipment/divisi_penerima/:idDivisi',
   auth.verifyToken,
   shipmentController.getAllSHByDivisiPenerima
 )
 
-companyRouter.post('/shipment/', auth.verifyToken, shipmentController.create)
+companyRouter.post('/shipment', auth.verifyToken, shipmentController.create)
 
 companyRouter.put(
-  '/shipment/:shipmentId',
-  auth.verifyToken,
-  shipmentController.update
+  '/shipment',
+  auth.onlyManagerPerusahaan,
+  shipmentController.updateStatus
 )
 
-companyRouter.delete(
-  '/shipment/:shipmentId',
-  auth.verifyToken,
-  shipmentController.remove
+companyRouter.post(
+  '/shipment/complete',
+  auth.onlyManagerPerusahaan,
+  shipmentController.complete
 )
 
+// CARBON EMISSION
 companyRouter.get(
   '/carbon_emission/:companyId',
   auth.verifyToken,
   carbonEmissionController.getList
 )
+
 companyRouter.get(
   '/carbon_emission/detail/:carbonEmissionId',
   auth.verifyToken,
   carbonEmissionController.getById
 )
+
 companyRouter.post(
   '/carbon_emission',
   auth.verifyToken,
   carbonEmissionController.create
 )
+
 companyRouter.put(
   '/carbon_emission/:carbonEmissionId',
   auth.verifyToken,
   carbonEmissionController.update
 )
+
 companyRouter.delete(
   '/carbon_emission/:carbonEmissionId',
   auth.verifyToken,
   carbonEmissionController.remove
 )
 
+// SUPPLY CHAIN
 companyRouter.get(
   '/supply_chain/',
   auth.verifyToken,
   supplyChainController.getList
 )
+
 companyRouter.get(
   '/supply_chain/:supplyId',
   auth.verifyToken,
   supplyChainController.getById
 )
+
 companyRouter.post(
   '/supply_chain',
   auth.verifyToken,
@@ -171,17 +183,20 @@ companyRouter.post(
   auth.onlyAdminPerusahaan,
   supplyChainController.ApprovePerusahaan
 )
+
 companyRouter.put(
   '/supply_chain/:supplyId',
   auth.verifyToken,
   supplyChainController.update
 )
+
 companyRouter.delete(
   '/supply_chain/:supplyId',
   auth.verifyToken,
   supplyChainController.remove
 )
 
+// COMPANY
 companyRouter.get('/', auth.verifyToken, companyController.getList)
 companyRouter.get('/:companyId', auth.verifyToken, companyController.getById)
 companyRouter.post('/', companyController.create)

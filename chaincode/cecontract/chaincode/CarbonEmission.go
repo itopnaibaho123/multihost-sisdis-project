@@ -30,7 +30,7 @@ type CarbonEmission struct {
 type CarbonEmissionResult struct {
 	ID         	string      	`json:"id"`
 	Perusahaan 	*Perusahaan 	`json:"perusahaan"`
-	TotalEmisi   int      	`json:"totalEmisi"`
+	TotalEmisi   int      		`json:"totalEmisi"`
 	Perjalanan  []* Perjalanan 	`json:"perjalanan"`
 }
 
@@ -72,56 +72,67 @@ type Perusahaan struct {
 func (s *CEContract) CreateCE(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 3 {
-
+	if len(args) != 4 {
+		return fmt.Errorf("incorrect number of arguments. expecting 4")
 	}
 
 	id := args[0]
 	idPerusahaan := args[1]
-	totalEmisiStr := args[2]
-	IdPerjalanan := []string{}
+	emission := args[2]
+	IdPerjalanan := args[3]
 
-
-	totalEmisi, err := strconv.Atoi(totalEmisiStr)
+	// Convert emission to integer
+	totalEmisi, err := strconv.Atoi(emission)
 	if err != nil {
+		return fmt.Errorf("error converting emission to integer: %s", err)
 	}
-	exists, err := isCeExists(ctx, id)
+
+	// Query existing CarbonEmission by idPerusahaan
+	emissions, err := s.GetCEByPerusahaan(ctx, idPerusahaan)
 	if err != nil {
-		return err
-	}
-	if exists {
-		return fmt.Errorf(id)
+		return fmt.Errorf("error querying carbon emission by perusahaan ID: %s", err)
 	}
 
-	ce := CarbonEmission{
-		ID:           	id,
-		IdPerusahaan: 	idPerusahaan,
-		TotalEmisi:     totalEmisi,
-		IdPerjalanan:   IdPerjalanan,
+	if len(emissions) > 0 {
+		// Assuming there should only be one emission record per idPerusahaan
+		existingCE := emissions[0]
+		existingCE.TotalEmisi += totalEmisi
+		existingCE.IdPerjalanan = append(existingCE.IdPerjalanan, IdPerjalanan)
+
+		// Marshal the updated carbon emission
+		updatedCEJSON, err := json.Marshal(existingCE)
+		if err != nil {
+			return fmt.Errorf("error marshalling updated carbon emission: %s", err)
+		}
+
+		// Put the updated carbon emission back to the ledger
+		err = ctx.GetStub().PutState(idPerusahaan, updatedCEJSON)
+		if err != nil {
+			return fmt.Errorf("failed to put updated carbon emission: %s", err)
+		}
+	} else {
+		// Create new CarbonEmission if not existing
+		newCE := CarbonEmission{
+			ID:           id,
+			IdPerusahaan: idPerusahaan,
+			TotalEmisi:   totalEmisi,
+			IdPerjalanan: []string{IdPerjalanan},
+		}
+
+		newCEJSON, err := json.Marshal(newCE)
+		if err != nil {
+			return fmt.Errorf("error marshalling new carbon emission: %s", err)
+		}
+
+		err = ctx.GetStub().PutState(idPerusahaan, newCEJSON)
+		if err != nil {
+			return fmt.Errorf("failed to put new carbon emission: %s", err)
+		}
 	}
 
-	ceJSON, err := json.Marshal(ce)
-	if err != nil {
-		return err
-	}
-
-	err = ctx.GetStub().PutState(id, ceJSON)
-	if err != nil {
-		fmt.Errorf(err.Error())
-	}
-
-	return err
+	return nil
 }
 
-func isCeExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
-
-	ceJSON, err := ctx.GetStub().GetState(id)
-	if err != nil {
-		return false, fmt.Errorf(err.Error())
-	}
-
-	return ceJSON != nil, nil
-}
 func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*CarbonEmission, error) {
 	// logger.Infof("Run constructQueryResponseFromIterator function.")
 
@@ -176,6 +187,31 @@ func (s *CEContract) GetCEById(ctx contractapi.TransactionContextInterface) (*Ca
 
 	return perusahaanResult, nil
 }
+
+func (s *CEContract) GetCEByPerusahaan(ctx contractapi.TransactionContextInterface, idPerusahaan string) ([]*CarbonEmission, error) {
+	queryString := fmt.Sprintf(`{"selector":{"idPerusahaan":"%s"}}`, idPerusahaan)
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	var emissions []*CarbonEmission
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+		var emission CarbonEmission
+		err = json.Unmarshal(queryResponse.Value, &emission)
+		if err != nil {
+			return nil, err
+		}
+		emissions = append(emissions, &emission)
+	}
+	return emissions, nil
+}
+
 func getCompleteDataCE(ctx contractapi.TransactionContextInterface, carbonEmission *CarbonEmission) (*CarbonEmissionResult, error) {
 	// logger.Infof("Run getCompleteDataKls function with kls id: '%s'.", perusahaan.ID)
 
@@ -188,6 +224,7 @@ func getCompleteDataCE(ctx contractapi.TransactionContextInterface, carbonEmissi
 
 	return &carbonEmissionResult, nil
 }
+
 func getCEStateById(ctx contractapi.TransactionContextInterface, id string) (*CarbonEmission, error) {
 
 	carbonEmissionJSON, err := ctx.GetStub().GetState(id)
@@ -259,4 +296,14 @@ func (s *CEContract) DeleteCE(ctx contractapi.TransactionContextInterface) error
 	}
 
 	return err
+}
+
+func isCeExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+
+	ceJSON, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return false, fmt.Errorf(err.Error())
+	}
+
+	return ceJSON != nil, nil
 }

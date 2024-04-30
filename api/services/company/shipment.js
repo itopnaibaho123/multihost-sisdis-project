@@ -167,14 +167,15 @@ const create = async (user, data) => {
   }
 }
 
-const update = async (user, args) => {
+const updateStatus = async (user, data) => {
   try {
     const network = await fabric.connectToNetwork(
       user.organizationName,
       'shcontract',
       user.username
     )
-    await network.contract.submitTransaction('UpdateShipment', ...args)
+    const args = [data.id, data.status]
+    await network.contract.submitTransaction('UpdateStatusShipment', ...args)
     network.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(
       200,
@@ -185,18 +186,58 @@ const update = async (user, args) => {
   }
 }
 
-const remove = async (user, args) => {
+const complete = async (user, data) => {
   try {
-    const network = await fabric.connectToNetwork(
+    // Get the Car
+    const veNetwork = await fabric.connectToNetwork(
+      user.organizationName,
+      'vecontract',
+      user.username
+    )
+    const vehicle = await veNetwork.contract.evaluateTransaction(
+      'GetVehicleById',
+      data.idVehicle
+    )
+    veNetwork.gateway.disconnect()
+
+    // Calculate the carbon emission
+    const distance = data.distance // km
+    const fuelType = vehicle.fuelType // petrol | diesel
+
+    let fuelEfficiency = 0 // liter / km
+    let emissionFactor = 0 // kgCO2e/liter
+    if (fuelType == 'petrol') {
+      fuelEfficiency = 20
+      emissionFactor = 3.1455
+    } else {
+      fuelEfficiency = 34
+      emissionFactor = 3.5117
+    }
+
+    const carbon = (fuelEfficiency / 100) * distance * emissionFactor
+
+    // Complete the shipment
+    const shNetwork = await fabric.connectToNetwork(
       user.organizationName,
       'shcontract',
       user.username
     )
-    await network.contract.submitTransaction('DeleteShipment', args)
-    network.gateway.disconnect()
+    const shArgs = [data.id, carbon]
+    await shNetwork.contract.submitTransaction('CompleteShipment', ...shArgs)
+    shNetwork.gateway.disconnect()
+
+    // Create the carbon emission object
+    const ceNetwork = await fabric.connectToNetwork(
+      user.organizationName,
+      'cecontract',
+      user.username
+    )
+    const ceArgs = [uuidv4(), user.idPerusahaan, carbon, data.id]
+    await shNetwork.contract.submitTransaction('CreateCE', ...ceArgs)
+
     return iResp.buildSuccessResponseWithoutData(
       200,
-      'Successfully delete a shipment'
+      'Successfully complete a shipment'
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
@@ -207,8 +248,8 @@ module.exports = {
   getList,
   getById,
   create,
-  update,
-  remove,
+  updateStatus,
+  complete,
   getAllSHByDivisiPengirim,
   getAllSHByDivisiPenerima,
   getAllSHByVehicle,
