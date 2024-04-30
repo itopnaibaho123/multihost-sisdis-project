@@ -1,6 +1,7 @@
 'use strict'
 const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric.js')
+const { BlockDecoder } = require('fabric-common')
 const { bufferToJson } = require('../../utils/converter.js')
 const getList = async (user, args) => {
   try {
@@ -22,36 +23,47 @@ const getList = async (user, args) => {
 }
 
 const generateIdentifier = async (user, idTransaction) => {
-  var network = await fabric.connectToNetwork('SupplyChain', 'ctcontract', user)
-  const carbonTransaction = JSON.parse(
-    await network.contract.evaluateTransaction('GetCTById', idTransaction)
-  )
-
-  if (carbonTransaction.status === 'approve') {
-    const identifier = {}
-
-    network = await fabric.connectToNetwork('Kementrian', 'qscc', 'admin')
-    const blockCarbonTransaction = await network.contract.evaluateTransaction(
-      'GetBlockByTxID',
-      'carbonchannel',
-      carbonTransaction.approvalTxId[carbonTransaction.historyTxId.length - 1]
+  try {
+    var network = await fabric.connectToNetwork(
+      user.organizationName,
+      'ctcontract',
+      user.username
     )
-
-    identifier.carbonTransaction = fabric.calculateBlockHash(
-      BlockDecoder.decode(blockCarbonTransaction).header
+    const carbonTransaction = JSON.parse(
+      await network.contract.evaluateTransaction('GetCTById', idTransaction)
     )
 
     network.gateway.disconnect()
-    return identifier
-  } else {
-    throw 'Carbon Transaction Belum di Approve'
+    if (carbonTransaction.status === 'approve') {
+      const identifier = {}
+      network = await fabric.connectToNetwork('Kementrian', 'qscc', 'admin')
+
+      const blockCarbonTransaction = await network.contract.evaluateTransaction(
+        'GetBlockByTxID',
+        'carbonchannel',
+        carbonTransaction.HistoryTxId[carbonTransaction.HistoryTxId.length - 1]
+      )
+
+      identifier.carbonTransaction = fabric.calculateBlockHash(
+        BlockDecoder.decode(blockCarbonTransaction).header
+      )
+      network.gateway.disconnect()
+      return iResp.buildSuccessResponse(
+        200,
+        'Successfully get all carbon transaction',
+        identifier
+      )
+    } else {
+      throw 'Carbon Transaction Belum di Approve'
+    }
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'something wrong', error.message)
   }
 }
 
 const verify = async (user, identifier) => {
   try {
     // find block that block hash == identifier
-    console.log(identifier)
     const network = await fabric.connectToNetwork('Kementrian', 'qscc', 'admin')
     const blockCarbonTransaction = await network.contract.evaluateTransaction(
       'GetBlockByHash',
@@ -77,8 +89,9 @@ const verify = async (user, identifier) => {
     const ct = await ctNetwork.contract.evaluateTransaction('GetCTById', idCt)
     ctNetwork.gateway.disconnect()
     const parseData = JSON.parse(ct)
-    parseData.signatures = await fabric.getAllSignature(parseData.historyTxId)
 
+    parseData.signatures = await fabric.getAllSignature(parseData.HistoryTxId)
+    console.log(parseData)
     const data = {
       carbonTransaction: parseData,
     }
@@ -88,14 +101,18 @@ const verify = async (user, identifier) => {
       message: 'Carbon Transaction asli',
       data: data,
     }
-    return result
+    return iResp.buildSuccessResponse(
+      200,
+      'Successfully get all carbon transaction',
+      result
+    )
   } catch (error) {
     console.log('ERROR', error)
     const result = {
       success: true,
       message: 'Carbon Transaction palsu',
     }
-    return result
+    return iResp.buildErrorResponse(500, 'Something wrong', result)
   }
 }
 

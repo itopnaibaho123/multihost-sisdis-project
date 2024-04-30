@@ -68,8 +68,10 @@ const generateIdentifier = async (req, res) => {
 
 const verify = async (req, res) => {
   const data = req.body
+
   const identifier = data.identifier
-  const result = await carbonTransactionService.verify(identifier)
+
+  const result = await carbonTransactionService.verify(req.user, identifier)
   res.status(result.code).send(result)
 }
 

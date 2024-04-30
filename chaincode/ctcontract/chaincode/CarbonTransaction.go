@@ -217,7 +217,7 @@ func getCompleteDataCT(ctx contractapi.TransactionContextInterface, ct *CarbonTr
 	}
 	ctr.ProposalPenjual = csp
 	ctr.Approvers = ct.Approvers
-	HistoryTxIds, err := getCTHistoryTxIdById(ctx, csp.ID)
+	HistoryTxIds, err := getCTHistoryTxIdById(ctx, ctr.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -227,8 +227,8 @@ func getCompleteDataCT(ctx contractapi.TransactionContextInterface, ct *CarbonTr
 }
 
 func getCTHistoryTxIdById(ctx contractapi.TransactionContextInterface, id string) ([]string, error) {
-	// logger.Infof("Run getIjzAddApprovalTxIdById function with id: %s.", id)
-
+	// logger.Infof("Run getTskAddApprovalTxIdById function with id: %s.", id)
+	
 	resultsIterator, err := ctx.GetStub().GetHistoryForKey(id)
 	if err != nil {
 		return []string{}, fmt.Errorf(err.Error())
@@ -236,13 +236,11 @@ func getCTHistoryTxIdById(ctx contractapi.TransactionContextInterface, id string
 	defer resultsIterator.Close()
 
 	txIdList := []string{}
-
 	for resultsIterator.HasNext() {
 		response, err := resultsIterator.Next()
 		if err != nil {
 			return []string{}, fmt.Errorf(err.Error())
 		}
-
 		var ct CarbonTransaction
 		err = json.Unmarshal([]byte(response.Value), &ct)
 		if err != nil {
@@ -252,7 +250,6 @@ func getCTHistoryTxIdById(ctx contractapi.TransactionContextInterface, id string
 		if (len(ct.Approvers) == 0) {
 			break
 		}
-	
 		txIdList = append([]string{response.TxId}, txIdList[0:]...)
 	}
 
@@ -293,7 +290,7 @@ func GetPerusahaanById(ctx contractapi.TransactionContextInterface, idPerusahaan
 
 	response := ctx.GetStub().InvokeChaincode("pecontract", queryArgs, "carbonchannel")
 	if response.Status != shim.OK {
-		return nil, fmt.Errorf(ER37, "pecontract", response.Payload)
+		return nil, fmt.Errorf(ER37, "pecontract", response.Message)
 	}
 
 	var company Perusahaan
