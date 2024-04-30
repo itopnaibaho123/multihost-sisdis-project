@@ -222,7 +222,7 @@ const complete = async (user, data) => {
       'shcontract',
       user.username
     )
-    const shArgs = [data.id, carbon]
+    const shArgs = [data.id, carbon, data.idApprover]
     await shNetwork.contract.submitTransaction('CompleteShipment', ...shArgs)
     shNetwork.gateway.disconnect()
 
@@ -243,6 +243,98 @@ const complete = async (user, data) => {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
+const generateIdentifier = async (user, idShipment) => {
+  try {
+    var network = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const shipment = JSON.parse(
+      await network.contract.evaluateTransaction('GetShipmentById', idShipment)
+    )
+
+    network.gateway.disconnect()
+    if (shipment.status === 'Completed') {
+      const identifier = {}
+      network = await fabric.connectToNetwork('Kementrian', 'qscc', 'admin')
+
+      const blockShipment = await network.contract.evaluateTransaction(
+        'GetBlockByTxID',
+        'carbonchannel',
+        shipment.TxId
+      )
+
+      identifier.shipment = fabric.calculateBlockHash(
+        BlockDecoder.decode(blockShipment).header
+      )
+      network.gateway.disconnect()
+      return iResp.buildSuccessResponse(
+        200,
+        'Successfully get Shipment',
+        identifier
+      )
+    } else {
+      throw 'Shipment Not Completed'
+    }
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'something wrong', error.message)
+  }
+}
+
+const verify = async (user, identifier) => {
+  try {
+    // find block that block hash == identifier
+    const network = await fabric.connectToNetwork('Kementrian', 'qscc', 'admin')
+    const blockCarbonTransaction = await network.contract.evaluateTransaction(
+      'GetBlockByHash',
+      'carbonchannel',
+      Buffer.from(identifier.shipment, 'hex')
+    )
+
+    // Get data from block
+    const argsSh = BlockDecoder.decode(blockCarbonTransaction).data.data[0]
+      .payload.data.actions[0].payload.chaincode_proposal_payload.input
+      .chaincode_spec.input.args
+    const idSh = Buffer.from(argsSh[1]).toString()
+
+    console.log('ID Shipment: ', idSh)
+    //query data ijazah, transkrip, nilai
+    network.gateway.disconnect()
+
+    const shNetwork = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const sh = await shNetwork.contract.evaluateTransaction(
+      'GetShipmentById',
+      idSh
+    )
+    shNetwork.gateway.disconnect()
+    const parseData = JSON.parse(sh)
+
+    parseData.signature = await fabric.getSignature(parseData.TxId)
+    console.log(parseData)
+    const data = {
+      shipment: parseData,
+    }
+
+    const result = {
+      success: true,
+      message: 'Shipment Trusted',
+      data: data,
+    }
+    return iResp.buildSuccessResponse(200, 'Successfully get Shipment', result)
+  } catch (error) {
+    console.log('ERROR', error)
+    const result = {
+      success: true,
+      message: 'Shipment Fake',
+    }
+    return iResp.buildErrorResponse(500, 'Something wrong', result)
+  }
+}
 
 module.exports = {
   getList,
@@ -254,4 +346,6 @@ module.exports = {
   getAllSHByDivisiPenerima,
   getAllSHByVehicle,
   GetAllSHByCompany,
+  generateIdentifier,
+  verify,
 }
