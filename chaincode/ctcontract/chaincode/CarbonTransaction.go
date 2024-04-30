@@ -3,7 +3,6 @@ package chaincode
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -51,7 +50,7 @@ type CarbonTransactionResult struct {
 	Kuota             int                  `json:"kuota"`
 	Status            string               `json:"status"`
 	URLBuktiTransaksi string               `json:"urlBuktiTransaksi"`
-	Approvers			[]string 		`json:"approvers"`
+	Approvers			[]string 			`json:"approvers"`
 	HistoryTxId	 	 []string 				`json: "historyTxId"`
 }
 
@@ -73,7 +72,6 @@ type Perusahaan struct {
 	ApprovalStatus      int      `json:"approvalStatus"`
 	ParticipantStatus   int      `json:"participantStatus"`
 	SupplyChain         []string `json:"supplyChain"`
-	ProposalSupplyChain []string `json:"proposalSupplyChain"`
 	IdEmisiKarbon       string   `json:"emisiKarbon"`
 	IdManajer           string   `json:"manajer"`
 	Kuota               int      `json:"kuota"`
@@ -101,52 +99,35 @@ const (
 
 
 // CreateAsset issues a new asset to the world state with given details.
-func (s *CTContract) CreateCT(ctx contractapi.TransactionContextInterface) error {
-	args := ctx.GetStub().GetStringArgs()[1:]
-
-	if len(args) != 6 {
-
-	}
-
-	id := args[0]
-	idPerusahaanPembeli := args[1]
-	idPerusahaanPenjual := args[2]
-	kuotaStr := args[3]
-	status := args[4]
-	urlBuktiTransaksi := args[5]
-
-	kuota, err := strconv.Atoi(kuotaStr)
+func (s *CTContract) CreateCT(ctx contractapi.TransactionContextInterface, jsonData string) error {
+	var ct CarbonTransaction
+	err := json.Unmarshal([]byte(jsonData), &ct)
 	if err != nil {
+		return fmt.Errorf("failed to Unmarshal JSON: %v", err)
 	}
 
-	exists, err := isCtExists(ctx, id)
+
+
+	
+
+	exists, err := isCtExists(ctx, ct.ID)
 	if err != nil {
 		return err
 	}
 	if exists {
-		return fmt.Errorf(id)
+		return fmt.Errorf( ct.ID)
 	}
 
-	ct := CarbonTransaction{
-		ID:                  id,
-		IdPerusahaanPembeli: idPerusahaanPembeli,
-		IdProposalPenjual:   idPerusahaanPenjual,
-		Kuota:               kuota,
-		URLBuktiTransaksi:   urlBuktiTransaksi,
-		Status:              status,
-		Approvers: []string{},
-	}
+
 
 	ctJSON, err := json.Marshal(ct)
 	if err != nil {
 		return err
 	}
-
-	err = ctx.GetStub().PutState(id, ctJSON)
+	err = ctx.GetStub().PutState(ct.ID, ctJSON)
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}
-
 	return err
 }
 
@@ -236,7 +217,7 @@ func getCompleteDataCT(ctx contractapi.TransactionContextInterface, ct *CarbonTr
 	}
 	ctr.ProposalPenjual = csp
 	ctr.Approvers = ct.Approvers
-	HistoryTxIds, err := getCTHistoryTxIdById(ctx, csp.ID)
+	HistoryTxIds, err := getCTHistoryTxIdById(ctx, ctr.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -246,8 +227,8 @@ func getCompleteDataCT(ctx contractapi.TransactionContextInterface, ct *CarbonTr
 }
 
 func getCTHistoryTxIdById(ctx contractapi.TransactionContextInterface, id string) ([]string, error) {
-	// logger.Infof("Run getIjzAddApprovalTxIdById function with id: %s.", id)
-
+	// logger.Infof("Run getTskAddApprovalTxIdById function with id: %s.", id)
+	
 	resultsIterator, err := ctx.GetStub().GetHistoryForKey(id)
 	if err != nil {
 		return []string{}, fmt.Errorf(err.Error())
@@ -255,20 +236,20 @@ func getCTHistoryTxIdById(ctx contractapi.TransactionContextInterface, id string
 	defer resultsIterator.Close()
 
 	txIdList := []string{}
-
 	for resultsIterator.HasNext() {
 		response, err := resultsIterator.Next()
 		if err != nil {
 			return []string{}, fmt.Errorf(err.Error())
 		}
-
 		var ct CarbonTransaction
 		err = json.Unmarshal([]byte(response.Value), &ct)
 		if err != nil {
 			return nil, fmt.Errorf(ER34, err)
 		}
 
-
+		if (len(ct.Approvers) == 0) {
+			break
+		}
 		txIdList = append([]string{response.TxId}, txIdList[0:]...)
 	}
 
@@ -409,7 +390,7 @@ func (s *CTContract) GetAllCTByStatus(ctx contractapi.TransactionContextInterfac
 // UpdateAsset updates an existing asset in the world state with provided parameters.
 func (s *CTContract) UpdateCT(ctx contractapi.TransactionContextInterface , jsonData string) error {
 
-	var ct CarbonTransaction
+	var ct CarbonTransactionResult
 	err := json.Unmarshal([]byte(jsonData), &ct)
    
 	if err != nil {
@@ -424,11 +405,12 @@ func (s *CTContract) UpdateCT(ctx contractapi.TransactionContextInterface , json
 	}
 
 	ctRes.ID = ct.ID
-	ctRes.IdPerusahaanPembeli = ct.IdPerusahaanPembeli
-	ctRes.IdProposalPenjual = ct.IdProposalPenjual
+	ctRes.IdPerusahaanPembeli = ct.PerusahaanPembeli.ID
+	ctRes.IdProposalPenjual = ct.ProposalPenjual.ID
 	ctRes.Status = ct.Status
 	ctRes.Kuota = ct.Kuota
 	ctRes.URLBuktiTransaksi = ct.URLBuktiTransaksi
+	ctRes.Approvers = ct.Approvers
 
 	ctJSON, err := json.Marshal(ctRes)
 	if err != nil {

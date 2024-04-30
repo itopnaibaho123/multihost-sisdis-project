@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"math/rand"
-	"github.com/google/uuid"
+
+	// "math/rand"
+	// "github.com/google/uuid"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -57,7 +58,6 @@ type PerusahaanResult struct {
 	ApprovalStatus      int                    `json:"approvalStatus"`
 	ParticipantStatus   int                    `json:"participantStatus"`
 	SupplyChain         []*SupplyChain         `json:"supplyChain"`
-	ProposalSupplyChain []*ProposalSupplyChain `json:"proposalSupplyChain"`
 	EmisiKarbon         *EmisiKarbon           `json:"emisiKarbon"`
 	AdminPerusahaan     *Admin                 `json:"adminPerusahaan"`
 	Kuota               int                    `json:"kuota"`
@@ -78,8 +78,7 @@ type Admin struct {
 	Username 		string 	`json:"username"`
 }
 type UpdateSisaKuota struct{
-	PerusahaanPembeli     string               `json:"perusahaanPembeli"`
-	PerusahaanPenjual     string               `json:"perusahaanPenjual"`
+	Perusahaan     		  string               `json:"perusahaan"`
 	Kuota           	  int                  `json:"kuota"`
 }
 
@@ -94,7 +93,6 @@ type Perusahaan struct {
 	ApprovalStatus      int      `json:"approvalStatus"`
 	ParticipantStatus   int      `json:"participantStatus"`
 	SupplyChain         []string `json:"supplyChain"`
-	ProposalSupplyChain []string `json:"proposalSupplyChain"`
 	IdEmisiKarbon       string   `json:"emisiKarbon"`
 	AdminPerusahaan     *Admin   `json:"adminPerusahaan"`
 	Kuota               int      `json:"kuota"`
@@ -108,7 +106,7 @@ func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterfac
 	if len(args) != 9 {
 
 	}
-
+	
 	id := args[0]
 	NomorTelepon := args[1]
 	Email := args[2]
@@ -123,7 +121,6 @@ func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterfac
 	ApprovalStatus := 0
 	ParticipantStatus := 0
 	SupplyChain := []string{}
-	ProposalSupplyChain := []string{}
 	EmisiKarbon := ""
 	Kuota := 0
 	SisaKuota := 0
@@ -151,7 +148,6 @@ func (s *PEContract) CreatePerusahaan(ctx contractapi.TransactionContextInterfac
 		Kuota:               Kuota,
 		SisaKuota:           SisaKuota,
 		SupplyChain:         SupplyChain,
-		ProposalSupplyChain: ProposalSupplyChain,
 	}
 
 	peJSON, err := json.Marshal(pe)
@@ -436,7 +432,6 @@ func getCompleteDataPerusahaan(ctx contractapi.TransactionContextInterface, peru
 	perusahaanResult.ParticipantStatus = perusahaan.ParticipantStatus
 	perusahaanResult.Kuota = perusahaan.Kuota
 	perusahaanResult.SisaKuota = perusahaan.SisaKuota
-	perusahaanResult.ProposalSupplyChain = []*ProposalSupplyChain{}
 	perusahaanResult.SupplyChain = []*SupplyChain{}
 
 	return &perusahaanResult, nil
@@ -451,6 +446,9 @@ func getPerusahaanStateById(ctx contractapi.TransactionContextInterface, id stri
 	}
 
 	var perusahaan Perusahaan
+	if len(perusahaan.SupplyChain) == 0 {
+		perusahaan.SupplyChain = []string{}
+	}
 	err = json.Unmarshal(perusahaanJSON, &perusahaan)
 	if err != nil {
 	}
@@ -465,32 +463,22 @@ func (s *PEContract) UpdateSisaKuota(ctx contractapi.TransactionContextInterface
 	if err != nil {
 	 return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
 	}
-	perusahaanPembeli, err := getPerusahaanStateById(ctx, usk.PerusahaanPembeli)
+	perusahaan, err := getPerusahaanStateById(ctx, usk.Perusahaan)
 	if err != nil {
 		return fmt.Errorf("Failed to Get Perusahaan: %v", err)
 	}
 
-	perusahaanPenjual, err := getPerusahaanStateById(ctx,usk.PerusahaanPenjual)
+	
+	
+	perusahaan.SisaKuota = usk.Kuota
+	
+	perusahaanJSON, err := json.Marshal(perusahaan)
 	if err != nil {
-		return fmt.Errorf("Failed to Get Perusahaan with ERror: %v", err)
+		return err
 	}
 	
-	perusahaanPembeli.SisaKuota += usk.Kuota
-	perusahaanPenjual.SisaKuota -= usk.Kuota
-	perusahaanPembeliJSON, err := json.Marshal(perusahaanPembeli)
-	if err != nil {
-		return err
-	}
-	perusahaanPenjualJSON, err := json.Marshal(perusahaanPenjual)
-	if err != nil {
-		return err
-	}
 
-	err = ctx.GetStub().PutState(perusahaanPembeli.ID, perusahaanPembeliJSON)
-	if err != nil {
-	}
-
-	err = ctx.GetStub().PutState(perusahaanPenjual.ID, perusahaanPenjualJSON)
+	err = ctx.GetStub().PutState(perusahaan.ID, perusahaanJSON)
 	if err != nil {
 	}
 
@@ -586,52 +574,52 @@ func (s *PEContract) DeletePerusahaan(ctx contractapi.TransactionContextInterfac
 }
 
 
-func (s *PEContract) SeedDb(ctx contractapi.TransactionContextInterface) error {
-	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+// func (s *PEContract) SeedDb(ctx contractapi.TransactionContextInterface) error {
+// 	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	
-	string idPerusahaan := "7f5c4a2b-3e4d-4b8b-9a0a-1e8f9e6f5d0a"
-	string idSupplyChain := "8a3e8b6d-2g5d-6b8b-9f5c-2g8f9e6f5d0a"
-	for i:=1; i < 100000; i++ {
-		pe := Perusahaan{
-			ID:                  idPerusahaan,
-			NomorTelepon:        RandString(10),
-			Email:               RandString(10),
-			Nama:                RandString(10),
-			Lokasi:              RandString(10),
-			Deskripsi:           RandString(10),
-			URLSuratProposal:    RandString(10),
-			ApprovalStatus:      0,
-			ParticipantStatus:   0,
-			IdEmisiKarbon:       "",
-			AdminPerusahaan:     &Admin{
-				ID:           uuid.New(),
-				Username:     RandString(10),
-			},
-			Kuota:               0,
-			SisaKuota:           0,
-			SupplyChain:         idSupplyChain,
-			ProposalSupplyChain: "",
-		}
+// 	string idPerusahaan := "7f5c4a2b-3e4d-4b8b-9a0a-1e8f9e6f5d0a"
+// 	string idSupplyChain := "8a3e8b6d-2g5d-6b8b-9f5c-2g8f9e6f5d0a"
+// 	for i:=1; i < 100000; i++ {
+// 		pe := Perusahaan{
+// 			ID:                  idPerusahaan,
+// 			NomorTelepon:        RandString(10),
+// 			Email:               RandString(10),
+// 			Nama:                RandString(10),
+// 			Lokasi:              RandString(10),
+// 			Deskripsi:           RandString(10),
+// 			URLSuratProposal:    RandString(10),
+// 			ApprovalStatus:      0,
+// 			ParticipantStatus:   0,
+// 			IdEmisiKarbon:       "",
+// 			AdminPerusahaan:     &Admin{
+// 				ID:           uuid.New(),
+// 				Username:     RandString(10),
+// 			},
+// 			Kuota:               0,
+// 			SisaKuota:           0,
+// 			SupplyChain:         idSupplyChain,
+// 			ProposalSupplyChain: "",
+// 		}
 		
-		if(i==1) {
-			pe.ID = idPerusahaan
-		}
+// 		if(i==1) {
+// 			pe.ID = idPerusahaan
+// 		}
 
-		peJSON, err := json.Marshal(pe)
-		if err != nil {
-			return err
-		}
+// 		peJSON, err := json.Marshal(pe)
+// 		if err != nil {
+// 			return err
+// 		}
 
-		err = ctx.GetStub().PutState(id, peJSON)
-		if err != nil {
-			fmt.Errorf(err.Error())
-		}
-	}
-}
-func RandString(n int) string {
-    b := make([]byte, n)
-    for i := range b {
-        b[i] = letterBytes[rand.Intn(len(letterBytes))]
-    }
-    return string(b)
-}
+// 		err = ctx.GetStub().PutState(id, peJSON)
+// 		if err != nil {
+// 			fmt.Errorf(err.Error())
+// 		}
+// 	}
+// }
+// func RandString(n int) string {
+//     b := make([]byte, n)
+//     for i := range b {
+//         b[i] = letterBytes[rand.Intn(len(letterBytes))]
+//     }
+//     return string(b)
+// }
