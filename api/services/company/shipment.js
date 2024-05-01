@@ -194,6 +194,7 @@ const complete = async (user, data) => {
       'vecontract',
       user.username
     )
+    // console.log(d ata)
     const vehicle = await veNetwork.contract.evaluateTransaction(
       'GetVehicleById',
       data.idVehicle
@@ -233,8 +234,7 @@ const complete = async (user, data) => {
       user.username
     )
     const ceArgs = [uuidv4(), user.idPerusahaan, carbon, data.id]
-    await shNetwork.contract.submitTransaction('CreateCE', ...ceArgs)
-
+    await ceNetwork.contract.submitTransaction('CreateCE', ...ceArgs)
     return iResp.buildSuccessResponseWithoutData(
       200,
       'Successfully complete a shipment'

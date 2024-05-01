@@ -192,7 +192,7 @@ func getCompleteDataVehicle(ctx contractapi.TransactionContextInterface, vehicle
 	vehicleResult.CarModel = vehicle.CarModel
 	vehicleResult.FuelType = vehicle.FuelType
 	vehicleResult.KmUsage = vehicle.KmUsage
-
+	
 	div, err := getDivById(ctx, vehicle.IdDivisi)
 	if err!=nil {
 		return nil, err

@@ -76,7 +76,7 @@ const verify = async (req, res) => {
 
   const identifier = data.identifier
 
-  const result = await carbonTransactionService.verify(req.user, identifier)
+  const result = await shipmentService.verify(req.user, identifier)
   res.status(result.code).send(result)
 }
 
