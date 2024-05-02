@@ -303,9 +303,9 @@ const verify = async (user, identifier) => {
     network.gateway.disconnect()
 
     const shNetwork = await fabric.connectToNetwork(
-      'Kementrian',
+      user.organizationName,
       'shcontract',
-      'adminkm'
+      user.username
     )
     const sh = await shNetwork.contract.evaluateTransaction(
       'GetShipmentById',

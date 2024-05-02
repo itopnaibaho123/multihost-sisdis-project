@@ -15,21 +15,7 @@ app.get('/test', (req, res) => res.send('Hello World!'))
 app.post('/test-post', (req, res) => res.send('Received data:', req.body))
 
 app.listen(PORT, async () => {
-  try {
-    console.log(`Express app running on host ${HOST}:${PORT}`)
-    try {
-      await enrollAdmin('admin', 'adminpw', 'Kementrian')
-    } catch {}
-    try {
-      await enrollAdmin('admin', 'adminpw', 'SupplyChain')
-    } catch {}
-    await registerAdminKementrian(
-      'adminkm',
-      'adminkmcarbon@gmail.com',
-      'Kementrian',
-      'admin-kementerian'
-    )
-  } catch {}
+  console.log(`Express app running on host ${HOST}:${PORT}`)
 })
 
 process.on('uncaughtException', (error) => {
