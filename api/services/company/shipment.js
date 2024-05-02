@@ -330,7 +330,7 @@ const verify = async (user, identifier) => {
     console.log('ERROR', error)
     const result = {
       success: true,
-      message: 'Shipment Fake',
+      message: 'Invoice perjalanan tidak valid.',
     }
     return iResp.buildErrorResponse(500, 'Something wrong', result)
   }

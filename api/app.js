@@ -17,8 +17,12 @@ app.post('/test-post', (req, res) => res.send('Received data:', req.body))
 app.listen(PORT, async () => {
   try {
     console.log(`Express app running on host ${HOST}:${PORT}`)
-    await enrollAdmin('admin', 'adminpw', 'Kementrian')
-    await enrollAdmin('admin', 'adminpw', 'SupplyChain')
+    try {
+      await enrollAdmin('admin', 'adminpw', 'Kementrian')
+    } catch {}
+    try {
+      await enrollAdmin('admin', 'adminpw', 'SupplyChain')
+    } catch {}
     await registerAdminKementrian(
       'adminkm',
       'adminkmcarbon@gmail.com',

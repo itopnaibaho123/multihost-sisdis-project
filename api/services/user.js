@@ -203,7 +203,7 @@ const loginUser = async (username, password) => {
     } else if (user2) {
       organizationName = 'supplychain'
     } else {
-      throw new Error(`User ${username} is not registered yet`)
+      throw new Error('Kredensial tidak valid.')
     }
 
     // Get user attr
@@ -252,7 +252,7 @@ const loginUser = async (username, password) => {
       payload.token = token
       return iResp.buildSuccessResponse(200, `Successfully Login`, payload)
     } else {
-      return iResp.buildErrorResponse(401, 'Invalid Credentials', null)
+      return iResp.buildErrorResponse(401, 'Kredensial tidak valid', null)
     }
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
@@ -549,6 +549,24 @@ const deleteUser = async (username, organizationName) => {
     )
   }
 }
+const getById = async (user, args) => {
+  try {
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'usercontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction('GetUserById', args)
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get user ${args.id}`,
+      JSON.parse(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
 
 module.exports = {
   enrollAdmin,
@@ -561,6 +579,7 @@ module.exports = {
   getAllManagerByIdPerusahaan,
   getAllStafKementerian,
   deleteUser,
+  getById,
 }
 
 const createUser = async (username, email, organizationName, userType) => {

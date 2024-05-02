@@ -11,6 +11,12 @@ const enrollAdmin = async (req, res) => {
   res.status(result.code).send(result)
 }
 
+const getById = async (req, res) => {
+  const result = await userService.getById(req.user, req.params.idUser)
+
+  res.status(result.code).send(result)
+}
+
 const registerAdminKementrian = async (req, res) => {
   const data = req.body
   const username = data.username
@@ -112,4 +118,5 @@ module.exports = {
   getAllManagerByIdPerusahaan,
   getAllStafKementerian,
   deleteUser,
+  getById,
 }

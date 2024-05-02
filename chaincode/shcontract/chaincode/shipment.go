@@ -26,7 +26,7 @@ type Perjalanan struct {
 	WaktuSampai      string   `json:"waktuSampai"`
 	IdTransportasi   string   `json:"idTransportasi"`
 	BeratMuatan      int      `json:"beratMuatan"`
-	EmisiKarbon      int      `json:"emisiKarbon"`
+	EmisiKarbon      float64      `json:"emisiKarbon"`
 	Approver		 string  `json:"approver"`
 }
 
@@ -40,7 +40,7 @@ type PerjalananResult struct {
 	WaktuSampai    string   `json:"waktuSampai"`
 	Transportasi   *Vehicle `json:"transportasi"`
 	BeratMuatan    int      `json:"beratMuatan"`
-	EmisiKarbon    int      `json:"emisiKarbon"`
+	EmisiKarbon    float64      `json:"emisiKarbon"`
 	Approvers	    string  `json:"approver"`
 	TxId	   	   string 	 `json: "TxId"`
 }
@@ -53,6 +53,8 @@ type Divisi struct {
 	IdPerusahaan string `json:"perusahaan"`
 	Lokasi       string `json:"lokasi"`
 	IdManajer    string `json:"manajer"`
+	Lat 		 string `json:"lat"`
+	Long		 string `json:"long"`
 }
 
 type CarbonEmission struct {
@@ -192,7 +194,7 @@ func (s *SHContract) CompleteShipment(ctx contractapi.TransactionContextInterfac
 	}
 
 	shipmentId := args[0]
-	emisiKarbon, _ := strconv.Atoi(args[1])
+	emisiKarbon, _ := strconv.ParseFloat(args[1], 64)
 	approver := args[2]
 
 	perjalanan, err := getShipmentStateById(ctx, shipmentId)
@@ -531,7 +533,7 @@ func (s *SHContract) UpdateShipment(ctx contractapi.TransactionContextInterface)
 		return err
 	}
 
-	emisiKarbon, err := strconv.Atoi(emisiKarbonstr)
+	emisiKarbon, err := strconv.ParseFloat(emisiKarbonstr, 64)
 	if err != nil {
 	}
 
