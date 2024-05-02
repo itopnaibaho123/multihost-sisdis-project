@@ -30,6 +30,6 @@ userRouter.get(
 )
 
 userRouter.post('/delete/user', userController.deleteUser)
-userRouter.get('/:idUser', auth.verifyToken, userController.getById)
+userRouter.get('/user/:idUser', auth.verifyToken, userController.getById)
 
 module.exports = userRouter
