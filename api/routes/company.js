@@ -79,11 +79,6 @@ companyRouter.get(
 )
 
 companyRouter.get(
-  '/shipment/divisi/:divisionId',
-  auth.verifyToken,
-  shipmentController.getListByDivisi
-)
-companyRouter.get(
   '/shipment/detail/:shipmentId',
   auth.verifyToken,
   shipmentController.getById
@@ -120,7 +115,11 @@ companyRouter.put(
   auth.onlyManagerPerusahaan,
   shipmentController.updateStatus
 )
-companyRouter.post('/shipment/verify', shipmentController.verify)
+companyRouter.post(
+  '/shipment/verify',
+  auth.verifyToken,
+  shipmentController.verify
+)
 
 companyRouter.post(
   '/shipment/identifier/:idShipment',
