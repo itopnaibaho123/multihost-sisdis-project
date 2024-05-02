@@ -79,6 +79,11 @@ companyRouter.get(
 )
 
 companyRouter.get(
+  '/shipment/divisi/:divisionId',
+  auth.verifyToken,
+  shipmentController.getListByDivisi
+)
+companyRouter.get(
   '/shipment/detail/:shipmentId',
   auth.verifyToken,
   shipmentController.getById
