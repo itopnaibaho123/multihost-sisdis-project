@@ -115,7 +115,11 @@ companyRouter.put(
   auth.onlyManagerPerusahaan,
   shipmentController.updateStatus
 )
-companyRouter.post('/shipment/verify', shipmentController.verify)
+companyRouter.post(
+  '/shipment/verify',
+  auth.verifyToken,
+  shipmentController.verify
+)
 
 companyRouter.post(
   '/shipment/identifier/:idShipment',
