@@ -65,6 +65,20 @@ const complete = async (req, res) => {
 
   res.status(result.code).send(result)
 }
+const generateIdentifier = async (req, res) => {
+  const data = req.params.idShipment
+  const result = await shipmentService.generateIdentifier(req.user, data)
+  res.status(result.code).send(result)
+}
+
+const verify = async (req, res) => {
+  const data = req.body
+
+  const identifier = data.identifier
+
+  const result = await shipmentService.verify(req.user, identifier)
+  res.status(result.code).send(result)
+}
 
 module.exports = {
   getList,
@@ -76,4 +90,6 @@ module.exports = {
   getAllSHByDivisiPenerima,
   getAllSHByVehicle,
   getAllSHByCompany,
+  generateIdentifier,
+  verify,
 }

@@ -24,13 +24,13 @@ type CarbonEmission struct {
 	ID           string   `json:"id"`
 	IdPerusahaan string   `json:"perusahaan"`
 	IdPerjalanan []string `json:"perjalanan"`
-	TotalEmisi   int   `json:"totalEmisi"`
+	TotalEmisi   float64   `json:"totalEmisi"`
 }
 
 type CarbonEmissionResult struct {
 	ID         	string      	`json:"id"`
 	Perusahaan 	*Perusahaan 	`json:"perusahaan"`
-	TotalEmisi   int      		`json:"totalEmisi"`
+	TotalEmisi   float64      		`json:"totalEmisi"`
 	Perjalanan  []* Perjalanan 	`json:"perjalanan"`
 }
 
@@ -82,7 +82,7 @@ func (s *CEContract) CreateCE(ctx contractapi.TransactionContextInterface) error
 	IdPerjalanan := args[3]
 
 	// Convert emission to integer
-	totalEmisi, err := strconv.Atoi(emission)
+	totalEmisi, err := strconv.ParseFloat(emission, 64)
 	if err != nil {
 		return fmt.Errorf("error converting emission to integer: %s", err)
 	}
@@ -252,7 +252,7 @@ func (s *CEContract) UpdateCE(ctx contractapi.TransactionContextInterface) error
 
 	id := args[0]
 	totalEmisiStr := args[1]
-	totalEmisi, err := strconv.Atoi(totalEmisiStr)
+	totalEmisi, err := strconv.ParseFloat(totalEmisiStr, 64)
 	if err != nil {
 	}
 	carbonEmission, err := getCEStateById(ctx, id)

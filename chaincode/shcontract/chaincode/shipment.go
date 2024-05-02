@@ -27,7 +27,7 @@ type Perjalanan struct {
 	IdTransportasi   string   `json:"idTransportasi"`
 	BeratMuatan      int      `json:"beratMuatan"`
 	EmisiKarbon      int      `json:"emisiKarbon"`
-	Approvers		[]string  `json:"approvers"`
+	Approver		 string  `json:"approver"`
 }
 
 type PerjalananResult struct {
@@ -41,8 +41,8 @@ type PerjalananResult struct {
 	Transportasi   *Vehicle `json:"transportasi"`
 	BeratMuatan    int      `json:"beratMuatan"`
 	EmisiKarbon    int      `json:"emisiKarbon"`
-	Approvers	   []string  `json:"approvers"`
-	HistoryTxId	 []string 	 `json: "historyTxId"`
+	Approvers	    string  `json:"approver"`
+	TxId	   	   string 	 `json: "TxId"`
 }
 
 // var logger = flogging.MustGetLogger("PEContract")
@@ -72,11 +72,11 @@ type Vehicle struct {
 
 const (
 	ER11 string = "ER11-Incorrect number of arguments. Required %d arguments, but you have %d arguments."
-	ER12        = "ER12-Ijazah with id '%s' already exists."
-	ER13        = "ER13-Ijazah with id '%s' doesn't exist."
-	ER14        = "ER14-Ijazah with id '%s' no longer require approval."
-	ER15        = "ER15-Ijazah with id '%s' already approved by PTK with id '%s'."
-	ER16        = "ER16-Ijazah with id '%s' cannot be approved by PTK with id '%s' in this step."
+	ER12        = "ER12-Shipment with id '%s' already exists."
+	ER13        = "ER13-Shipment with id '%s' doesn't exist."
+	ER14        = "ER14-Shipment with id '%s' no longer require approval."
+	ER15        = "ER15-Shipment with id '%s' already approved by PTK with id '%s'."
+	ER16        = "ER16-Shipment with id '%s' cannot be approved by PTK with id '%s' in this step."
 	ER31        = "ER31-Failed to change to world state: %v."
 	ER32        = "ER32-Failed to read from world state: %v."
 	ER33        = "ER33-Failed to get result from iterator: %v."
@@ -116,6 +116,7 @@ func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface)
 		WaktuBerangkat:   waktuBerangkat,
 		IdTransportasi:   transportasi,
 		BeratMuatan:      beratMuatan,
+		Approver: "",
 	}
 
 	perjalananJSON, err := json.Marshal(perjalanan)
@@ -186,12 +187,13 @@ func (s *SHContract) CompleteShipment(ctx contractapi.TransactionContextInterfac
 	// logger.Infof("Run UpdateKls function with args: %+q.", args)
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 2 {
+	if len(args) != 3 {
 
 	}
 
 	shipmentId := args[0]
 	emisiKarbon, _ := strconv.Atoi(args[1])
+	approver := args[2]
 
 	perjalanan, err := getShipmentStateById(ctx, shipmentId)
 	if err != nil {
@@ -201,6 +203,7 @@ func (s *SHContract) CompleteShipment(ctx contractapi.TransactionContextInterfac
 	perjalanan.Status = "Completed"
 	perjalanan.WaktuSampai = time.Now().Format(time.RFC3339)
 	perjalanan.EmisiKarbon = emisiKarbon
+	perjalanan.Approver = approver
 
 	perjalananJSON, err := json.Marshal(perjalanan)
 	if err != nil {
@@ -406,44 +409,40 @@ func getCompleteDataShipment(ctx contractapi.TransactionContextInterface, perjal
 		return nil, err
 	}
 	PerjalananResult.Transportasi = vehicle
-	PerjalananResult.Approvers = perjalanan.Approvers
-	HistoryTxIds, err := getPEHistoryTxIdById(ctx, perjalanan.ID)
+	PerjalananResult.Approvers = perjalanan.Approver
+	HistoryTxIds, err := getPELastTxIdById(ctx, perjalanan.ID)
 	if err != nil {
 		return nil, err
 	}
-	PerjalananResult.HistoryTxId = HistoryTxIds 
+	PerjalananResult.TxId = HistoryTxIds 
 
 	return &PerjalananResult, nil
 }
 
-func getPEHistoryTxIdById(ctx contractapi.TransactionContextInterface, id string) ([]string, error) {
+func getPELastTxIdById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
 	// logger.Infof("Run getIjzAddApprovalTxIdById function with id: %s.", id)
 
 	resultsIterator, err := ctx.GetStub().GetHistoryForKey(id)
 	if err != nil {
-		return []string{}, fmt.Errorf(err.Error())
+		return "", fmt.Errorf(err.Error())
 	}
 	defer resultsIterator.Close()
 
-	txIdList := []string{}
-
-	for resultsIterator.HasNext() {
-		response, err := resultsIterator.Next()
-		if err != nil {
-			return []string{}, fmt.Errorf(err.Error())
-		}
-
-		var pe Perjalanan
-		err = json.Unmarshal([]byte(response.Value), &pe)
-		if err != nil {
-			return nil, fmt.Errorf(ER34, err)
-		}
-
-
-		txIdList = append([]string{response.TxId}, txIdList[0:]...)
+	response, err := resultsIterator.Next()
+	
+	if err != nil {
+		return "", fmt.Errorf(err.Error())
+	}
+	var sh Perjalanan
+	err = json.Unmarshal([]byte(response.Value), &sh)
+	if err != nil {
+		return  "", fmt.Errorf(ER34, err)
+	}
+	if (sh.Approver == "") {
+		return "", nil
 	}
 
-	return txIdList, nil
+	return response.TxId, nil
 }
 
 func getVeById(ctx contractapi.TransactionContextInterface, idVehicle string) (*Vehicle, error) {

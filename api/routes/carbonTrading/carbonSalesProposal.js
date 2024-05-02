@@ -8,6 +8,12 @@ salesProposalRouter.get(
   auth.onlyAdminPerusahaan,
   salesProposalController.getAllCspPerusahaan
 )
+
+salesProposalRouter.get(
+  '/status/:status',
+  auth.onlyAdminPerusahaan,
+  salesProposalController.getAllCspByStatus
+)
 salesProposalRouter.get(
   '/:salesProposalId',
   auth.onlyAdminPerusahaan,

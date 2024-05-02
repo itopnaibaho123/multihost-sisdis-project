@@ -31,6 +31,14 @@ const getAllCspPerusahaan = async (req, res) => {
   res.status(result.code).send(result)
 }
 
+const getAllCspByStatus = async (req, res) => {
+  const data = req.params.status
+  const result = await salesProposalService.getAllCspByStatus(req.user, data)
+  res.status(result.code).send(result)
+}
+
+getAllCspByStatus
+
 const update = async (req, res) => {
   const data = req.body
 
@@ -55,4 +63,5 @@ module.exports = {
   update,
   remove,
   getAllCspPerusahaan,
+  getAllCspByStatus,
 }
