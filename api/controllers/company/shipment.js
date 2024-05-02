@@ -3,7 +3,7 @@ const shipmentService = require('../../services/company/shipment.js')
 const getList = async (req, res) => {
   const user = req.user
   const idPerusahaan = !user.idPerusahaan
-    ? req.params.idPerusahaan
+    ? req.params.companyId
     : user.idPerusahaan
   const result = await shipmentService.getList(user, idPerusahaan)
 

@@ -4,7 +4,7 @@ const fabric = require('../../utils/fabric.js')
 const { v4: uuidv4 } = require('uuid')
 const { bufferToJson } = require('../../utils/converter.js')
 
-const getList = async (user, args) => {
+const getList = async (user) => {
   try {
     const network = await fabric.connectToNetwork(
       user.organizationName,
@@ -50,7 +50,7 @@ const create = async (user, args) => {
     )
 
     args.id = uuidv4()
-
+    args.idPerusahaan = user.idPerusahaan
     await network.contract.submitTransaction(
       'CreateProposal',
       JSON.stringify(args)
@@ -118,6 +118,7 @@ const update = async (user, args) => {
       'cspcontract',
       user.username
     )
+    args.idPerusahaan = user.idPerusahaan
     await network.contract.submitTransaction('UpdateCSP', JSON.stringify(args))
     network.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(
