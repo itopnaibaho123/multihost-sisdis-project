@@ -549,6 +549,24 @@ const deleteUser = async (username, organizationName) => {
     )
   }
 }
+const getById = async (user, args) => {
+  try {
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'usercontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction('GetUserById', args)
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get user ${args.id}`,
+      JSON.parse(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
 
 module.exports = {
   enrollAdmin,
@@ -561,6 +579,7 @@ module.exports = {
   getAllManagerByIdPerusahaan,
   getAllStafKementerian,
   deleteUser,
+  getById,
 }
 
 const createUser = async (username, email, organizationName, userType) => {
