@@ -36,7 +36,7 @@ const ApprovePerusahaan = async (req, res) => {
 const update = async (req, res) => {
   const data = req.body
   const args = {
-    id: data.id,
+    id: req.params.supplyId,
     listPerusahaan: data.listPerusahaan,
     status: data.status,
     proposalSupplyChain: data.proposalSupplyChain,
@@ -47,11 +47,7 @@ const update = async (req, res) => {
 }
 
 const remove = async (req, res) => {
-  const result = await supplyChainService.remove(
-    req.user,
-    req.params.shipmentId
-  )
-  console.log(req.params.shipmentId)
+  const result = await supplyChainService.remove(req.user, req.params.supplyId)
 
   if (!result.success) {
     res.status(200).send(result)

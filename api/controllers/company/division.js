@@ -2,8 +2,9 @@ const divisionService = require('../../services/company/division.js')
 
 const getList = async (req, res) => {
   const user = req.user
-  const idPerusahaan =
-    user.idPerusahaan == '' ? req.params.idPerusahaan : user.idPerusahaan
+  const idPerusahaan = !user.idPerusahaan
+    ? req.params.idPerusahaan
+    : user.idPerusahaan
   const result = await divisionService.getList(user, idPerusahaan)
 
   res.status(result.code).send(result)
@@ -21,10 +22,21 @@ const create = async (req, res) => {
 
   res.status(result.code).send(result)
 }
+const getListBySupplyChain = async (req, res) => {
+  const result = await divisionService.getListBySupplyChain(
+    req.user,
+    req.params.idSupplyChain
+  )
+  res.status(result.code).send(result)
+}
 
 const update = async (req, res) => {
-  const args = [req.params.divisionId, data.lokasi]
-  const result = await divisionService.update(req.user, args)
+  const data = req.body
+  const result = await divisionService.update(
+    req.user,
+    req.params.divisionId,
+    data
+  )
 
   res.status(result.code).send(result)
 }
@@ -35,4 +47,11 @@ const remove = async (req, res) => {
   res.status(result.code).send(result)
 }
 
-module.exports = { getList, getById, create, update, remove }
+module.exports = {
+  getList,
+  getById,
+  create,
+  update,
+  remove,
+  getListBySupplyChain,
+}

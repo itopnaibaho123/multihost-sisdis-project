@@ -1,16 +1,12 @@
-const iResp = require('../../utils/response.interface.js')
-const { v4: uuidv4 } = require('uuid')
 const salesProposalService = require('../../services/carbonTrading/carbonSalesProposal.js')
 
 const getList = async (req, res) => {
-  const data = req.body
-  const result = await salesProposalService.getList(req.user, [])
+  const result = await salesProposalService.getList(req.user)
 
   res.status(result.code).send(result)
 }
 
 const getById = async (req, res) => {
-  const data = req.body
   const result = await salesProposalService.getById(
     req.user,
     req.params.salesProposalId
@@ -31,9 +27,15 @@ const getAllCspPerusahaan = async (req, res) => {
   res.status(result.code).send(result)
 }
 
-const update = async (req, res) => {
-  const data = req.body
+const getAllCspByStatus = async (req, res) => {
+  const data = req.params.status
+  const result = await salesProposalService.getAllCspByStatus(req.user, data)
+  res.status(result.code).send(result)
+}
 
+const update = async (req, res) => {
+  let data = req.body
+  data.id = req.params.salesProposalId
   const result = await salesProposalService.update(req.user, data)
 
   res.status(result.code).send(result)
@@ -55,4 +57,5 @@ module.exports = {
   update,
   remove,
   getAllCspPerusahaan,
+  getAllCspByStatus,
 }

@@ -1,13 +1,12 @@
 'use strict'
 const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric.js')
-
+const { BlockDecoder } = require('fabric-common')
 const { v4: uuidv4 } = require('uuid')
 const { bufferToJson } = require('../../utils/converter.js')
 
 const getList = async (user, idPerusahaan) => {
   try {
-    console.log(user)
     const network = await fabric.connectToNetwork(
       user.organizationName,
       'shcontract',
@@ -27,28 +26,7 @@ const getList = async (user, idPerusahaan) => {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
-const getListByDivisi = async (user, idDivisi) => {
-  try {
-    const network = await fabric.connectToNetwork(
-      user.organizationName,
-      'shcontract',
-      user.username
-    )
-    const result = await network.contract.submitTransaction(
-      'GetShipmentsByDivisi',
-      idDivisi
-    )
-    network.gateway.disconnect()
-    return iResp.buildSuccessResponse(
-      200,
-      'Successfully get all shipment',
-      bufferToJson(result)
-    )
-  } catch (error) {
-    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
-  }
-}
-const getById = async (user, args) => {
+const getById = async (user, shipmentId) => {
   try {
     const network = await fabric.connectToNetwork(
       user.organizationName,
@@ -57,13 +35,104 @@ const getById = async (user, args) => {
     )
     const result = await network.contract.submitTransaction(
       'GetShipmentById',
-      args
+      shipmentId
     )
     network.gateway.disconnect()
     return iResp.buildSuccessResponse(
       200,
-      `Successfully get shipment ${id}`,
+      `Successfully get shipment ${shipmentId}`,
       JSON.parse(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
+
+const getAllSHByDivisiPengirim = async (user, data) => {
+  try {
+    const idDivisi = data
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetAllSHByDivisiPengirim',
+      idDivisi
+    )
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get shipment ${idDivisi}`,
+      bufferToJson(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
+const getAllSHByDivisiPenerima = async (user, data) => {
+  try {
+    const idDivisi = data
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetAllSHByDivisiPenerima',
+      idDivisi
+    )
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get shipment ${idDivisi}`,
+      bufferToJson(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
+
+const getAllSHByVehicle = async (user, data) => {
+  try {
+    const idVehicle = data
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetAllSHByVehicle',
+      idVehicle
+    )
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get shipment ${idVehicle}`,
+      bufferToJson(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
+
+const GetAllSHByCompany = async (user, data) => {
+  try {
+    const idPerusahaan = data
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetAllSHByCompany',
+      idPerusahaan
+    )
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get shipment ${idPerusahaan}`,
+      bufferToJson(result)
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
@@ -98,14 +167,15 @@ const create = async (user, data) => {
   }
 }
 
-const update = async (user, args) => {
+const updateStatus = async (user, data) => {
   try {
     const network = await fabric.connectToNetwork(
       user.organizationName,
       'shcontract',
       user.username
     )
-    await network.contract.submitTransaction('UpdateShipment', ...args)
+    const args = [data.id, data.status]
+    await network.contract.submitTransaction('UpdateStatusShipment', ...args)
     network.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(
       200,
@@ -116,22 +186,166 @@ const update = async (user, args) => {
   }
 }
 
-const remove = async (user, args) => {
+const complete = async (user, data) => {
   try {
-    const network = await fabric.connectToNetwork(
+    // Get the Car
+    const veNetwork = await fabric.connectToNetwork(
+      user.organizationName,
+      'vecontract',
+      user.username
+    )
+    // console.log(d ata)
+    const vehicle = await veNetwork.contract.evaluateTransaction(
+      'GetVehicleById',
+      data.idVehicle
+    )
+    veNetwork.gateway.disconnect()
+
+    // Calculate the carbon emission
+    const distance = data.distance // km
+    const fuelType = vehicle.fuelType // petrol | diesel
+
+    let fuelEfficiency = 0 // liter / km
+    let emissionFactor = 0 // kgCO2e/liter
+    if (fuelType == 'petrol') {
+      fuelEfficiency = 20
+      emissionFactor = 3.1455
+    } else {
+      fuelEfficiency = 34
+      emissionFactor = 3.5117
+    }
+
+    const carbon = (fuelEfficiency / 100) * distance * emissionFactor
+
+    // Complete the shipment
+    const shNetwork = await fabric.connectToNetwork(
       user.organizationName,
       'shcontract',
       user.username
     )
-    await network.contract.submitTransaction('DeleteShipment', args)
-    network.gateway.disconnect()
+    const shArgs = [data.id, carbon, data.idApprover]
+    await shNetwork.contract.submitTransaction('CompleteShipment', ...shArgs)
+    shNetwork.gateway.disconnect()
+
+    // Create the carbon emission object
+    const ceNetwork = await fabric.connectToNetwork(
+      user.organizationName,
+      'cecontract',
+      user.username
+    )
+    const ceArgs = [uuidv4(), user.idPerusahaan, carbon, data.id]
+    await ceNetwork.contract.submitTransaction('CreateCE', ...ceArgs)
     return iResp.buildSuccessResponseWithoutData(
       200,
-      'Successfully delete a shipment'
+      'Successfully complete a shipment'
     )
   } catch (error) {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
+const generateIdentifier = async (user, idShipment) => {
+  try {
+    var network = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const shipment = JSON.parse(
+      await network.contract.evaluateTransaction('GetShipmentById', idShipment)
+    )
 
-module.exports = { getList, getById, create, update, remove }
+    network.gateway.disconnect()
+    if (shipment.status === 'Completed') {
+      const identifier = {}
+      network = await fabric.connectToNetwork('Kementrian', 'qscc', 'admin')
+
+      const blockShipment = await network.contract.evaluateTransaction(
+        'GetBlockByTxID',
+        'carbonchannel',
+        shipment.TxId
+      )
+
+      identifier.shipment = fabric.calculateBlockHash(
+        BlockDecoder.decode(blockShipment).header
+      )
+      network.gateway.disconnect()
+      return iResp.buildSuccessResponse(
+        200,
+        'Successfully get Shipment',
+        identifier
+      )
+    } else {
+      throw 'Shipment Not Completed'
+    }
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'something wrong', error.message)
+  }
+}
+
+const verify = async (user, identifier) => {
+  try {
+    // find block that block hash == identifier
+    const network = await fabric.connectToNetwork('Kementrian', 'qscc', 'admin')
+    const blockCarbonTransaction = await network.contract.evaluateTransaction(
+      'GetBlockByHash',
+      'carbonchannel',
+      Buffer.from(identifier.shipment, 'hex')
+    )
+
+    // Get data from block
+    const argsSh = BlockDecoder.decode(blockCarbonTransaction).data.data[0]
+      .payload.data.actions[0].payload.chaincode_proposal_payload.input
+      .chaincode_spec.input.args
+    const idSh = Buffer.from(argsSh[1]).toString()
+
+    console.log('ID Shipment: ', idSh)
+    //query data ijazah, transkrip, nilai
+    network.gateway.disconnect()
+
+    const shNetwork = await fabric.connectToNetwork(
+      'Kementrian',
+      'shcontract',
+      'adminkm'
+    )
+    const sh = await shNetwork.contract.evaluateTransaction(
+      'GetShipmentById',
+      idSh
+    )
+    shNetwork.gateway.disconnect()
+    const parseData = JSON.parse(sh)
+
+    parseData.signature = await fabric.getSignature(parseData.TxId)
+    console.log(parseData)
+    const data = {
+      shipment: parseData,
+    }
+
+    const result = {
+      success: true,
+      message: 'Shipment Trusted',
+      data: data,
+    }
+    return iResp.buildSuccessResponse(200, 'Successfully get Shipment', result)
+  } catch (error) {
+    console.log('ERROR', error)
+    const result = {
+      success: true,
+      message: 'Invoice perjalanan tidak valid.',
+    }
+    return iResp.buildErrorResponse(500, 'Something wrong', result)
+  }
+}
+
+module.exports = {
+  getList,
+  getById,
+  create,
+  updateStatus,
+  complete,
+  getAllSHByDivisiPengirim,
+  getAllSHByDivisiPenerima,
+  getAllSHByVehicle,
+  GetAllSHByCompany,
+  generateIdentifier,
+  verify,
+}

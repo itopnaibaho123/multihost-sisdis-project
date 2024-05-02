@@ -27,8 +27,19 @@ const getCarbonTransactionByIdProposal = async (req, res) => {
   res.status(result.code).send(result)
 }
 
+const verifikasiTransferKarbonKementrian = async (req, res) => {
+  const data = req.body
+  const result =
+    await carbonTransactionService.verifikasiTransferKarbonKementrian(
+      req.user,
+      data
+    )
+
+  res.status(result.code).send(result)
+}
+
 const getCarbonTransactionByIdPerusahaan = async (req, res) => {
-  const data = req.params.idPerusahaan
+  const data = req.params.carbonTransactionId
   const result =
     await carbonTransactionService.getCarbonTransactionByIdPerusahaan(
       req.user,
@@ -46,16 +57,35 @@ const verifikasiTransferKarbon = async (req, res) => {
   res.status(result.code).send(result)
 }
 
+const generateIdentifier = async (req, res) => {
+  const data = req.params.carbonTransactionId
+  const result = await carbonTransactionService.generateIdentifier(
+    req.user,
+    data
+  )
+  res.status(result.code).send(result)
+}
+
+const verify = async (req, res) => {
+  const data = req.body
+
+  const identifier = data.identifier
+
+  const result = await carbonTransactionService.verify(req.user, identifier)
+  res.status(result.code).send(result)
+}
+
 const create = async (req, res) => {
   const data = req.body
-  const args = [
-    uuidv4(),
-    data.idPerusahaanPembeli,
-    data.idProposalPenjual,
-    data.kuota,
-    data.status,
-    data.urlBuktiTransaksi,
-  ]
+  const args = {
+    id: uuidv4(),
+    idPerusahaanPembeli: data.idPerusahaanPembeli,
+    idProposalPenjual: data.idProposalPenjual,
+    kuota: data.kuota,
+    status: data.status,
+    urlBuktiTransaksi: data.urlBuktiTransaksi,
+    approvers: data.approvers,
+  }
   const result = await carbonTransactionService.create(req.user, args)
 
   res.status(result.code).send(result)
@@ -70,6 +100,7 @@ const update = async (req, res) => {
     data.kuota,
     data.status,
     data.urlBuktiTransfer,
+    data.approvers,
   ]
   const result = await carbonTransactionService.update(req.user, args)
 
@@ -93,5 +124,8 @@ module.exports = {
   remove,
   getCarbonTransactionByIdProposal,
   getCarbonTransactionByIdPerusahaan,
+  verifikasiTransferKarbonKementrian,
   verifikasiTransferKarbon,
+  generateIdentifier,
+  verify,
 }

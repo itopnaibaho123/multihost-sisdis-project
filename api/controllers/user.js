@@ -11,6 +11,12 @@ const enrollAdmin = async (req, res) => {
   res.status(result.code).send(result)
 }
 
+const getById = async (req, res) => {
+  const result = await userService.getById(req.user, req.params.idUser)
+
+  res.status(result.code).send(result)
+}
+
 const registerAdminKementrian = async (req, res) => {
   const data = req.body
   const username = data.username
@@ -70,6 +76,10 @@ const editPassword = async (req, res) => {
   const result = await userService.editPassword(req.user, req.body)
   res.status(result.code).send(result)
 }
+const forgotPassword = async (req, res) => {
+  const result = await userService.forgotPassword(req.body.email)
+  res.status(result.code).send(result)
+}
 
 const editEmail = async (req, res) => {
   const result = await userService.editEmail(req.user, req.body)
@@ -103,8 +113,10 @@ module.exports = {
   registerUser,
   loginUser,
   editPassword,
+  forgotPassword,
   editEmail,
   getAllManagerByIdPerusahaan,
   getAllStafKementerian,
   deleteUser,
+  getById,
 }

@@ -203,6 +203,35 @@ func (s *UserContract) GetUserByUsername(ctx contractapi.TransactionContextInter
 	return &user, nil
 }
 
+// GetUserByEmail used by Forget Password method
+func (s *UserContract) GetUserByEmail(ctx contractapi.TransactionContextInterface) (*User, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	logger.Infof("Run GetSmsById function with args: %+q.", args)
+
+	if len(args) != 1 {
+		logger.Errorf(ER11, 1, len(args))
+		return nil, fmt.Errorf(ER11, 1, len(args))
+	}
+	username := args[0]
+	queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, username)
+
+	var user User
+	queryResult, err := getQueryResultForQueryStringUser(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+
+	user.ID = queryResult[0].ID
+	user.Name = queryResult[0].Name
+	user.Email = queryResult[0].Email
+	user.Role = queryResult[0].Role
+	user.ManagerPerusahaan = queryResult[0].ManagerPerusahaan
+	user.AdminPerusahaan = queryResult[0].AdminPerusahaan
+
+	return &user, nil
+}
+
 // UpdateUserData updates the general user data (excluding ManagerPerusahaan and AdminPerusahaan) for a user
 func (s *UserContract) UpdateUserData(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]

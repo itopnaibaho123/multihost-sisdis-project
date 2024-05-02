@@ -17,6 +17,8 @@ type SupplyChain struct {
 	ID                  string   `json:"id"`
 	ListPerusahaan      []string `json:"listPerusahaan"`
 	Status              string   `json:"status"`
+	Nama				string 	 `json: "nama"`
+	Deskripsi			string 	 `json: "deskripsi"`
 	ProposalSupplyChain []ProposalSupplyChain `json:"proposalSupplyChain"`
 }
 

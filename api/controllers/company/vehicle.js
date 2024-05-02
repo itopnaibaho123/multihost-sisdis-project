@@ -2,7 +2,8 @@ const vehicleService = require('../../services/company/vehicle.js')
 
 const getList = async (req, res) => {
   const user = req.user
-  const idDivisi = user.idDivisi == '' ? req.params.divisionId : user.idDivisi
+  const idDivisi = !user.idDivisi ? req.params.divisionId : user.idDivisi
+
   const result = await vehicleService.getList(user, idDivisi)
 
   res.status(result.code).send(result)

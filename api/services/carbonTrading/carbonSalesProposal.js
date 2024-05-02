@@ -1,9 +1,10 @@
 'use strict'
 const iResp = require('../../utils/response.interface.js')
 const fabric = require('../../utils/fabric.js')
+const { v4: uuidv4 } = require('uuid')
 const { bufferToJson } = require('../../utils/converter.js')
 
-const getList = async (user, args) => {
+const getList = async (user) => {
   try {
     const network = await fabric.connectToNetwork(
       user.organizationName,
@@ -49,7 +50,7 @@ const create = async (user, args) => {
     )
 
     args.id = uuidv4()
-
+    args.idPerusahaan = user.idPerusahaan
     await network.contract.submitTransaction(
       'CreateProposal',
       JSON.stringify(args)
@@ -86,6 +87,29 @@ const getAllCspPerusahaan = async (user, args) => {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
+const getAllCspByStatus = async (user, args) => {
+  try {
+    const status = args
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'cspcontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetAllCSPByStatus',
+      status
+    )
+
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      `Successfully get carbon Sales Proposal With Status: ${status}`,
+      JSON.parse(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
 
 const update = async (user, args) => {
   try {
@@ -94,6 +118,7 @@ const update = async (user, args) => {
       'cspcontract',
       user.username
     )
+    args.idPerusahaan = user.idPerusahaan
     await network.contract.submitTransaction('UpdateCSP', JSON.stringify(args))
     network.gateway.disconnect()
     return iResp.buildSuccessResponseWithoutData(
@@ -130,4 +155,5 @@ module.exports = {
   update,
   remove,
   getAllCspPerusahaan,
+  getAllCspByStatus,
 }

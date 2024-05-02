@@ -26,7 +26,8 @@ type Perjalanan struct {
 	WaktuSampai      string   `json:"waktuSampai"`
 	IdTransportasi   string   `json:"idTransportasi"`
 	BeratMuatan      int      `json:"beratMuatan"`
-	EmisiKarbon      int      `json:"emisiKarbon"`
+	EmisiKarbon      float64      `json:"emisiKarbon"`
+	Approver		 string  `json:"approver"`
 }
 
 type PerjalananResult struct {
@@ -39,16 +40,21 @@ type PerjalananResult struct {
 	WaktuSampai    string   `json:"waktuSampai"`
 	Transportasi   *Vehicle `json:"transportasi"`
 	BeratMuatan    int      `json:"beratMuatan"`
-	EmisiKarbon    int      `json:"emisiKarbon"`
+	EmisiKarbon    float64      `json:"emisiKarbon"`
+	Approvers	    string  `json:"approver"`
+	TxId	   	   string 	 `json: "TxId"`
 }
 
 // var logger = flogging.MustGetLogger("PEContract")
 
 type Divisi struct {
 	ID           string `json:"id"`
+	Nama		 string `json:"name"`
 	IdPerusahaan string `json:"perusahaan"`
 	Lokasi       string `json:"lokasi"`
 	IdManajer    string `json:"manajer"`
+	Lat 		 string `json:"lat"`
+	Long		 string `json:"long"`
 }
 
 type CarbonEmission struct {
@@ -60,11 +66,29 @@ type CarbonEmission struct {
 
 type Vehicle struct {
 	ID       string `json:"id"`
-	IdDivisi string `json:"divisi"`
+	IdDivisi *Divisi `json:"divisi"`
 	CarModel string `json:"carModel"`
 	FuelType string `json:"fuelType"`
 	KmUsage  string `json:"kmUsage"`
 }
+
+const (
+	ER11 string = "ER11-Incorrect number of arguments. Required %d arguments, but you have %d arguments."
+	ER12        = "ER12-Shipment with id '%s' already exists."
+	ER13        = "ER13-Shipment with id '%s' doesn't exist."
+	ER14        = "ER14-Shipment with id '%s' no longer require approval."
+	ER15        = "ER15-Shipment with id '%s' already approved by PTK with id '%s'."
+	ER16        = "ER16-Shipment with id '%s' cannot be approved by PTK with id '%s' in this step."
+	ER31        = "ER31-Failed to change to world state: %v."
+	ER32        = "ER32-Failed to read from world state: %v."
+	ER33        = "ER33-Failed to get result from iterator: %v."
+	ER34        = "ER34-Failed unmarshaling JSON: %v."
+	ER35        = "ER35-Failed parsing string to integer: %v."
+	ER36        = "ER36-Failed parsing string to float: %v."
+	ER37        = "ER37-Failed to query another chaincode (%s): %v."
+	ER41        = "ER41-Access is not permitted with MSDPID '%s'."
+	ER42        = "ER42-Unknown MSPID: '%s'."
+)
 
 // CreateAsset issues a new asset to the world state with given details.
 func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface) error {
@@ -94,6 +118,7 @@ func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface)
 		WaktuBerangkat:   waktuBerangkat,
 		IdTransportasi:   transportasi,
 		BeratMuatan:      beratMuatan,
+		Approver: "",
 	}
 
 	perjalananJSON, err := json.Marshal(perjalanan)
@@ -104,6 +129,26 @@ func (s *SHContract) CreateShipment(ctx contractapi.TransactionContextInterface)
 	err = ctx.GetStub().PutState(id, perjalananJSON)
 	if err != nil {
 		fmt.Errorf(err.Error())
+	}
+
+	return err
+}
+
+func (s *SHContract) Approve(ctx contractapi.TransactionContextInterface, shipmentId string) error {
+	perjalanan, err := getShipmentStateById(ctx, shipmentId)
+	if err != nil {
+		return err
+	}
+
+	perjalanan.Status = "Approved"
+
+	perjalananJSON, err := json.Marshal(perjalanan)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(shipmentId, perjalananJSON)
+	if err != nil {
 	}
 
 	return err
@@ -144,12 +189,13 @@ func (s *SHContract) CompleteShipment(ctx contractapi.TransactionContextInterfac
 	// logger.Infof("Run UpdateKls function with args: %+q.", args)
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 2 {
+	if len(args) != 3 {
 
 	}
 
 	shipmentId := args[0]
-	emisiKarbon, _ := strconv.Atoi(args[1])
+	emisiKarbon, _ := strconv.ParseFloat(args[1], 64)
+	approver := args[2]
 
 	perjalanan, err := getShipmentStateById(ctx, shipmentId)
 	if err != nil {
@@ -159,6 +205,7 @@ func (s *SHContract) CompleteShipment(ctx contractapi.TransactionContextInterfac
 	perjalanan.Status = "Completed"
 	perjalanan.WaktuSampai = time.Now().Format(time.RFC3339)
 	perjalanan.EmisiKarbon = emisiKarbon
+	perjalanan.Approver = approver
 
 	perjalananJSON, err := json.Marshal(perjalanan)
 	if err != nil {
@@ -229,17 +276,6 @@ func (s *SHContract) GetShipmentsByPerusahaan(ctx contractapi.TransactionContext
 
     return constructQueryResponseFromIterator(resultsIterator)
 }
-func (s *SHContract) GetShipmentsByDivisi(ctx contractapi.TransactionContextInterface, idDivisi string) ([]*Perjalanan, error) {
-    queryString := fmt.Sprintf(`{"selector":{"$or":[{"idDivisiPengirim":"%s"},{"idDivisiPenerima":"%s"}]}}`, idDivisi, idDivisi)
-
-    resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
-    if err != nil {
-        return nil, fmt.Errorf("failed to execute query: %v", err)
-    }
-    defer resultsIterator.Close()
-
-    return constructQueryResponseFromIterator(resultsIterator)
-}
 
 func (s *SHContract) GetShipmentsNeedApprovalByDivisiPenerima(ctx contractapi.TransactionContextInterface, idDivisiPenerima string) ([]*Perjalanan, error) {
     queryString := fmt.Sprintf(`{"selector":{"idDivisiPenerima":"%s", "status":"Need Approval"}}`, idDivisiPenerima)
@@ -251,6 +287,81 @@ func (s *SHContract) GetShipmentsNeedApprovalByDivisiPenerima(ctx contractapi.Tr
     defer resultsIterator.Close()
 
     return constructQueryResponseFromIterator(resultsIterator)
+}
+
+func (s *SHContract) GetAllSHByDivisiPengirim(ctx contractapi.TransactionContextInterface) ([]*Perjalanan, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"idDivisiPengirim":"%s"}}`, args[0])
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var scList []*Perjalanan
+
+
+	for _, sc := range queryResult {
+		scList = append(scList, sc)
+	}
+	return scList, nil
+}
+
+func (s *SHContract) GetAllSHByDivisiPenerima(ctx contractapi.TransactionContextInterface) ([]*Perjalanan, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"idDivisiPenerima":"%s"}}`, args[0])
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var scList []*Perjalanan
+
+
+	for _, sc := range queryResult {
+		scList = append(scList, sc)
+	}
+	return scList, nil
+}
+
+func (s *SHContract) GetAllSHByVehicle(ctx contractapi.TransactionContextInterface) ([]*Perjalanan, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"idTransportasi":"%s"}}`, args[0])
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var scList []*Perjalanan
+
+
+	for _, sc := range queryResult {
+		scList = append(scList, sc)
+	}
+	return scList, nil
+}
+
+func (s *SHContract) GetAllSHByCompany(ctx contractapi.TransactionContextInterface) ([]*Perjalanan, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+	queryString := fmt.Sprintf(`{"selector":{"idPerusahaan":"%s"}}`, args[0])
+	queryResult, err := getQueryResultForQueryString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+	var scList []*Perjalanan
+
+
+	for _, sc := range queryResult {
+		scList = append(scList, sc)
+	}
+	return scList, nil
+}
+
+func getQueryResultForQueryString(ctx contractapi.TransactionContextInterface, queryString string) ([]*Perjalanan, error) {
+
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, fmt.Errorf("ER32", err)
+	}
+	defer resultsIterator.Close()
+
+	return constructQueryResponseFromIterator(resultsIterator)
 }
 
 func (s *SHContract) GetShipmentById(ctx contractapi.TransactionContextInterface) (*PerjalananResult, error) {
@@ -270,6 +381,7 @@ func (s *SHContract) GetShipmentById(ctx contractapi.TransactionContextInterface
 
 	return PerjalananResult, nil
 }
+
 func getCompleteDataShipment(ctx contractapi.TransactionContextInterface, perjalanan *Perjalanan) (*PerjalananResult, error) {
 	// logger.Infof("Run getCompleteDataKls function with kls id: '%s'.", perusahaan.ID)
 
@@ -282,11 +394,103 @@ func getCompleteDataShipment(ctx contractapi.TransactionContextInterface, perjal
 	PerjalananResult.WaktuSampai = perjalanan.WaktuSampai
 	PerjalananResult.BeratMuatan = perjalanan.BeratMuatan
 	PerjalananResult.EmisiKarbon = perjalanan.EmisiKarbon
-	PerjalananResult.DivisiPenerima = nil
-	PerjalananResult.DivisiPengirim = nil
-	PerjalananResult.Transportasi = nil
+	divPenerima, err := getDivById(ctx, perjalanan.IdDivisiPenerima)
+	if err!=nil {
+		return nil, err
+	}
+	PerjalananResult.DivisiPenerima = divPenerima
+
+	divPengirim, err := getDivById(ctx, perjalanan.IdDivisiPengirim)
+	if err!=nil {
+		return nil, err
+	}
+	PerjalananResult.DivisiPengirim = divPengirim
+
+	vehicle, err := getVeById(ctx, perjalanan.IdTransportasi)
+	if err!=nil {
+		return nil, err
+	}
+	PerjalananResult.Transportasi = vehicle
+	PerjalananResult.Approvers = perjalanan.Approver
+	HistoryTxIds, err := getPELastTxIdById(ctx, perjalanan.ID)
+	if err != nil {
+		return nil, err
+	}
+	PerjalananResult.TxId = HistoryTxIds 
 
 	return &PerjalananResult, nil
+}
+
+func getPELastTxIdById(ctx contractapi.TransactionContextInterface, id string) (string, error) {
+	// logger.Infof("Run getIjzAddApprovalTxIdById function with id: %s.", id)
+
+	resultsIterator, err := ctx.GetStub().GetHistoryForKey(id)
+	if err != nil {
+		return "", fmt.Errorf(err.Error())
+	}
+	defer resultsIterator.Close()
+
+	response, err := resultsIterator.Next()
+	
+	if err != nil {
+		return "", fmt.Errorf(err.Error())
+	}
+	var sh Perjalanan
+	err = json.Unmarshal([]byte(response.Value), &sh)
+	if err != nil {
+		return  "", fmt.Errorf(ER34, err)
+	}
+	if (sh.Approver == "") {
+		return "", nil
+	}
+
+	return response.TxId, nil
+}
+
+func getVeById(ctx contractapi.TransactionContextInterface, idVehicle string) (*Vehicle, error) {
+	// logger.Infof("Run getSpById function with idSp: '%s'.", idSp)
+
+	params := []string{"GetVehicleById", idVehicle}
+	queryArgs := make([][]byte, len(params))
+	for i, arg := range params {
+		queryArgs[i] = []byte(arg)
+	}
+
+	response := ctx.GetStub().InvokeChaincode("vecontract", queryArgs, "carbonchannel")
+	if response.Status != shim.OK {
+		return nil, fmt.Errorf(ER37, "vecontract", response.Message)
+	}
+
+	var ve Vehicle
+	err := json.Unmarshal([]byte(response.Payload), &ve)
+	if err != nil {
+		return nil, fmt.Errorf(ER34, err)
+	}
+
+	return &ve, nil
+}
+
+func getDivById(ctx contractapi.TransactionContextInterface, idDivisi string) (*Divisi, error) {
+	// logger.Infof("Run getSpById function with idSp: '%s'.", idSp)
+
+	params := []string{"GetDivisiById", idDivisi}
+	queryArgs := make([][]byte, len(params))
+	for i, arg := range params {
+		queryArgs[i] = []byte(arg)
+	}
+
+	response := ctx.GetStub().InvokeChaincode("divcontract", queryArgs, "carbonchannel")
+	if response.Status != shim.OK {
+		return nil, fmt.Errorf(ER37, "divcontract", response.Message)
+	}
+
+	var div Divisi
+	err := json.Unmarshal([]byte(response.Payload), &div)
+	if err != nil {
+		return nil, fmt.Errorf(ER34, err)
+	}
+
+	return &div, nil
 }
 func getShipmentStateById(ctx contractapi.TransactionContextInterface, id string) (*Perjalanan, error) {
 
@@ -329,7 +533,7 @@ func (s *SHContract) UpdateShipment(ctx contractapi.TransactionContextInterface)
 		return err
 	}
 
-	emisiKarbon, err := strconv.Atoi(emisiKarbonstr)
+	emisiKarbon, err := strconv.ParseFloat(emisiKarbonstr, 64)
 	if err != nil {
 	}
 
@@ -381,3 +585,40 @@ func (s *SHContract) DeleteShipment(ctx contractapi.TransactionContextInterface)
 
 	return err
 }
+// func (s *SHContract) SeedDb(ctx contractapi.TransactionContextInterface) error {
+// 	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	
+// 	string idPerusahaan := "7f5c4a2b-3e4d-4b8b-9a0a-1e8f9e6f5d0a"
+// 	string idSupplyChain := "8a3e8b6d-2g5d-6b8b-9f5c-2g8f9e6f5d0a"
+// 	for i:=1; i < 100000; i++ {
+// 		perjalanan := Perjalanan{
+// 			ID:               uuid.New(),
+// 			IdPerusahaan: 	  idPerusahaan,
+// 			IdSupplyChain:    idSupplyChain,
+// 			IdDivisiPengirim: uuid.New(),
+// 			IdDivisiPenerima: uuid.New(),
+// 			Status:           "Selesai",
+// 			WaktuBerangkat:   time.Now().Format(time.RFC3339),
+// 			IdTransportasi:   uuid.New(),
+// 			BeratMuatan:      100,
+// 		}
+
+// 		perjalananJSON, err := json.Marshal(perjalanan)
+// 		if err != nil {
+// 			return err
+// 		}
+
+// 		err = ctx.GetStub().PutState(id, perjalananJSON)
+// 		if err != nil {
+// 			fmt.Errorf(err.Error())
+// 		}
+
+// 	}
+// }
+// func RandString(n int) string {
+//     b := make([]byte, n)
+//     for i := range b {
+//         b[i] = letterBytes[rand.Intn(len(letterBytes))]
+//     }
+//     return string(b)
+// }
