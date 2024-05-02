@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon app.js",
-    "start": "PORT=8000 node ./bin/www",
+    "start": "PORT=8000 node app.js",
     "prepare": "cd .. && husky api/.husky",
     "format": "prettier -w .",
     "format:check": "prettier -c ."
