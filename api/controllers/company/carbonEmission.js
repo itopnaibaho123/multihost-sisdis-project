@@ -6,6 +6,15 @@ const getList = async (req, res) => {
   res.status(result.code).send(result)
 }
 
+const GetCEByCompany = async (req, res) => {
+  const result = await carbonEmissionService.getList(
+    req.user,
+    req.params.carbonEmissionId
+  )
+
+  res.status(result.code).send(result)
+}
+
 const getById = async (req, res) => {
   const result = await carbonEmissionService.getById(
     req.user,
@@ -38,4 +47,4 @@ const remove = async (req, res) => {
   res.status(result.code).send(result)
 }
 
-module.exports = { getList, getById, create, update, remove }
+module.exports = { getList, getById, create, update, remove, GetCEByCompany }

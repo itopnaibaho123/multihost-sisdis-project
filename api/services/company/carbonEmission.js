@@ -21,6 +21,27 @@ const getList = async (user, args) => {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
+const GetCEByCompany = async (user, args) => {
+  try {
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'cecontract',
+      user.username
+    )
+    const result = await network.contract.submitTransaction(
+      'GetCEByPerusahaan',
+      args
+    )
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      'Successfully get all carbon emissions',
+      bufferToJson(result)
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
 const getById = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
@@ -94,4 +115,4 @@ const remove = async (user, args) => {
   }
 }
 
-module.exports = { getList, getById, create, update, remove }
+module.exports = { getList, getById, create, update, remove, GetCEByCompany }

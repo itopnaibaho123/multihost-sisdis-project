@@ -30,7 +30,7 @@ type CarbonEmission struct {
 type CarbonEmissionResult struct {
 	ID         	string      	`json:"id"`
 	Perusahaan 	*Perusahaan 	`json:"perusahaan"`
-	TotalEmisi   float64      		`json:"totalEmisi"`
+	TotalEmisi   float64      	`json:"totalEmisi"`
 	Perjalanan  []* Perjalanan 	`json:"perjalanan"`
 }
 
@@ -68,6 +68,24 @@ type Perusahaan struct {
 	SisaKuota           int      `json:"sisaKuota"`
 }
 
+const (
+	ER11 string = "ER11-Incorrect number of arguments. Required %d arguments, but you have %d arguments."
+	ER12        = "ER12-Ijazah with id '%s' already exists."
+	ER13        = "ER13-Ijazah with id '%s' doesn't exist."
+	ER14        = "ER14-Ijazah with id '%s' no longer require approval."
+	ER15        = "ER15-Ijazah with id '%s' already approved by PTK with id '%s'."
+	ER16        = "ER16-Ijazah with id '%s' cannot be approved by PTK with id '%s' in this step."
+	ER31        = "ER31-Failed to change to world state: %v."
+	ER32        = "ER32-Failed to read from world state: %v."
+	ER33        = "ER33-Failed to get result from iterator: %v."
+	ER34        = "ER34-Failed unmarshaling JSON: %v."
+	ER35        = "ER35-Failed parsing string to integer: %v."
+	ER36        = "ER36-Failed parsing string to float: %v."
+	ER37        = "ER37-Failed to query another chaincode (%s): %v."
+	ER41        = "ER41-Access is not permitted with MSDPID '%s'."
+	ER42        = "ER42-Unknown MSPID: '%s'."
+)
+
 // CreateAsset issues a new asset to the world state with given details.
 func (s *CEContract) CreateCE(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
@@ -80,6 +98,7 @@ func (s *CEContract) CreateCE(ctx contractapi.TransactionContextInterface) error
 	idPerusahaan := args[1]
 	emission := args[2]
 	IdPerjalanan := args[3]
+	
 
 	// Convert emission to integer
 	totalEmisi, err := strconv.ParseFloat(emission, 64)
@@ -189,7 +208,7 @@ func (s *CEContract) GetCEById(ctx contractapi.TransactionContextInterface) (*Ca
 }
 
 func (s *CEContract) GetCEByPerusahaan(ctx contractapi.TransactionContextInterface, idPerusahaan string) ([]*CarbonEmission, error) {
-	queryString := fmt.Sprintf(`{"selector":{"idPerusahaan":"%s"}}`, idPerusahaan)
+	queryString := fmt.Sprintf(`{"selector":{"perusahaan":"%s"}}`, idPerusahaan)
 	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
 	if err != nil {
 		return nil, err
@@ -220,9 +239,37 @@ func getCompleteDataCE(ctx contractapi.TransactionContextInterface, carbonEmissi
 	carbonEmissionResult.ID = carbonEmission.ID
 	carbonEmissionResult.TotalEmisi = carbonEmission.TotalEmisi
 	carbonEmissionResult.Perjalanan = []*Perjalanan{}
-	carbonEmissionResult.Perusahaan = nil
+
+	perusahaan, err := GetPerusahaanById(ctx, carbonEmission.IdPerusahaan)
+	if err!=nil {
+		return nil, err
+	}
+	carbonEmissionResult.Perusahaan = perusahaan
 
 	return &carbonEmissionResult, nil
+}
+
+func GetPerusahaanById(ctx contractapi.TransactionContextInterface, idPerusahaan string) (*Perusahaan, error) {
+	// logger.Infof("Run getSpById function with idSp: '%s'.", idSp)
+
+	params := []string{"GetPerusahaanById", idPerusahaan}
+	queryArgs := make([][]byte, len(params))
+	for i, arg := range params {
+		queryArgs[i] = []byte(arg)
+	}
+
+	response := ctx.GetStub().InvokeChaincode("pecontract", queryArgs, "carbonchannel")
+	if response.Status != shim.OK {
+		return nil, fmt.Errorf(ER37, "pecontract", response.Message)
+	}
+
+	var company Perusahaan
+	err := json.Unmarshal([]byte(response.Payload), &company)
+	if err != nil {
+		return nil, fmt.Errorf(ER34, err)
+	}
+
+	return &company, nil
 }
 
 func getCEStateById(ctx contractapi.TransactionContextInterface, id string) (*CarbonEmission, error) {
@@ -247,7 +294,7 @@ func (s *CEContract) UpdateCE(ctx contractapi.TransactionContextInterface) error
 
 	// logger.Infof("Run UpdateKls function with args: %+q.", args)
 
-	if len(args) != 2 {
+	if len(args) != 3 {
 	}
 
 	id := args[0]
