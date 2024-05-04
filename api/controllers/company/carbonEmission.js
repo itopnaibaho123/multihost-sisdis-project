@@ -7,9 +7,9 @@ const getList = async (req, res) => {
 }
 
 const GetCEByCompany = async (req, res) => {
-  const result = await carbonEmissionService.getList(
+  const result = await carbonEmissionService.GetCEByCompany(
     req.user,
-    req.params.carbonEmissionId
+    req.params.companyId
   )
 
   res.status(result.code).send(result)
