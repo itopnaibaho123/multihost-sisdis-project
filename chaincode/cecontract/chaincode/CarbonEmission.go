@@ -37,17 +37,17 @@ type CarbonEmissionResult struct {
 
 type Perjalanan struct {
 	ID                  string   `json:"id"`
+	IdPerusahaan 	 	string   `json:"idPerusahaan"`
 	IdSupplyChain       string   `json:"idSupplyChain"`
 	IdDivisiPengirim    string   `json:"idDivisiPengirim"`
 	IdDivisiPenerima    string   `json:"idDivisiPenerima"`
-	Vote                []string `json:"vote"`
 	Status              string   `json:"status"`
 	WaktuBerangkat      string   `json:"waktuBerangkat"`
 	WaktuSampai         string   `json:"waktuSampai"`
 	IdTransportasi      string   `json:"idTransportasi"`
 	BeratMuatan         string   `json:"beratMuatan"`
 	EmisiKarbon         string   `json:"emisiKarbon"`
-	IdEmisiKarbon	    string   `json:"idEmisiKarbon"`
+	// IdEmisiKarbon	    string   `json:"idEmisiKarbon"`
 }
 
 type Perusahaan struct {
@@ -238,7 +238,19 @@ func getCompleteDataCE(ctx contractapi.TransactionContextInterface, carbonEmissi
 
 	carbonEmissionResult.ID = carbonEmission.ID
 	carbonEmissionResult.TotalEmisi = carbonEmission.TotalEmisi
-	carbonEmissionResult.Perjalanan = []*Perjalanan{}
+
+	perjalanan, err := getAllPerjalanan(ctx, carbonEmission.IdPerjalanan)
+	if err!=nil {
+		return nil, err
+	}
+
+	var perjalananPointers []*Perjalanan
+    for i := range perjalanan {
+        perjalananPointers = append(perjalananPointers, &perjalanan[i])
+    }
+
+	carbonEmissionResult.Perjalanan = perjalananPointers
+
 
 	perusahaan, err := GetPerusahaanById(ctx, carbonEmission.IdPerusahaan)
 	if err!=nil {
@@ -249,6 +261,31 @@ func getCompleteDataCE(ctx contractapi.TransactionContextInterface, carbonEmissi
 	return &carbonEmissionResult, nil
 }
 
+func getAllPerjalanan(ctx contractapi.TransactionContextInterface, perjalanan []string) ([]Perjalanan, error) {
+    var perjalananResult []Perjalanan
+
+    for i := 0; i < len(perjalanan); i++ {
+        params := []string{"GetShipmentByIdNotFull", perjalanan[i]}
+        queryArgs := make([][]byte, len(params))
+        for j, arg := range params {
+            queryArgs[j] = []byte(arg)
+        }
+
+        response := ctx.GetStub().InvokeChaincode("shcontract", queryArgs, "carbonchannel")
+        if response.Status != shim.OK {
+            return nil, fmt.Errorf(ER37, "shcontract", response.Message)
+        }
+
+        var perjalanan Perjalanan
+        err := json.Unmarshal(response.Payload, &perjalanan)
+        if err != nil {
+            return nil, fmt.Errorf(ER34, err)
+        }
+        perjalananResult = append(perjalananResult, perjalanan)
+    }
+
+    return perjalananResult, nil
+}
 func GetPerusahaanById(ctx contractapi.TransactionContextInterface, idPerusahaan string) (*Perusahaan, error) {
 	// logger.Infof("Run getSpById function with idSp: '%s'.", idSp)
 
