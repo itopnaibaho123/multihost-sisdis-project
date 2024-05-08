@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   peer-base:
-    image: hyperledger/fabric-peer:2.4.9
+    image: hyperledger/fabric-peer:2.5.5
     labels:
       service: hyperledger-fabric
     environment:
@@ -43,7 +43,7 @@ services:
       - ../configtx:/etc/hyperledger/config
 
   ca-base:
-    image: hyperledger/fabric-ca:1.5.5
+    image: hyperledger/fabric-ca:1.5.7
     labels:
       service: hyperledger-fabric
     environment:
@@ -54,7 +54,7 @@ services:
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
 
   couchdb-base:
-    image: couchdb:3.1.1
+    image: couchdb:3.3.2
     labels:
       service: hyperledger-fabric
     environment:
