@@ -8,8 +8,8 @@ function runCaContainer() {
   infoln "Starting docker container for Certificate Authority"
   println ""
 
-  CA_COMPOSE_FILES="-f compose/docker-compose-ca.yaml"
-  docker stack deploy -c ${CA_COMPOSE_FILES} carbonservice -d 2>&1
+  CA_COMPOSE_FILES=" -c compose/docker-compose-ca.yaml"
+  docker stack deploy ${CA_COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
@@ -18,8 +18,8 @@ function runHost1CaContainer() {
   infoln "Starting docker container for Certificate Authority"
   println ""
 
-  CA_COMPOSE_FILES="-f compose/docker-compose-host1-ca.yaml"
-  docker stack deploy -c ${CA_COMPOSE_FILES} carbonservice -d 2>&1
+  CA_COMPOSE_FILES="-c compose/docker-compose-host1-ca.yaml"
+  docker stack deploy  ${CA_COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
@@ -28,8 +28,8 @@ function runHost2CaContainer() {
   infoln "Starting docker container for Certificate Authority"
   println ""
 
-  CA_COMPOSE_FILES="-f compose/docker-compose-host2-ca.yaml"
-  docker stack deploy -c ${CA_COMPOSE_FILES} carbonservice -d 2>&1
+  CA_COMPOSE_FILES="-c compose/docker-compose-host2-ca.yaml"
+  docker stack deploy ${CA_COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
@@ -38,8 +38,8 @@ function runOrgContainer() {
   infoln "Starting docker container for All Organizations"
   println ""
 
-  COMPOSE_FILES="-f compose/docker-compose-orderer.yaml -f compose/docker-compose-kemdikbud.yaml -f compose/docker-compose-he1.yaml"
-  docker stack deploy -c ${COMPOSE_FILES} carbonservice -d 2>&1
+  COMPOSE_FILES="-c compose/docker-compose-orderer.yaml -c  compose/docker-compose-kemdikbud.yaml -c compose/docker-compose-he1.yaml"
+  docker stack deploy ${COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
@@ -48,8 +48,8 @@ function runHost1OrgContainer() {
   infoln "Starting docker container for All Organizations"
   println ""
 
-  COMPOSE_FILES="-f compose/docker-compose-host1-orderer.yaml -f compose/docker-compose-host1-kementrian.yaml"
-  docker stack deploy -c ${COMPOSE_FILES} carbonservice -d 2>&1
+  COMPOSE_FILES="-c compose/docker-compose-host1-orderer.yaml -c compose/docker-compose-host1-kementrian.yaml"
+  docker stack deploy ${COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
@@ -58,8 +58,8 @@ function runHost2OrgContainer() {
   infoln "Starting docker container for All Organizations"
   println ""
 
-  COMPOSE_FILES="-f compose/docker-compose-host2-supplychain.yaml"
-  docker stack deploy -c ${COMPOSE_FILES} carbonservice -d 2>&1
+  COMPOSE_FILES="-c compose/docker-compose-host2-supplychain.yaml"
+  docker stack deploy ${COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
@@ -68,8 +68,8 @@ function runHost3OrgContainer() {
   infoln "Starting docker container for All Organizations"
   println ""
 
-  COMPOSE_FILES="-f compose/docker-compose-host3-supplychain.yaml"
-  docker stack deploy -c ${COMPOSE_FILES} carbonservice -d 2>&1
+  COMPOSE_FILES="-c compose/docker-compose-host3-supplychain.yaml"
+  docker stack deploy ${COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
