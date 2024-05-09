@@ -20,7 +20,7 @@ services:
     networks:
       - supply_chain_carbon
 
-  peer1.supplychain:
+  peer1.supplychain.example.com:
     container_name: peer1.supplychain.example.com
     extends:
       file: docker-compose-base.yaml
@@ -43,9 +43,9 @@ services:
     depends_on:
       - couchdb2
     volumes:
-      - ../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com:/etc/hyperledger/fabric
-      - ../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/msp:/etc/hyperledger/fabric/msp
-      - ../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/tls:/etc/hyperledger/fabric/tls
+      - ../../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com:/etc/hyperledger/fabric
+      - ../../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/msp:/etc/hyperledger/fabric/msp
+      - ../../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/tls:/etc/hyperledger/fabric/tls
       - peer1.supplychain.example.com:/var/hyperledger/production
     command: peer node start
     ports:
@@ -69,10 +69,10 @@ services:
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
-      - ../organizations:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
-      - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
-      - ../configtx:/etc/hyperledger/config
+      - ../../organizations:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
+      - ../../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+      - ../../config:/etc/hyperledger/config
     depends_on:
-      - peer1.supplychain
+      - peer1.supplychain.example.com
     networks:
       - supply_chain_carbon

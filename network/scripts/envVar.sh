@@ -36,7 +36,7 @@ setGlobals() {
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/kementrian.example.com/users/Admin@kementrian.example.com/msp
     export CORE_PEER_ADDRESS="10.184.0.5:7051"
     export PEER_NUMBER="0"
-    export PEER_NAME="peer0.kementrian"
+    export PEER_NAME="peer0.kementrian.example.com"
   elif [ $USING_ORG = 'supplychain' ]; then
     export CORE_PEER_LOCALMSPID="SupplyChainMSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_SUPPLYCHAIN_CA
@@ -48,14 +48,14 @@ setGlobals() {
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/supplychain.example.com/users/Admin@supplychain.example.com/msp
     export CORE_PEER_ADDRESS="10.184.0.6:9051"
     export PEER_NUMBER="0"
-    export PEER_NAME="peer0.supplychain"
+    export PEER_NAME="peer0.supplychain.example.com"
   elif [ $USING_ORG = 'supplychainp1' ]; then
     export CORE_PEER_LOCALMSPID="SupplyChainMSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER1_SUPPLYCHAIN_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/supplychain.example.com/users/Admin@supplychain.example.com/msp
     export CORE_PEER_ADDRESS="10.184.0.7:9051"
     export PEER_NUMBER="1"
-    export PEER_NAME="peer1.supplychain"
+    export PEER_NAME="peer1.supplychain.example.com"
   elif [ $USING_ORG -eq 3 ]; then
     export CORE_PEER_LOCALMSPID="Org3MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG3_CA

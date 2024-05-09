@@ -20,7 +20,7 @@ services:
     networks:
       - supply_chain_carbon
 
-  peer0.kementrian:
+  peer0.kementrian.example.com:
     container_name: peer0.kementrian.example.com
     extends:
       file: docker-compose-base.yaml
@@ -43,9 +43,9 @@ services:
     depends_on:
       - couchdb0
     volumes:
-      - ../organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com:/etc/hyperledger/fabric
-      - ../organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com/msp:/etc/hyperledger/fabric/msp
-      - ../organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com/tls:/etc/hyperledger/fabric/tls
+      - ../../organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com:/etc/hyperledger/fabric
+      - ../../organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com/msp:/etc/hyperledger/fabric/msp
+      - ../../organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com/tls:/etc/hyperledger/fabric/tls
       - peer0.kementrian.example.com:/var/hyperledger/production
     command: peer node start
     ports:
@@ -56,7 +56,7 @@ services:
 
   cli:
     container_name: cli
-    image: hyperledger/fabric-tools:2.4.9
+    image: hyperledger/fabric-tools:2.5.5
     labels:
       service: hyperledger-fabric
     tty: true
@@ -69,10 +69,10 @@ services:
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
-      - ../organizations:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
-      - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
-      - ../configtx:/etc/hyperledger/config
+      - ../../organizations:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
+      - ../../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+      - ../../config:/etc/hyperledger/config
     depends_on:
-      - peer0.kementrian
+      - peer0.kementrian.example.com
     networks:
       - supply_chain_carbon
