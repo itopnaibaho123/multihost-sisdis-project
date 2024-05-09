@@ -22,15 +22,15 @@ while [[ $# -ge 2 ]]; do
     shift 2
 done
 
-if [$HOST != "NA"]; then
+if ["$HOST" != "NA"]; then
 ./network.sh up -ca -s couchdb -host $HOST
 fi
 
-if [$CHANNELSTEP != "NA"]; then
+if ["$CHANNELSTEP" != "NA"]; then
     ./network.sh createChannel -ccstep $CHANNELSTEP
 fi
 
-if [$DEPLOYCCSTEP != "NA"]; then
+if ["$DEPLOYCCSTEP" != "NA"]; then
     ./network.sh deployCC -ccn cecontract   -ccp ../chaincode/cecontract   -ccl go -ccstep $DEPLOYCCSTEP
     ./network.sh deployCC -ccn cspcontract  -ccp ../chaincode/cspcontract  -ccl go -ccstep $DEPLOYCCSTEP
     ./network.sh deployCC -ccn ctcontract   -ccp ../chaincode/ctcontract   -ccl go -ccstep $DEPLOYCCSTEP
