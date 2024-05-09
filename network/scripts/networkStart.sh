@@ -9,7 +9,7 @@ function runCaContainer() {
   println ""
 
   CA_COMPOSE_FILES="-f compose/docker-compose-ca.yaml"
-  docker-compose ${CA_COMPOSE_FILES} up -d 2>&1
+  docker stack deploy -c ${CA_COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
@@ -19,7 +19,7 @@ function runHost1CaContainer() {
   println ""
 
   CA_COMPOSE_FILES="-f compose/docker-compose-host1-ca.yaml"
-  docker-compose ${CA_COMPOSE_FILES} up -d 2>&1
+  docker stack deploy -c ${CA_COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
@@ -29,7 +29,7 @@ function runHost2CaContainer() {
   println ""
 
   CA_COMPOSE_FILES="-f compose/docker-compose-host2-ca.yaml"
-  docker-compose ${CA_COMPOSE_FILES} up -d 2>&1
+  docker stack deploy -c ${CA_COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
@@ -39,7 +39,7 @@ function runOrgContainer() {
   println ""
 
   COMPOSE_FILES="-f compose/docker-compose-orderer.yaml -f compose/docker-compose-kemdikbud.yaml -f compose/docker-compose-he1.yaml"
-  docker-compose ${COMPOSE_FILES} up -d 2>&1
+  docker stack deploy -c ${COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
@@ -49,7 +49,7 @@ function runHost1OrgContainer() {
   println ""
 
   COMPOSE_FILES="-f compose/docker-compose-host1-orderer.yaml -f compose/docker-compose-host1-kementrian.yaml"
-  docker-compose ${COMPOSE_FILES} up -d 2>&1
+  docker stack deploy -c ${COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
@@ -59,7 +59,7 @@ function runHost2OrgContainer() {
   println ""
 
   COMPOSE_FILES="-f compose/docker-compose-host2-supplychain.yaml"
-  docker-compose ${COMPOSE_FILES} up -d 2>&1
+  docker stack deploy -c ${COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
@@ -69,7 +69,7 @@ function runHost3OrgContainer() {
   println ""
 
   COMPOSE_FILES="-f compose/docker-compose-host3-supplychain.yaml"
-  docker-compose ${COMPOSE_FILES} up -d 2>&1
+  docker stack deploy -c ${COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
