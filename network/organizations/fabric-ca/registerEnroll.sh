@@ -56,7 +56,7 @@ function createKementrian() {
 
   infoln "Generating the peer0 msp"
   set -x
-  fabric-ca-client enroll -u https://peer0:peer0pw@10.184.0.5:7054 --caname ca-kementrian -M "${PWD}/organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/kementrian/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@10.184.0.5:7054 --caname ca-kementrian -M "${PWD}/organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com/msp" --csr.hosts peer0.kementrian.example.com  --tls.certfiles "${PWD}/organizations/fabric-ca/kementrian/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/peerOrganizations/kementrian.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com/msp/config.yaml"
@@ -142,7 +142,7 @@ function createSupplyChain() {
 
   infoln "Generating the peer0 msp"
   set -x
-  fabric-ca-client enroll -u https://peer0:peer0pw@10.184.0.6:8054 --caname ca-supplychain -M "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/supplychain/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@10.184.0.6:8054 --caname ca-supplychain -M "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/msp" --csr.hosts peer0.supplychain.example.com  --tls.certfiles "${PWD}/organizations/fabric-ca/supplychain/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/peerOrganizations/supplychain.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/msp/config.yaml"
@@ -150,6 +150,18 @@ function createSupplyChain() {
   infoln "Generating the peer0-tls certificates, use --csr.hosts to specify Subject Alternative Names"
   set -x
   fabric-ca-client enroll -u https://peer0:peer0pw@10.184.0.6:8054 --caname ca-supplychain -M "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/tls" --enrollment.profile tls --csr.hosts peer0.supplychain.example.com --csr.hosts 10.184.0.6 --tls.certfiles "${PWD}/organizations/fabric-ca/supplychain/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
+  infoln "Generating the peer1 msp"
+  set -x
+  fabric-ca-client enroll -u https://peer1:peer1pw@10.184.0.6:8054 --caname ca-supplychain -M "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/msp" --csr.hosts peer1.supplychain.example.com  --tls.certfiles "${PWD}/organizations/fabric-ca/supplychain/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
+  cp "${PWD}/organizations/peerOrganizations/supplychain.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/msp/config.yaml"
+
+  infoln "Generating the peer1-tls certificates, use --csr.hosts to specify Subject Alternative Names"
+  set -x
+  fabric-ca-client enroll -u https://peer1:peer1pw@10.184.0.6:8054 --caname ca-supplychain -M "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/tls" --enrollment.profile tls --csr.hosts peer1.supplychain.example.com --csr.hosts 10.184.0.7 --tls.certfiles "${PWD}/organizations/fabric-ca/supplychain/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   # Copy the tls CA cert, server cert, server keystore to well known file names in the peer's tls directory that are referenced by peer startup config
@@ -219,7 +231,7 @@ function createOrderer() {
 
   infoln "Generating the orderer msp"
   set -x
-  fabric-ca-client enroll -u https://orderer:ordererpw@10.184.0.5:9054 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
+  fabric-ca-client enroll -u https://orderer:ordererpw@10.184.0.5:9054 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp" --csr.hosts orderer.example.com  --csr.hosts 10.184.0.5 --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/ordererOrganizations/example.com/msp/config.yaml" "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/config.yaml"
