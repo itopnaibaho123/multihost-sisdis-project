@@ -8,7 +8,7 @@ function runCaContainer() {
   infoln "Starting docker container for Certificate Authority"
   println ""
 
-  CA_COMPOSE_FILES=" -c compose/docker-compose-ca.yaml"
+  CA_COMPOSE_FILES=" -c compose/multi-host/docker-compose-ca.yaml"
   docker stack deploy ${CA_COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
@@ -18,7 +18,7 @@ function runHost1CaContainer() {
   infoln "Starting docker container for Certificate Authority"
   println ""
 
-  CA_COMPOSE_FILES="-c compose/docker-compose-host1-ca.yaml"
+  CA_COMPOSE_FILES="-c compose/multi-host/docker-compose-host1-ca.yaml"
   docker stack deploy  ${CA_COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
@@ -28,27 +28,19 @@ function runHost2CaContainer() {
   infoln "Starting docker container for Certificate Authority"
   println ""
 
-  CA_COMPOSE_FILES="-c compose/docker-compose-host2-ca.yaml"
+  CA_COMPOSE_FILES="-c compose/multi-host/docker-compose-host2-ca.yaml"
   docker stack deploy ${CA_COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
 }
 
-function runOrgContainer() {
-  infoln "Starting docker container for All Organizations"
-  println ""
-
-  COMPOSE_FILES="-c compose/docker-compose-orderer.yaml -c  compose/docker-compose-kemdikbud.yaml -c compose/docker-compose-he1.yaml"
-  docker stack deploy ${COMPOSE_FILES} carbonservice -d 2>&1
-
-  println ""
-}
 
 function runHost1OrgContainer() {
+  echo $PWD
   infoln "Starting docker container for All Organizations"
   println ""
 
-  COMPOSE_FILES="-c compose/docker-compose-host1-orderer.yaml -c compose/docker-compose-host1-kementrian.yaml"
+  COMPOSE_FILES="-c compose/multi-host/docker-compose-host1-orderer.yaml -c compose/multi-host/docker-compose-host1-kementrian.yaml"
   docker stack deploy ${COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
@@ -58,7 +50,7 @@ function runHost2OrgContainer() {
   infoln "Starting docker container for All Organizations"
   println ""
 
-  COMPOSE_FILES="-c compose/docker-compose-host2-supplychain.yaml"
+  COMPOSE_FILES="-c compose/multi-host/docker-compose-host2-supplychain.yaml"
   docker stack deploy ${COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
@@ -68,7 +60,7 @@ function runHost3OrgContainer() {
   infoln "Starting docker container for All Organizations"
   println ""
 
-  COMPOSE_FILES="-c compose/docker-compose-host3-supplychain.yaml"
+  COMPOSE_FILES="-c compose/multi-host/docker-compose-host3-supplychain.yaml"
   docker stack deploy ${COMPOSE_FILES} carbonservice -d 2>&1
 
   println ""
