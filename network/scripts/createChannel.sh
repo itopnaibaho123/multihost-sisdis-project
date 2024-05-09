@@ -53,11 +53,7 @@ createChannel() {
 		sleep $DELAY
 		set -x
     . scripts/orderer.sh ${CHANNEL_NAME}> /dev/null 2>&1
-    if [ $bft_true -eq 1 ]; then
-      . scripts/orderer2.sh ${CHANNEL_NAME}> /dev/null 2>&1
-      . scripts/orderer3.sh ${CHANNEL_NAME}> /dev/null 2>&1
-      . scripts/orderer4.sh ${CHANNEL_NAME}> /dev/null 2>&1
-    fi
+    
 		res=$?
 		{ set +x; } 2>/dev/null
 		let rc=$res
@@ -107,24 +103,74 @@ infoln "Generating channel genesis block '${CHANNEL_NAME}.block'"
 if [ $BFT -eq 1 ]; then
   FABRIC_CFG_PATH=${PWD}/bft-config
 fi
-createChannelGenesisBlock $BFT
 
 
-## Create channel
-infoln "Creating channel ${CHANNEL_NAME}"
-createChannel $BFT
-successln "Channel '$CHANNEL_NAME' created"
 
-## Join all the peers to the channel
-infoln "Joining kementrian peer to the channel..."
-joinChannel 'kementrian'
-infoln "Joining supplychain peer to the channel..."
-joinChannel 'supplychain'
 
-## Set the anchor peers for each org in the channel
-infoln "Setting anchor peer for kementrian..."
-setAnchorPeer 'kementrian'
-infoln "Setting anchor peer for supplychain..."
-setAnchorPeer 'supplychain'
 
-successln "Channel '$CHANNEL_NAME' joined"
+joinChannelH1() {
+  # Join the peers to the channel
+
+  infoln "Generating channel genesis block '${CHANNEL_NAME}.block'"
+  createChannelGenesisBlock $BFT
+
+  successln "Genesis block created"
+
+  infoln "Creating channel ${CHANNEL_NAME}"
+  createChannel 
+  successln "Channel '$CHANNEL_NAME' created"
+
+  infoln "Joining kemdikbud peer to the channel..."
+  joinChannel 'kementrianp0'
+
+  successln "Success Join Channel '$CHANNEL_NAME'"
+
+  infoln "Setting anchor peer"
+  setAnchorPeer 'kementrianp0'
+
+  successln "Success Set Anchor Peer"
+}
+
+joinChannelH2() {
+  # Join the peers to the channel
+  infoln "Joining kemdikbud peer to the channel..."
+  joinChannel 'supplychainp0'
+
+  successln "Success Join Channel '$CHANNEL_NAME'"
+
+  infoln "Setting anchor peer"
+  setAnchorPeer 'supplychainp0'
+
+  successln "Success Set Anchor Peer"
+}
+
+joinChannelH3() {
+  # Join the peers to the channel
+  infoln "Joining kemdikbud peer to the channel..."
+  joinChannel 'supplychainp1'
+
+  successln "Success Join Channel '$CHANNEL_NAME'"
+  infoln "Setting anchor peer"
+  setAnchorPeer 'supplychainp1'
+
+  successln "Success Set Anchor Peer"
+}
+
+# ## Create channel
+# infoln "Creating channel ${CHANNEL_NAME}"
+# createChannel $BFT
+# successln "Channel '$CHANNEL_NAME' created"
+
+# ## Join all the peers to the channel
+# infoln "Joining kementrian peer to the channel..."
+# joinChannel 'kementrian'
+# infoln "Joining supplychain peer to the channel..."
+# joinChannel 'supplychain'
+
+# ## Set the anchor peers for each org in the channel
+# infoln "Setting anchor peer for kementrian..."
+# setAnchorPeer 'kementrian'
+# infoln "Setting anchor peer for supplychain..."
+# setAnchorPeer 'supplychain'
+
+# successln "Channel '$CHANNEL_NAME' joined"

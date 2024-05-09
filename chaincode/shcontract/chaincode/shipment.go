@@ -26,8 +26,8 @@ type Perjalanan struct {
 	WaktuSampai      string   `json:"waktuSampai"`
 	IdTransportasi   string   `json:"idTransportasi"`
 	BeratMuatan      int      `json:"beratMuatan"`
-	EmisiKarbon      float64      `json:"emisiKarbon"`
-	Approver		 string  `json:"approver"`
+	EmisiKarbon      float64  `json:"emisiKarbon"`
+	Approver		 string   `json:"approver"`
 }
 
 type PerjalananResult struct {
@@ -380,6 +380,21 @@ func (s *SHContract) GetShipmentById(ctx contractapi.TransactionContextInterface
 	}
 
 	return PerjalananResult, nil
+}
+
+func (s *SHContract) GetShipmentByIdNotFull(ctx contractapi.TransactionContextInterface) (*Perjalanan, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	if len(args) != 1 {
+	}
+	id := args[0]
+	perjalanan, err := getShipmentStateById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	
+
+	return perjalanan, nil
 }
 
 func getCompleteDataShipment(ctx contractapi.TransactionContextInterface, perjalanan *Perjalanan) (*PerjalananResult, error) {

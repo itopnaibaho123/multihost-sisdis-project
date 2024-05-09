@@ -69,43 +69,116 @@ function checkPrereqs() {
 checkPrereqs
 
 ## package the chaincode
-./scripts/packageCC.sh $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION 
 
-PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid ${CC_NAME}.tar.gz)
+
+
+
+if [ "$DEPLOYCCSTEP" == "h11" ]; then
+  #check for prerequisites
+  
+
+  # package the chaincode
+  ./scripts/packageCC.sh $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION 
+  PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid ${CC_NAME}.tar.gz)
+
+  ## Install chaincode on peer0.kemdikbud
+  infoln "Installing chaincode on peer0.kementrian..."
+  installChaincode "kementrianp0"
+  resolveSequence
+  ## query whether the chaincode is installed
+  queryInstalled "kementrianp0"
+
+  ## approve the definition for peer0.kemdikbud
+  approveForMyOrg "kementrianp0"
+
+elif [ "$DEPLOYCCSTEP" == "h21" ]; then
+  #check for prerequisites
+  
+  ./scripts/packageCC.sh $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION 
+  PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid ${CC_NAME}.tar.gz)
+  # package the chaincode
+  
+
+  ## Install chaincode on peer0.he1
+  infoln "Install chaincode on peer0.supplychainp0..."
+  installChaincode "supplychainp0"
+  resolveSequence
+  ## query whether the chaincode is installed
+  queryInstalled "supplychainp0"
+
+  ## approve the definition for peer0.he1
+  approveForMyOrg "supplychainp0"
+
+elif [ "$DEPLOYCCSTEP" == "h31" ]; then
+  #check for prerequisites
+  
+
+  # package the chaincode
+  ./scripts/packageCC.sh $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION 
+  PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid ${CC_NAME}.tar.gz)
+
+  ## Install chaincode on peer0.he1
+  infoln "Install chaincode on peer1.supplychain..."
+  installChaincode "supplychainp1"
+  resolveSequence
+  ## query whether the chaincode is installed
+  queryInstalled "supplychainp1"
+
+  # ## approve the definition for peer1.he1
+  # approveForMyOrg "he1p1"
+
+elif [ "$DEPLOYCCSTEP" == "h12" ]; then
+  ## now that we know for sure both orgs have approved, commit the definition
+  commitChaincodeDefinition "kementrianp0" "supplychainp0" "supplychainp1"
+
+  ## query on both orgs to see that the definition committed successfully
+  queryCommitted "kementrianp0"
+
+elif [ "$DEPLOYCCSTEP" == "h22" ]; then
+  ## query on both orgs to see that the definition committed successfully
+  queryCommitted "supplychainp0"
+
+elif [ "$DEPLOYCCSTEP" == "h32" ]; then
+  ## query on both orgs to see that the definition committed successfully
+  queryCommitted "supplychainp1"
+
+
+fi
+
 
 ## Install chaincode on peer0.kementrian and peer0.supplychain
-infoln "Installing chaincode on peer0.kementrian..."
-installChaincode 'kementrian'
-infoln "Install chaincode on peer0.supplychain..."
-installChaincode 'supplychain'
+# infoln "Installing chaincode on peer0.kementrian..."
+# installChaincode 'kementrian'
+# infoln "Install chaincode on peer0.supplychain..."
+# installChaincode 'supplychain'
 
-resolveSequence
+
 
 ## query whether the chaincode is installed
-queryInstalled 'kementrian'
+# queryInstalled 'kementrian'
 
 ## approve the definition for kementrian
-approveForMyOrg 'kementrian'
+# approveForMyOrg 'kementrian'
 
 ## check whether the chaincode definition is ready to be committed
 ## expect kementrian to have approved and supplychain not to
-checkCommitReadiness 'kementrian' "\"KementrianMSP\": true" "\"SupplyChainMSP\": false"
-checkCommitReadiness 'supplychain' "\"KementrianMSP\": true" "\"SupplyChainMSP\": false"
+# checkCommitReadiness 'kementrian' "\"KementrianMSP\": true" "\"SupplyChainMSP\": false"
+# checkCommitReadiness 'supplychain' "\"KementrianMSP\": true" "\"SupplyChainMSP\": false"
 
 ## now approve also for supplychain
-approveForMyOrg 'supplychain'
+# approveForMyOrg 'supplychain'
 
 ## check whether the chaincode definition is ready to be committed
 ## expect them both to have approved
-checkCommitReadiness 'kementrian' "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
-checkCommitReadiness 'supplychain' "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
+# checkCommitReadiness 'kementrian' "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
+# checkCommitReadiness 'supplychain' "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
 
 ## now that we know for sure both orgs have approved, commit the definition
-commitChaincodeDefinition 'kementrian' 'supplychain'
+# commitChaincodeDefinition 'kementrian' 'supplychain'
 
 ## query on both orgs to see that the definition committed successfully
-queryCommitted 'kementrian'
-queryCommitted 'supplychain'
+# queryCommitted 'kementrian'
+# queryCommitted 'supplychain'
 
 ## Invoke the chaincode - this does require that the chaincode have the 'initLedger'
 ## method defined

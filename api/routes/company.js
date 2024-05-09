@@ -135,9 +135,9 @@ companyRouter.post(
 
 // CARBON EMISSION
 companyRouter.get(
-  '/carbon_emission/:companyId',
+  '/carbon_emission/perusahaan/:companyId',
   auth.verifyToken,
-  carbonEmissionController.getList
+  carbonEmissionController.GetCEByCompany
 )
 
 companyRouter.get(

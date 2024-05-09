@@ -21,6 +21,45 @@ const getList = async (user, args) => {
     return iResp.buildErrorResponse(500, 'Something wrong', error.message)
   }
 }
+const GetCEByCompany = async (user, args) => {
+  try {
+    const network = await fabric.connectToNetwork(
+      user.organizationName,
+      'cecontract',
+      user.username
+    )
+    const result = JSON.parse(
+      await network.contract.submitTransaction('GetCEByPerusahaan', args)
+    )
+    const shNetwork = await fabric.connectToNetwork(
+      user.organizationName,
+      'shcontract',
+      user.username
+    )
+    const listPerjalanan = []
+    for (let i = 0; i < result[0].perjalanan.length; i++) {
+      const perjalanan = JSON.parse(
+        await shNetwork.contract.submitTransaction(
+          'GetShipmentByIdNotFull',
+          result[0].perjalanan[i]
+        )
+      )
+
+      listPerjalanan.push(perjalanan)
+    }
+
+    result[0].perjalanan = listPerjalanan
+    shNetwork.gateway.disconnect()
+    network.gateway.disconnect()
+    return iResp.buildSuccessResponse(
+      200,
+      'Successfully get all carbon emissions',
+      result
+    )
+  } catch (error) {
+    return iResp.buildErrorResponse(500, 'Something wrong', error.message)
+  }
+}
 const getById = async (user, args) => {
   try {
     const network = await fabric.connectToNetwork(
@@ -94,4 +133,4 @@ const remove = async (user, args) => {
   }
 }
 
-module.exports = { getList, getById, create, update, remove }
+module.exports = { getList, getById, create, update, remove, GetCEByCompany }

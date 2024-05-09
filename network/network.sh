@@ -90,18 +90,7 @@ function checkPrereqs() {
     fi
   done
 
-  ## check for cfssl binaries
-  if [ "$CRYPTO" == "cfssl" ]; then
-  
-    cfssl version > /dev/null 2>&1
-    if [[ $? -ne 0 ]]; then
-      errorln "cfssl binary not found.."
-      errorln
-      errorln "Follow the instructions to install the cfssl and cfssljson binaries:"
-      errorln "https://github.com/cloudflare/cfssl#installation"
-      exit 1
-    fi
-  fi
+ 
 
   ## Check for fabric-ca
   if [ "$CRYPTO" == "Certificate Authorities" ]; then
@@ -156,37 +145,108 @@ function createOrgs() {
   fi
 
   # Create crypto material using Fabric CA
-  if [ "$CRYPTO" == "Certificate Authorities" ]; then
-    infoln "Generating certificates using Fabric CA"
-    ${CONTAINER_CLI_COMPOSE} -f compose/$COMPOSE_FILE_CA -f compose/$CONTAINER_CLI/${CONTAINER_CLI}-$COMPOSE_FILE_CA up -d 2>&1
+  # if [ "$CRYPTO" == "Certificate Authorities" ]; then
+    # infoln "Generating certificates using Fabric CA"
+    # ${CONTAINER_CLI_COMPOSE} -f compose/$COMPOSE_FILE_CA -f compose/$CONTAINER_CLI/${CONTAINER_CLI}-$COMPOSE_FILE_CA up -d 2>&1
 
-    . organizations/fabric-ca/registerEnroll.sh
+    # . organizations/fabric-ca/registerEnroll.sh
+    if [$HOST == "h1"]; then
+      networkUpHost1
+    elif [$HOST == "h2"]; then
+      networkUpHost2
+    elif [$HOST == "h3"]; then
+      networkUpHost3
+    elif [$HOST == "ca1"]; then
+      networkCAUpHost1
+    elif [$HOST == "ca2"]; then
+      networkCAUpHost2
+    fi
 
-    while :
-    do
-      if [ ! -f "organizations/fabric-ca/kementrian/tls-cert.pem" ]; then
-        sleep 1
-      else
-        break
-      fi
-    done
+  # fi
 
-    infoln "Creating Kementrian Identities"
+  # infoln "Generating CCP files for Kementrian and SupplyChain"
+  # ./organizations/ccp-generate.sh
+}
 
-    createKementrian
+function networkCAUpHost1() {
+  checkPrereqs
 
-    infoln "Creating SupplyChain Identities"
+  . scripts/networkStart.sh
 
-    createSupplyChain
+  startCAHost1 "syschannel"
+  println ""
 
-    infoln "Creating Orderer Org Identities"
+  println "###########################################################################"
+  infoln "Generating CCP files for Kementrian"
+  ./organizations/ccp-generate-kementrian.sh
+  println ""
 
-    createOrderer
-
+  $CONTAINER_CLI ps -a
+  if [ $? -ne 0 ]; then
+    fatalln "Unable to start network"
   fi
+}
 
-  infoln "Generating CCP files for Kementrian and SupplyChain"
-  ./organizations/ccp-generate.sh
+function networkCAUpHost2() {
+  checkPrereqs
+
+  . scripts/networkStart.sh
+
+  startCAHost2 "syschannel"
+  println ""
+
+  println "###########################################################################"
+  infoln "Generating CCP files for SupplyChain"
+  ./organizations/ccp-generate-supplychain.sh
+  println ""
+
+  $CONTAINER_CLI ps -a
+  if [ $? -ne 0 ]; then
+    fatalln "Unable to start network"
+  fi
+}
+
+
+function networkUpHost1() {
+  checkPrereqs
+
+  . scripts/networkStart.sh
+
+  startNetworkHost1 "syschannel"
+  println ""
+
+  $CONTAINER_CLI ps -a
+  if [ $? -ne 0 ]; then
+    fatalln "Unable to start network"
+  fi
+}
+
+function networkUpHost2() {
+  checkPrereqs
+
+  . scripts/networkStart.sh
+
+  startNetworkHost2 "syschannel"
+  println ""
+
+  $CONTAINER_CLI ps -a
+  if [ $? -ne 0 ]; then
+    fatalln "Unable to start network"
+  fi
+}
+
+function networkUpHost3() {
+  checkPrereqs
+
+  . scripts/networkStart.sh
+
+  startNetworkHost3 "syschannel"
+  println ""
+
+  $CONTAINER_CLI ps -a
+  if [ $? -ne 0 ]; then
+    fatalln "Unable to start network"
+  fi
 }
 
 # Once you create the organization crypto material, you need to create the
@@ -225,13 +285,13 @@ function networkUp() {
     createOrgs
   fi
 
-  COMPOSE_FILES="-f compose/${COMPOSE_FILE_BASE} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
+  # COMPOSE_FILES="-f compose/${COMPOSE_FILE_BASE} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
 
-  if [ "${DATABASE}" == "couchdb" ]; then
-    COMPOSE_FILES="${COMPOSE_FILES} -f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
-  fi
+  # if [ "${DATABASE}" == "couchdb" ]; then
+  #   COMPOSE_FILES="${COMPOSE_FILES} -f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
+  # fi
 
-  DOCKER_SOCK="${DOCKER_SOCK}" ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} up -d 2>&1
+  # DOCKER_SOCK="${DOCKER_SOCK}" ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} up -d 2>&1
 
   $CONTAINER_CLI ps -a
   if [ $? -ne 0 ]; then
@@ -255,12 +315,13 @@ function createChannel() {
   CONTAINERS=($($CONTAINER_CLI ps | grep hyperledger/ | awk '{print $2}'))
   len=$(echo ${#CONTAINERS[@]})
 
-  if [[ $len -ge 4 ]] && [[ ! -d "organizations/peerOrganizations" ]]; then
-    echo "Bringing network down to sync certs with containers"
-    networkDown
-  fi
+  # if [[ $len -ge 4 ]] && [[ ! -d "organizations/peerOrganizations" ]]; then
+  #   echo "Bringing network down to sync certs with containers"
+  #   networkDown
+  # fi
 
-  [[ $len -lt 4 ]] || [[ ! -d "organizations/peerOrganizations" ]] && bringUpNetwork="true" || echo "Network Running Already"
+
+  # [[ $len -lt 4 ]] || [[ ! -d "organizations/peerOrganizations" ]] && bringUpNetwork="true" || echo "Network Running Already"
 
   if [ $bringUpNetwork == "true"  ]; then
     infoln "Bringing up network"
@@ -269,13 +330,24 @@ function createChannel() {
 
   # now run the script that creates a channel. This script uses configtxgen once
   # to create the channel creation transaction and the anchor peer updates.
-  scripts/createChannel.sh $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE $bft_true
+  # scripts/createChannel.sh $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE $bft_true
+  . scripts/createChannel.sh 
+  if [ "$CHANNELSTEP" == "joinh1" ]; then
+    joinChannelH1 $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE $bft_true
+    println ""
+  elif [ "$CHANNELSTEP" == "joinh2" ]; then
+    joinChannelH2 $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE $bft_true
+    println ""
+  elif [ "$CHANNELSTEP" == "joinh3" ]; then
+    joinChannelH3 $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE $bft_true
+    println ""
+  fi
 }
 
 
 ## Call the script to deploy a chaincode to the channel
 function deployCC() {
-  scripts/deployCC.sh $CHANNEL_NAME $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION $CC_SEQUENCE $CC_INIT_FCN $CC_END_POLICY $CC_COLL_CONFIG $CLI_DELAY $MAX_RETRY $VERBOSE
+  scripts/deployCC.sh $CHANNEL_NAME $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION $CC_SEQUENCE $CC_INIT_FCN $CC_END_POLICY $CC_COLL_CONFIG $CLI_DELAY $MAX_RETRY $VERBOSE $DEPLOYCCSTEP
 
   if [ $? -ne 0 ]; then
     fatalln "Deploying chaincode failed"
@@ -284,7 +356,7 @@ function deployCC() {
 
 ## Call the script to deploy a chaincode to the channel
 function deployCCAAS() {
-  scripts/deployCCAAS.sh $CHANNEL_NAME $CC_NAME $CC_SRC_PATH $CCAAS_DOCKER_RUN $CC_VERSION $CC_SEQUENCE $CC_INIT_FCN $CC_END_POLICY $CC_COLL_CONFIG $CLI_DELAY $MAX_RETRY $VERBOSE $CCAAS_DOCKER_RUN
+  scripts/deployCCAAS.sh $CHANNEL_NAME $CC_NAME $CC_SRC_PATH $CCAAS_DOCKER_RUN $CC_VERSION $CC_SEQUENCE $CC_INIT_FCN $CC_END_POLICY $CC_COLL_CONFIG $CLI_DELAY $MAX_RETRY $VERBOSE $CCAAS_DOCKER_RUN $DEPLOYCCSTEP
 
   if [ $? -ne 0 ]; then
     fatalln "Deploying chaincode-as-a-service failed"
@@ -353,23 +425,28 @@ function queryChaincode() {
 
 # Tear down running network
 function networkDown() {
-  local temp_compose=$COMPOSE_FILE_BASE
-  COMPOSE_FILE_BASE=compose-bft-test-net.yaml
-  COMPOSE_BASE_FILES="-f compose/${COMPOSE_FILE_BASE} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
-  COMPOSE_COUCH_FILES="-f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
-  COMPOSE_CA_FILES="-f compose/${COMPOSE_FILE_CA} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_CA}"
-  COMPOSE_FILES="${COMPOSE_BASE_FILES} ${COMPOSE_COUCH_FILES} ${COMPOSE_CA_FILES}"
+  # local temp_compose=$COMPOSE_FILE_BASE
+  # COMPOSE_FILE_BASE=compose-bft-test-net.yaml
+  # COMPOSE_BASE_FILES="-f compose/${COMPOSE_FILE_BASE} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
+  # COMPOSE_COUCH_FILES="-f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
+  # COMPOSE_CA_FILES="-f compose/${COMPOSE_FILE_CA} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_CA}"
+  # COMPOSE_FILES="${COMPOSE_BASE_FILES} ${COMPOSE_COUCH_FILES} ${COMPOSE_CA_FILES}"
 
-  # stop org3 containers also in addition to kementrian and supplychain, in case we were running sample to add org3
-  COMPOSE_ORG3_BASE_FILES="-f addOrg3/compose/${COMPOSE_FILE_ORG3_BASE} -f addOrg3/compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_ORG3_BASE}"
-  COMPOSE_ORG3_COUCH_FILES="-f addOrg3/compose/${COMPOSE_FILE_ORG3_COUCH} -f addOrg3/compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_ORG3_COUCH}"
-  COMPOSE_ORG3_CA_FILES="-f addOrg3/compose/${COMPOSE_FILE_ORG3_CA} -f addOrg3/compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_ORG3_CA}"
-  COMPOSE_ORG3_FILES="${COMPOSE_ORG3_BASE_FILES} ${COMPOSE_ORG3_COUCH_FILES} ${COMPOSE_ORG3_CA_FILES}"
+  # # stop org3 containers also in addition to kementrian and supplychain, in case we were running sample to add org3
+  # COMPOSE_ORG3_BASE_FILES="-f addOrg3/compose/${COMPOSE_FILE_ORG3_BASE} -f addOrg3/compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_ORG3_BASE}"
+  # COMPOSE_ORG3_COUCH_FILES="-f addOrg3/compose/${COMPOSE_FILE_ORG3_COUCH} -f addOrg3/compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_ORG3_COUCH}"
+  # COMPOSE_ORG3_CA_FILES="-f addOrg3/compose/${COMPOSE_FILE_ORG3_CA} -f addOrg3/compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_ORG3_CA}"
+  # COMPOSE_ORG3_FILES="${COMPOSE_ORG3_BASE_FILES} ${COMPOSE_ORG3_COUCH_FILES} ${COMPOSE_ORG3_CA_FILES}"
+
+  COMPOSE_FILES="-f compose/docker-compose-orderer.yaml -f compose/docker-compose-kementrian.yaml -f compose/docker-compose-supplychain.yaml -f compose/docker-compose-ca.yaml"
+  COMPOSE_FILES=" $COMPOSE_FILES -f compose/docker-compose-host1-ca.yaml -f compose/docker-compose-host1-kementrian.yaml -f compose/docker-compose-host1-orderer.yaml"
+  COMPOSE_FILES=" $COMPOSE_FILES -f compose/docker-compose-host2-ca.yaml -f compose/docker-compose-host2-supplychain.yaml"
+  COMPOSE_FILES=" $COMPOSE_FILES -f compose/docker-compose-host3-supplychain.yaml"
 
   if [ "${CONTAINER_CLI}" == "docker" ]; then
-    DOCKER_SOCK=$DOCKER_SOCK ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} ${COMPOSE_ORG3_FILES} down --volumes --remove-orphans
+    DOCKER_SOCK=$DOCKER_SOCK ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES}  down --volumes --remove-orphans
   elif [ "${CONTAINER_CLI}" == "podman" ]; then
-    ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} ${COMPOSE_ORG3_FILES} down --volumes
+    ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES}  down --volumes
   else
     fatalln "Container CLI  ${CONTAINER_CLI} not supported"
   fi
@@ -523,6 +600,10 @@ while [[ $# -ge 1 ]] ; do
     CCAAS_DOCKER_RUN="$2"
     shift
     ;;
+  -host )
+    HOST="$2"
+    shift
+    ;;
   -verbose )
     VERBOSE=true
     ;;
@@ -536,6 +617,14 @@ while [[ $# -ge 1 ]] ; do
     ;;
   -cai )
     CA_IMAGETAG="$2"
+    shift
+    ;;
+  -chstep )
+    CHANNELSTEP="$2"
+    shift
+    ;;
+  -ccstep )
+    DEPLOYCCSTEP="$2"
     shift
     ;;
   -ccic )
