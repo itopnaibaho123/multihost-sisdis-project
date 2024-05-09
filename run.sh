@@ -3,7 +3,7 @@ CHANNELSTEP="NA" #joinh1 #joinh2 #joinh3
 DEPLOYCCSTEP="NA"
 cd network
 
-while [[ $# -ge 1 ]]; do
+while [[ $# -ge 2 ]]; do
     case "$1" in
         -host)
             HOST="$2"
@@ -19,7 +19,7 @@ while [[ $# -ge 1 ]]; do
             exit 1
             ;;
     esac
-    shift
+    shift 2
 done
 
 if [$HOST != "NA"]; then
