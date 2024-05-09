@@ -6,16 +6,16 @@ cd network
 while [[ $# -ge 1 ]]; do
     case "$1" in
         -host)
-            HOST="$1"
+            HOST="$2"
             ;;
         -chstep)
-            CHANNELSTEP="$1" 
+            CHANNELSTEP="$2" 
             ;;
         -ccstep)
-            DEPLOYCCSTEP="$1"
+            DEPLOYCCSTEP="$2"
             ;;
         *)
-            echo "Unknown option: $1"
+            echo "Unknown option: $2"
             exit 1
             ;;
     esac
