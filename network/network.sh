@@ -150,15 +150,15 @@ function createOrgs() {
     # ${CONTAINER_CLI_COMPOSE} -f compose/$COMPOSE_FILE_CA -f compose/$CONTAINER_CLI/${CONTAINER_CLI}-$COMPOSE_FILE_CA up -d 2>&1
 
     # . organizations/fabric-ca/registerEnroll.sh
-    if ["$HOST" == "h1"]; then
+    if [ "$HOST" == "h1" ]; then
       networkUpHost1
-    elif ["$HOST" == "h2"]; then
+    elif [ "$HOST" == "h2" ]; then
       networkUpHost2
-    elif ["$HOST" == "h3"]; then
+    elif [ "$HOST" == "h3" ]; then
       networkUpHost3
-    elif ["$HOST" == "ca1"]; then
+    elif [ "$HOST" == "ca1" ]; then
       networkCAUpHost1
-    elif ["$HOST" == "ca2"]; then
+    elif [ "$HOST" == "ca2" ]; then
       networkCAUpHost2
     fi
 

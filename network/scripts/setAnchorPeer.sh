@@ -24,13 +24,13 @@ createAnchorPeerUpdate() {
     HOST="peer0.supplychain.example.com"
     PORT=9051
   elif [ $ORG = 'kementrianp0' ]; then
-    HOST="10.128.0.4"
+    HOST="10.184.0.5"
     PORT=9051
   elif [ $ORG = 'supplychainp0' ]; then
-    HOST="10.128.0.5"
+    HOST="10.184.0.6"
     PORT=9051
   elif [ $ORG = 'supplychainp1' ]; then
-    HOST="10.128.0.6"
+    HOST="10.184.0.7"
     PORT=9051
   elif [ $ORG -eq 3 ]; then
     HOST="peer0.org3.example.com"
