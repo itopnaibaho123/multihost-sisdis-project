@@ -110,7 +110,7 @@ function startCAHost1() {
 
   println "###########################################################################"
   runHost1CaContainer
-
+   ../organizations/fabric-ca/registerEnroll.sh
   while :
     do
       if [ ! -f "organizations/fabric-ca/kementrian/tls-cert.pem" ]; then
@@ -119,7 +119,7 @@ function startCAHost1() {
         break
       fi
     done
-    ../organizations/fabric-ca/registerEnroll.sh
+   
   println "###########################################################################"
   infoln "Creating Kementrian Certificates"
   createKementrian
@@ -149,7 +149,7 @@ function startCAHost2() {
 
   println "###########################################################################"
   runHost2CaContainer
-
+  ../organizations/fabric-ca/registerEnroll.sh
   while :
     do
       if [ ! -f "organizations/fabric-ca/supplychain/tls-cert.pem" ]; then
@@ -158,7 +158,7 @@ function startCAHost2() {
         break
       fi
     done
-  ../organizations/fabric-ca/registerEnroll.sh
+  
   println "###########################################################################"
   infoln "Creating SupplyCHain Certificates"
   createSupplyChain
