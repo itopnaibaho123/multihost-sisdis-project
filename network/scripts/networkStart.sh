@@ -112,10 +112,7 @@ function startCAHost1() {
   runHost1CaContainer
   . organizations/fabric-ca/registerEnroll.sh
 
-  println "###########################################################################"
-  infoln "Creating Kementrian Certificates"
-  createKementrian
-  println ""
+  
   while :
     do
       if [ ! -f "organizations/fabric-ca/kementrian/tls-cert.pem" ]; then
@@ -124,7 +121,10 @@ function startCAHost1() {
         break
       fi
     done
-   
+  println "###########################################################################"
+  infoln "Creating Kementrian Certificates"
+  createKementrian
+  println ""
   
 
   infoln "Creating Orderer Certificates"
