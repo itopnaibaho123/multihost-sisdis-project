@@ -16,7 +16,7 @@ services:
       file: docker-compose-base.yaml
       service: couchdb-base
     ports:
-      - "6984:5984"
+      - "5984:5984"
     networks:
       - supply_chain_carbon
 
