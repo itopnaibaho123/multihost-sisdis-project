@@ -38,7 +38,7 @@ Organizations:
         Rule: "OR('OrdererMSP.admin')"
 
     OrdererEndpoints:
-      - orderer.example.com:7050
+      - 10.184.0.5:7050
 
   - &Kementrian
     # DefaultOrg defines the organization which is used in the sampleconfig
@@ -64,6 +64,13 @@ Organizations:
         Type: Signature
         Rule: "OR('KementrianMSP.peer')"
 
+    AnchorPeers:
+            # AnchorPeers defines the location of peers which can be used
+            # for cross org gossip communication.  Note, this value is only
+            # encoded in the genesis block in the Application section context
+            - Host: 10.184.0.5
+              Port: 7051
+
   - &SupplyChain
     # DefaultOrg defines the organization which is used in the sampleconfig
     # of the fabric.git development environment
@@ -87,6 +94,14 @@ Organizations:
       Endorsement:
         Type: Signature
         Rule: "OR('SupplyChainMSP.peer')"
+    AnchorPeers:
+            # AnchorPeers defines the location of peers which can be used
+            # for cross org gossip communication.  Note, this value is only
+            # encoded in the genesis block in the Application section context
+            - Host: 10.184.0.6
+              Port: 9051
+            - Host: 10.184.0.7
+              Port: 9051
 ################################################################################
 #
 #   SECTION: Capabilities
@@ -186,7 +201,14 @@ Orderer: &OrdererDefaults
   # as TLS validation.  The preferred way to specify orderer addresses is now
   # to include the OrdererEndpoints item in your org definition
   Addresses:
-    - orderer.example.com:7050
+    - 10.184.0.5:7050
+
+  EtcdRaft:
+        Consenters:
+        - Host: 10.184.0.5
+          Port: 7050
+          ClientTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
   # Batch Timeout: The amount of time to wait before creating a batch
   BatchTimeout: 2s
   # Batch Size: Controls the number of messages batched into a block
