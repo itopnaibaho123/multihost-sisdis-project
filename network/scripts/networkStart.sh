@@ -8,8 +8,8 @@ function runCaContainer() {
   infoln "Starting docker container for Certificate Authority"
   println ""
 
-  CA_COMPOSE_FILES=" -c compose/multi-host/docker-compose-ca.yaml"
-  docker stack deploy ${CA_COMPOSE_FILES} supplychain -d 2>&1
+  CA_COMPOSE_FILES=" -f compose/multi-host/docker-compose-ca.yaml"
+  docker-compose ${CA_COMPOSE_FILES} up -d 2>&1
 
   println ""
 }
@@ -18,8 +18,8 @@ function runHost1CaContainer() {
   infoln "Starting docker container for Certificate Authority"
   println ""
 
-  CA_COMPOSE_FILES="-c compose/multi-host/docker-compose-host1-ca.yaml"
-  docker stack deploy ${CA_COMPOSE_FILES} supplychain -d 2>&1
+  CA_COMPOSE_FILES="-f compose/multi-host/docker-compose-host1-ca.yaml"
+  docker-compose ${CA_COMPOSE_FILES} up -d 2>&1
 
   println ""
 }
@@ -28,8 +28,8 @@ function runHost2CaContainer() {
   infoln "Starting docker container for Certificate Authority"
   println ""
 
-  CA_COMPOSE_FILES="-c compose/multi-host/docker-compose-host2-ca.yaml"
-  docker stack deploy ${CA_COMPOSE_FILES} supplychain -d 2>&1
+  CA_COMPOSE_FILES="-f compose/multi-host/docker-compose-host2-ca.yaml"
+  docker-compose ${CA_COMPOSE_FILES} up -d 2>&1
 
   println ""
 }
@@ -39,8 +39,8 @@ function runHost1OrgContainer() {
   infoln "Starting docker container for All Organizations"
   println ""
 
-  COMPOSE_FILES="-c compose/multi-host/docker-compose-host1-orderer.yaml -c compose/multi-host/docker-compose-host1-kementrian.yaml"
-  docker stack deploy ${COMPOSE_FILES} supplychain -d 2>&1
+  COMPOSE_FILES="-f compose/multi-host/docker-compose-host1-orderer.yaml -f compose/multi-host/docker-compose-host1-kementrian.yaml"
+  docker-compose ${COMPOSE_FILES} up -d 2>&1
 
   println ""
 }
@@ -49,8 +49,8 @@ function runHost2OrgContainer() {
   infoln "Starting docker container for All Organizations"
   println ""
 
-  COMPOSE_FILES="-c compose/multi-host/docker-compose-host2-supplychain.yaml"
-  docker stack deploy ${COMPOSE_FILES} supplychain -d 2>&1
+  COMPOSE_FILES="-f compose/multi-host/docker-compose-host2-supplychain.yaml"
+  docker-compose ${COMPOSE_FILES} up -d 2>&1
 
   println ""
 }
@@ -59,8 +59,8 @@ function runHost3OrgContainer() {
   infoln "Starting docker container for All Organizations"
   println ""
 
-  COMPOSE_FILES="-c compose/multi-host/docker-compose-host3-supplychain.yaml"
-  docker stack deploy ${COMPOSE_FILES} supplychain -d 2>&1
+  COMPOSE_FILES="-f compose/multi-host/docker-compose-host3-supplychain.yaml"
+  docker-compose ${COMPOSE_FILES} up -d 2>&1
 
   println ""
 }
