@@ -140,9 +140,7 @@ function checkPrereqs() {
 
 # Create Organization crypto material using cryptogen or CAs
 function createOrgs() {
-  if [ -d "organizations/peerOrganizations" ]; then
-    rm -Rf organizations/peerOrganizations && rm -Rf organizations/ordererOrganizations
-  fi
+  
 
   # Create crypto material using Fabric CA
   # if [ "$CRYPTO" == "Certificate Authorities" ]; then
@@ -150,7 +148,9 @@ function createOrgs() {
     # ${CONTAINER_CLI_COMPOSE} -f compose/$COMPOSE_FILE_CA -f compose/$CONTAINER_CLI/${CONTAINER_CLI}-$COMPOSE_FILE_CA up -d 2>&1
 
     # . organizations/fabric-ca/registerEnroll.sh
+
     if [ "$HOST" == "h1" ]; then
+      echo $HOST
       networkUpHost1
     elif [ "$HOST" == "h2" ]; then
       networkUpHost2
@@ -281,9 +281,8 @@ function networkUp() {
   checkPrereqs
 
   # generate artifacts if they don't exist
-  if [ ! -d "organizations/peerOrganizations" ]; then
-    createOrgs
-  fi
+  createOrgs
+  
 
   # COMPOSE_FILES="-f compose/${COMPOSE_FILE_BASE} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
 
