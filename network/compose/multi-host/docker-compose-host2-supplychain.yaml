@@ -16,7 +16,7 @@ services:
       file: docker-compose-base.yaml
       service: couchdb-base
     ports:
-      - "5984:5984"
+      - "6984:5984"
     networks:
       - supply_chain_carbon
 
@@ -44,8 +44,8 @@ services:
       - couchdb1
     volumes:
       - ../../organizations/peerOrganizations/supplychain.example.com/peer0.supplychain.example.com:/etc/hyperledger/fabric
-      - ../../organizations/peerOrganizations/supplychain.example.com/peer0.supplychain.example.com/msp:/etc/hyperledger/fabric/msp
-      - ../../organizations/peerOrganizations/supplychain.example.com/peer0.supplychain.example.com/tls:/etc/hyperledger/fabric/tls
+      # - ../../organizations/peerOrganizations/supplychain.example.com/peer0.supplychain.example.com/msp:/etc/hyperledger/fabric/msp
+      # - ../../organizations/peerOrganizations/supplychain.example.com/peer0.supplychain.example.com/tls:/etc/hyperledger/fabric/tls
       - peer0.supplychain.example.com:/var/hyperledger/production
     command: peer node start
     ports:
