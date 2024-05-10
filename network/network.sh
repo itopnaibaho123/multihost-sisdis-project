@@ -178,7 +178,7 @@ function networkCAUpHost1() {
 
   println "###########################################################################"
   infoln "Generating CCP files for Kementrian"
-  ./organizations/ccp-generate-kementrian.sh
+  organizations/ccp-generate-kementrian.sh
   println ""
 
   $CONTAINER_CLI ps -a
@@ -197,7 +197,7 @@ function networkCAUpHost2() {
 
   println "###########################################################################"
   infoln "Generating CCP files for SupplyChain"
-  ./organizations/ccp-generate-supplychain.sh
+  organizations/ccp-generate-supplychain.sh
   println ""
 
   $CONTAINER_CLI ps -a
