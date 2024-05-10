@@ -15,7 +15,7 @@ set -o pipefail
 # Where am I?
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
-ORDERER_CA=${DIR}/network/organizations/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
+ORDERER_CA=${DIR}/network/organizations/ordererOrganizations/example.com/tlsca/tlsca.orderer.example.com-cert.pem
 PEER0_KEMENTRIAN_CA=${DIR}/network/organizations/peerOrganizations/kementrian.example.com/tlsca/tlsca.kementrian.example.com-cert.pem
 PEER0_SUPPLYCHAIN_CA=${DIR}/network/organizations/peerOrganizations/supplychain.example.com/tlsca/tlsca.supplychain.example.com-cert.pem
 PEER0_ORG3_CA=${DIR}/network/organizations/peerOrganizations/org3.example.com/tlsca/tlsca.org3.example.com-cert.pem
