@@ -130,6 +130,12 @@ function createSupplyChain() {
   fabric-ca-client register --caname ca-supplychain --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/supplychain/ca-cert.pem"
   { set +x; } 2>/dev/null
 
+  infoln "Registering peer1"
+  set -x
+  fabric-ca-client register --caname ca-supplychain --id.name peer1 --id.secret peer1pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/supplychain/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
+
   infoln "Registering user"
   set -x
   fabric-ca-client register --caname ca-supplychain --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/supplychain/ca-cert.pem"
