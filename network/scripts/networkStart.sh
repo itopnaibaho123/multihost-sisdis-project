@@ -168,6 +168,21 @@ function startCAHost2() {
 
 }
 
+function startCAHost3() {
+  infoln "Start CA"
+
+  println "###########################################################################"
+  
+  . organizations/fabric-ca/registerEnroll.sh
+
+  
+  println "###########################################################################"
+  infoln "Creating SupplyCHain Certificates"
+  createSupplyChainPeer1
+  println ""
+
+}
+
 function startNetworkHost2() {
   CHANNEL_NAME=$1
 

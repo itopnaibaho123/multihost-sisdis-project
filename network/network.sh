@@ -160,6 +160,8 @@ function createOrgs() {
       networkCAUpHost1
     elif [ "$HOST" == "ca2" ]; then
       networkCAUpHost2
+    elif [ "$HOST" == "ca3"]; then
+      networkCAUpHost3
     fi
 
   # fi
@@ -198,6 +200,20 @@ function networkCAUpHost2() {
   println "###########################################################################"
   infoln "Generating CCP files for SupplyChain"
   organizations/ccp-generate-supplychain.sh
+  println ""
+
+  $CONTAINER_CLI ps -a
+  if [ $? -ne 0 ]; then
+    fatalln "Unable to start network"
+  fi
+}
+
+function networkCAUpHost3() {
+  checkPrereqs
+
+  . scripts/networkStart.sh
+
+  startCAHost3 "syschannel"
   println ""
 
   $CONTAINER_CLI ps -a
