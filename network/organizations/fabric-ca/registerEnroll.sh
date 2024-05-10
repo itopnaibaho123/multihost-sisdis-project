@@ -154,20 +154,24 @@ function createSupplyChain() {
 
   infoln "Generating the peer1 msp"
   set -x
-  fabric-ca-client enroll -u https://peer1:peer1pw@10.184.0.6:8054 --caname ca-supplychain -M "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/msp" --csr.hosts peer1.supplychain.example.com  --tls.certfiles "${PWD}/organizations/fabric-ca/supplychain/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer1:peer1pw@10.184.0.6:8054 --caname ca-supplychain -M "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/msp" --csr.hosts peer1.supplychain.example.com  --tls.certfiles "${PWD}/organizations/fabric-ca/supplychain/ca-cert.pem"
   { set +x; } 2>/dev/null
 
-  cp "${PWD}/organizations/peerOrganizations/supplychain.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/supplychain.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/msp/config.yaml"
 
   infoln "Generating the peer1-tls certificates, use --csr.hosts to specify Subject Alternative Names"
   set -x
-  fabric-ca-client enroll -u https://peer1:peer1pw@10.184.0.6:8054 --caname ca-supplychain -M "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/tls" --enrollment.profile tls --csr.hosts peer1.supplychain.example.com --csr.hosts 10.184.0.7 --tls.certfiles "${PWD}/organizations/fabric-ca/supplychain/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer1:peer1pw@10.184.0.6:8054 --caname ca-supplychain -M "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/tls" --enrollment.profile tls --csr.hosts peer1.supplychain.example.com --csr.hosts 10.184.0.7 --tls.certfiles "${PWD}/organizations/fabric-ca/supplychain/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   # Copy the tls CA cert, server cert, server keystore to well known file names in the peer's tls directory that are referenced by peer startup config
   cp "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/tls/ca.crt"
   cp "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/tls/server.crt"
   cp "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer0.supplychain.example.com/tls/server.key"
+
+  cp "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/tls/ca.crt"
+  cp "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/tls/server.crt"
+  cp "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/tls/server.key"
 
   infoln "Generating the user msp"
   set -x
