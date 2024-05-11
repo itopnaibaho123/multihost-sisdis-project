@@ -37,7 +37,7 @@ services:
     labels:
       service: hyperledger-fabric
     environment:
-      - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
+      - FABRIC_CFG_PATH=/etc/hyperledger/config
       - FABRIC_LOGGING_SPEC=INFO
       #- FABRIC_LOGGING_SPEC=DEBUG
       - CORE_PEER_TLS_ENABLED=true
@@ -60,7 +60,7 @@ services:
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer1supplychain"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
-      - ../../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com:/etc/hyperledger/fabric
+      - ../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com:/etc/hyperledger/fabric
       - peer1.supplychain.example.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
