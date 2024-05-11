@@ -45,7 +45,6 @@ services:
     volumes:
       - ../../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com:/etc/hyperledger/fabric
       - ../../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/msp:/etc/hyperledger/fabric/msp
-      - ../../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/msp/signcerts:/etc/hyperledger/fabric/msp/signcerts
       - ../../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/tls:/etc/hyperledger/fabric/tls
       - peer1.supplychain.example.com:/var/hyperledger/production
     command: peer node start
