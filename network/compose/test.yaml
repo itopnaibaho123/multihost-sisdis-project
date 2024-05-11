@@ -60,8 +60,10 @@ services:
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer1supplychain"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
+      - /var/run/:/host/var/run/
       - ../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com:/etc/hyperledger/fabric
       - peer1.supplychain.example.com:/var/hyperledger/production
+      - ../config:/etc/hyperledger/config
     working_dir: /root
     command: peer node start
     ports:
