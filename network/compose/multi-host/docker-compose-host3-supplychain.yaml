@@ -1,0 +1,78 @@
+version: '3.7'
+
+volumes:
+  peer1.supplychain.example.com:
+
+networks:
+  supply_chain_carbon:
+    name: supply_chain_carbon
+    external: true
+
+services:
+
+  couchdb2:
+    container_name: couchdb2
+    extends:
+      file: docker-compose-base.yaml
+      service: couchdb-base
+    ports:
+      - "6984:5984"
+    networks:
+      - supply_chain_carbon
+
+  peer1.supplychain.example.com:
+    container_name: peer1.supplychain.example.com
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    environment:
+      # Peer specific variables
+      - CORE_PEER_ID=peer1.supplychain.example.com
+      - CORE_PEER_ADDRESS=peer1.supplychain.example.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.supplychain.example.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.supplychain.example.com:9051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.supplychain.example.com:9051
+      - CORE_PEER_LOCALMSPID=supplychainMSP
+      - CORE_OPERATIONS_LISTENADDRESS=peer1.supplychain.example.com:9445
+      - CORE_METRICS_PROVIDER=prometheus
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer1supplychain"}
+      - CORE_CHAINCODE_EXECUTETIMEOUT=300s
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb2:5984
+    depends_on:
+      - couchdb2
+    volumes:
+      - ../../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com:/etc/hyperledger/fabric
+      - ../../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/msp:/etc/hyperledger/fabric/msp
+      - ../../organizations/peerOrganizations/supplychain.example.com/peers/peer1.supplychain.example.com/tls:/etc/hyperledger/fabric/tls
+      - peer1.supplychain.example.com:/var/hyperledger/production
+    command: peer node start
+    ports:
+      - 9051:9051
+      - 9445:9445
+    networks:
+      - supply_chain_carbon
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:2.5.5
+    labels:
+      service: hyperledger-fabric
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - FABRIC_LOGGING_SPEC=INFO
+      - FABRIC_CFG_PATH=/etc/hyperledger/config
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - ../../organizations:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
+      - ../../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+      - ../../config:/etc/hyperledger/config
+    depends_on:
+      - peer1.supplychain.example.com
+    networks:
+      - supply_chain_carbon
