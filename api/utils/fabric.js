@@ -45,8 +45,8 @@ const connectToNetwork = async (organizationName, chaincodeName, user) => {
     wallet,
     identity: user,
     discovery: { 
-      enabled: true
-      // ,asLocalhost: true
+      enabled: true,
+      asLocalhost: false
      },
     // https://stackoverflow.com/questions/56936560/why-do-i-take-more-than-2-seconds-to-just-do-a-transaction
     eventHandlerOptions: {
