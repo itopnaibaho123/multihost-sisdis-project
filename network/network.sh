@@ -74,24 +74,6 @@ function checkPrereqs() {
   infoln "LOCAL_VERSION=$LOCAL_VERSION"
   infoln "DOCKER_IMAGE_VERSION=$DOCKER_IMAGE_VERSION"
 
-  if [ "$LOCAL_VERSION" != "$DOCKER_IMAGE_VERSION" ]; then
-    warnln "Local fabric binaries and docker images are out of  sync. This may cause problems."
-  fi
-
-  for UNSUPPORTED_VERSION in $NONWORKING_VERSIONS; do
-    infoln "$LOCAL_VERSION" | grep -q $UNSUPPORTED_VERSION
-    if [ $? -eq 0 ]; then
-      fatalln "Local Fabric binary version of $LOCAL_VERSION does not match the versions supported by the test network."
-    fi
-
-    infoln "$DOCKER_IMAGE_VERSION" | grep -q $UNSUPPORTED_VERSION
-    if [ $? -eq 0 ]; then
-      fatalln "Fabric Docker image version of $DOCKER_IMAGE_VERSION does not match the versions supported by the test network."
-    fi
-  done
-
- 
-
   ## Check for fabric-ca
   if [ "$CRYPTO" == "Certificate Authorities" ]; then
 
@@ -277,8 +259,6 @@ function networkUpHost3() {
 # point the crypto material and genesis block that were created in earlier.
 
 function networkUp() {
-  checkPrereqs
-
   createOrgs
 
   $CONTAINER_CLI ps -a

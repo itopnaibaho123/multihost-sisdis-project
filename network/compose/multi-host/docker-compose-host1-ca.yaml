@@ -20,7 +20,7 @@ services:
       - "17054:17054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
-      - ../organizations/fabric-ca/kementrian:/etc/hyperledger/fabric-ca-server
+      - ../../organizations/fabric-ca/kementrian:/etc/hyperledger/fabric-ca-server
     networks:
       - supply_chain_carbon
 
@@ -38,6 +38,6 @@ services:
       - "19054:19054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
-      - ../organizations/fabric-ca/ordererOrg:/etc/hyperledger/fabric-ca-server
+      - ../../organizations/fabric-ca/ordererOrg:/etc/hyperledger/fabric-ca-server
     networks:
       - supply_chain_carbon

@@ -20,6 +20,6 @@ services:
       - "18054:18054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
-      - ../organizations/fabric-ca/supplychain:/etc/hyperledger/fabric-ca-server
+      - ../../organizations/fabric-ca/supplychain:/etc/hyperledger/fabric-ca-server
     networks:
       - supply_chain_carbon
