@@ -34,7 +34,7 @@ createChannelGenesisBlock() {
 	set -x
 
 	configtxgen -profile CarbonChannelUsingRaft -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
-  
+
 	res=$?
 	{ set +x; } 2>/dev/null
   verifyResult $res "Failed to generate channel configuration transaction..."
@@ -99,12 +99,15 @@ BLOCKFILE="./channel-artifacts/${CHANNEL_NAME}.block"
 joinChannelH1() {
   # Join the peers to the channel
   infoln "Generating channel genesis block '${CHANNEL_NAME}.block'"
-  createChannelGenesisBlock $BFT
+  infoln "hello?"
+  createChannelGenesisBlock
+
+  infoln "check"
 
   successln "Genesis block created"
 
   infoln "Creating channel ${CHANNEL_NAME}"
-  createChannel $BFT
+  createChannel
   successln "Channel '$CHANNEL_NAME' created"
 
   infoln "Joining Kementrian peer to the channel..."
