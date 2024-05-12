@@ -99,6 +99,12 @@ Instance 3:
 ./run.sh -ccstep h32 # commit on peer1.supplychain
 ```
 
+## Invoke test chaincode
+
+```bash
+./invoke.sh
+```
+
 ## Bring down the network
 
 ```bash
