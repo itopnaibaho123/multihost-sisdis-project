@@ -293,8 +293,6 @@ function createChannel() {
   # scripts/createChannel.sh $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE $bft_true
   . scripts/createChannel.sh
 
-  echo "CHANNELSTEP: $CHANNELSTEP"
-
   if [ "$CHANNELSTEP" == "joinh1" ]; then
     joinChannelH1 $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE $bft_true
     println ""

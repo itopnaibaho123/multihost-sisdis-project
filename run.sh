@@ -27,7 +27,7 @@ if [ "$HOST" != "NA" ]; then
 fi
 
 if [ "$CHANNELSTEP" != "NA" ]; then
-    ./network.sh createChannel -ccstep $CHANNELSTEP
+    ./network.sh createChannel -chstep $CHANNELSTEP
 fi
 
 if [ "$DEPLOYCCSTEP" != "NA" ]; then
