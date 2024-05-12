@@ -119,10 +119,6 @@ elif [ "$DEPLOYCCSTEP" == "h31" ]; then
 
 
 elif [ "$DEPLOYCCSTEP" == "h12" ]; then
-  resolveSequence "kementrianp0"
-
-  checkCommitReadiness "kementrianp0" "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
-
   ## now that we know for sure both orgs have approved, commit the definition
   commitChaincodeDefinition "kementrianp0" "supplychainp0" "supplychainp1"
 
@@ -130,24 +126,10 @@ elif [ "$DEPLOYCCSTEP" == "h12" ]; then
   queryCommitted "kementrianp0"
 
 elif [ "$DEPLOYCCSTEP" == "h22" ]; then
-  resolveSequence "supplychainp0"
-
-  checkCommitReadiness "supplychainp0" "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
-
-  ## now that we know for sure both orgs have approved, commit the definition
-  commitChaincodeDefinition "supplychainp0" "kementrianp0" "supplychainp1"
-
   ## query on both orgs to see that the definition committed successfully
   queryCommitted "supplychainp0"
 
 elif [ "$DEPLOYCCSTEP" == "h32" ]; then
-  resolveSequence "supplychainp1"
-
-  checkCommitReadiness "supplychainp1" "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
-
-  ## now that we know for sure both orgs have approved, commit the definition
-  commitChaincodeDefinition "supplychainp1" "kementrianp0" "supplychainp0"
-
   ## query on both orgs to see that the definition committed successfully
   queryCommitted "supplychainp1"
 fi
