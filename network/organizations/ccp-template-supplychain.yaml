@@ -6,28 +6,28 @@ client:
   connection:
     timeout:
       peer:
-        endorser: '300'
+        endorser: "300"
 organizations:
   ${ORGCAP}:
     mspid: ${ORGCAP}MSP
     peers:
-    - peer0.${ORG}.example.com
+      - peer0.${ORG}.example.com
     certificateAuthorities:
-    - ca.${ORG}.example.com
+      - ca.${ORG}.example.com
 peers:
   peer0.${ORG}.example.com:
-    url: grpcs://10.184.0.6:${P0PORT}
+    url: grpc://10.184.0.6:${P0PORT}
     tlsCACerts:
       pem: |
-          ${PEERPEM}
+        ${PEERPEM}
     grpcOptions:
       ssl-target-name-override: peer0.${ORG}.example.com
       hostnameOverride: peer0.${ORG}.example.com
   peer1.${ORG}.example.com:
-    url: grpcs://10.184.0.7:${P1PORT}
+    url: grpc://10.184.0.7:${P1PORT}
     tlsCACerts:
       pem: |
-          ${PEERPEM}
+        ${PEERPEM}
     grpcOptions:
       ssl-target-name-override: peer1.${ORG}.example.com
       hostnameOverride: peer1.${ORG}.example.com
