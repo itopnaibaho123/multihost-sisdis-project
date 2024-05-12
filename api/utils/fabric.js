@@ -44,10 +44,10 @@ const connectToNetwork = async (organizationName, chaincodeName, user) => {
   await gateway.connect(ccp, {
     wallet,
     identity: user,
-    discovery: { 
-      enabled: true,
-      asLocalhost: false
-     },
+    // discovery: { 
+    //   enabled: true,
+    //   asLocalhost: false
+    //  },
     // https://stackoverflow.com/questions/56936560/why-do-i-take-more-than-2-seconds-to-just-do-a-transaction
     eventHandlerOptions: {
       strategy: null,
