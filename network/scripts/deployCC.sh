@@ -130,6 +130,9 @@ elif [ "$DEPLOYCCSTEP" == "h22" ]; then
   queryCommitted "supplychainp0"
 
 elif [ "$DEPLOYCCSTEP" == "h32" ]; then
+  ## approve the definition for peer0.supplychain
+  approveForMyOrg "supplychainp0"
+
   ## query on both orgs to see that the definition committed successfully
   queryCommitted "supplychainp1"
 fi
