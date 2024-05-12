@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   peer-base:
@@ -62,7 +62,7 @@ services:
       - COUCHDB_PASSWORD=adminpw
 
   orderer-base:
-    image: hyperledger/fabric-orderer:2.4.9
+    image: hyperledger/fabric-orderer:2.5.5
     labels:
       service: hyperledger-fabric
     environment:

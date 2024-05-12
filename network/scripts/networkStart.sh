@@ -65,46 +65,6 @@ function runHost3OrgContainer() {
   println ""
 }
 
-
-
-function generateAnchorPeerKemdikbud() {
-  # Generating anchor peer update for KemdikbudMSP
-
-  infoln "Generating anchor peer update for KemdikbudMSP"
-  set -x
-  configtxgen -profile AcademicChannel -outputAnchorPeersUpdate ./channel-artifacts/KemdikbudMSPanchors.tx -channelID $CHANNEL_NAME -asOrg KemdikbudMSP
-  res=$?
-  set +x
-  if [ $res -ne 0 ]; then
-    errorln "Failed to generate anchor peer update for KemdikbudMSP..."
-    println ""
-    exit 1
-  fi
-
-  println ""
-}
-
-function generateAnchorPeerHE1() {
-  # Generating anchor peer update for HE1MSP
-
-  infoln "Generating anchor peer update for HE1MSP"
-  set -x
-  configtxgen -profile AcademicChannel -outputAnchorPeersUpdate ./channel-artifacts/HE1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg HE1MSP
-  res=$?
-  set +x
-  if [ $res -ne 0 ]; then
-      errorln "Failed to generate anchor peer update for HE1MSP..."
-      println ""
-      exit 1
-  fi
-
-  println ""
-}
-
-
-
-
-
 function startCAHost1() {
   infoln "Start CA"
 

@@ -23,7 +23,7 @@ while [[ $# -ge 2 ]]; do
 done
 
 if [ "$HOST" != "NA" ]; then
-./network.sh up -ca -s couchdb -host $HOST
+    ./network.sh up -ca -s couchdb -host $HOST
 fi
 
 if [ "$CHANNELSTEP" != "NA" ]; then

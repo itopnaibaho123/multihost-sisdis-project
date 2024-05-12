@@ -11,7 +11,7 @@
 . scripts/utils.sh
 
 export CORE_PEER_TLS_ENABLED=true
-export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
+export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/tlsca/tlsca.orderer.example.com-cert.pem
 export PEER0_KEMENTRIAN_CA=${PWD}/organizations/peerOrganizations/kementrian.example.com/tlsca/tlsca.kementrian.example.com-cert.pem
 export PEER0_SUPPLYCHAIN_CA=${PWD}/organizations/peerOrganizations/supplychain.example.com/tlsca/tlsca.supplychain.example.com-cert.pem
 export PEER1_SUPPLYCHAIN_CA=${PWD}/organizations/peerOrganizations/supplychain.example.com/tlsca/tlsca.supplychain.example.com-cert.pem
@@ -81,13 +81,8 @@ setGlobalsCLI() {
   else
     USING_ORG="${OVERRIDE_ORG}"
   fi
-  if [ $USING_ORG = 'kementrian' ]; then
-    export CORE_PEER_ADDRESS=peer0.kementrian.example.com:7051
-  elif [ $USING_ORG = 'supplychain' ]; then
-    export CORE_PEER_ADDRESS=peer0.supplychain.example.com:9051
-  elif [ $USING_ORG -eq 3 ]; then
-    export CORE_PEER_ADDRESS=peer0.org3.example.com:11051
-  elif [ $USING_ORG = 'kementrianp0' ]; then
+
+  if [ $USING_ORG = 'kementrianp0' ]; then
     export CORE_PEER_ADDRESS="10.184.0.5:7051"
   elif [ $USING_ORG = 'supplychainp0' ]; then
     export CORE_PEER_ADDRESS="10.184.0.6:9051"

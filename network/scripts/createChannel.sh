@@ -120,7 +120,7 @@ joinChannelH1() {
   createChannel 
   successln "Channel '$CHANNEL_NAME' created"
 
-  infoln "Joining kemdikbud peer to the channel..."
+  infoln "Joining Kementrian peer to the channel..."
   joinChannel 'kementrianp0'
 
   successln "Success Join Channel '$CHANNEL_NAME'"
@@ -133,7 +133,7 @@ joinChannelH1() {
 
 joinChannelH2() {
   # Join the peers to the channel
-  infoln "Joining kemdikbud peer to the channel..."
+  infoln "Joining Supply Chain peer0 to the channel..."
   joinChannel 'supplychainp0'
 
   successln "Success Join Channel '$CHANNEL_NAME'"
@@ -146,7 +146,7 @@ joinChannelH2() {
 
 joinChannelH3() {
   # Join the peers to the channel
-  infoln "Joining kemdikbud peer to the channel..."
+  infoln "Joining Supply Chain peer1 to the channel..."
   joinChannel 'supplychainp1'
 
   successln "Success Join Channel '$CHANNEL_NAME'"

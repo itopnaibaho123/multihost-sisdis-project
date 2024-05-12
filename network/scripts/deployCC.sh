@@ -68,27 +68,19 @@ function checkPrereqs() {
 #check for prerequisites
 checkPrereqs
 
-## package the chaincode
-
-
-
-
 if [ "$DEPLOYCCSTEP" == "h11" ]; then
-  #check for prerequisites
-  
-
   # package the chaincode
   ./scripts/packageCC.sh $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION 
   PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid ${CC_NAME}.tar.gz)
 
-  ## Install chaincode on peer0.kemdikbud
+  ## Install chaincode on peer0.kementrian
   infoln "Installing chaincode on peer0.kementrian..."
   installChaincode "kementrianp0"
   resolveSequence
   ## query whether the chaincode is installed
   queryInstalled "kementrianp0"
 
-  ## approve the definition for peer0.kemdikbud
+  ## approve the definition for peer0.kementrian
   approveForMyOrg "kementrianp0"
 
 elif [ "$DEPLOYCCSTEP" == "h21" ]; then
@@ -99,33 +91,29 @@ elif [ "$DEPLOYCCSTEP" == "h21" ]; then
   # package the chaincode
   
 
-  ## Install chaincode on peer0.he1
-  infoln "Install chaincode on peer0.supplychainp0..."
+  ## Install chaincode on peer0.supplychain
+  infoln "Install chaincode on peer0.supplychain..."
   installChaincode "supplychainp0"
   resolveSequence
   ## query whether the chaincode is installed
   queryInstalled "supplychainp0"
 
-  ## approve the definition for peer0.he1
+  ## approve the definition for peer0.supplychain
   approveForMyOrg "supplychainp0"
 
 elif [ "$DEPLOYCCSTEP" == "h31" ]; then
-  #check for prerequisites
-  
-
   # package the chaincode
   ./scripts/packageCC.sh $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION 
   PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid ${CC_NAME}.tar.gz)
 
-  ## Install chaincode on peer0.he1
+  ## Install chaincode on peer1.supplychain
   infoln "Install chaincode on peer1.supplychain..."
   installChaincode "supplychainp1"
   resolveSequence
+
   ## query whether the chaincode is installed
   queryInstalled "supplychainp1"
 
-  # ## approve the definition for peer1.he1
-  # approveForMyOrg "he1p1"
 
 elif [ "$DEPLOYCCSTEP" == "h12" ]; then
   ## now that we know for sure both orgs have approved, commit the definition
@@ -141,8 +129,6 @@ elif [ "$DEPLOYCCSTEP" == "h22" ]; then
 elif [ "$DEPLOYCCSTEP" == "h32" ]; then
   ## query on both orgs to see that the definition committed successfully
   queryCommitted "supplychainp1"
-
-
 fi
 
 

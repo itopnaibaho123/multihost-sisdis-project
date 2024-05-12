@@ -3,14 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-version: '3.7'
+version: "3.7"
 
 networks:
   supply_chain_carbon:
     name: supply_chain_carbon
 
 services:
-
   ca_kementrian:
     image: hyperledger/fabric-ca:1.5.7
     labels:

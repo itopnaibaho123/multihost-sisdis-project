@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 volumes:
   orderer.example.com:
@@ -9,7 +9,6 @@ networks:
     external: true
 
 services:
-
   orderer.example.com:
     container_name: orderer.example.com
     extends:
@@ -22,10 +21,10 @@ services:
     working_dir: /root
     command: orderer
     volumes:
-        - ../../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-        - ../../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/etc/hyperledger/orderer/msp
-        - ../../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/etc/hyperledger/orderer/tls
-        - orderer.example.com:/var/hyperledger/production/orderer
+      - ../../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ../../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/etc/hyperledger/orderer/msp
+      - ../../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/etc/hyperledger/orderer/tls
+      - orderer.example.com:/var/hyperledger/production/orderer
     ports:
       - 7050:7050
       - 7053:7053
