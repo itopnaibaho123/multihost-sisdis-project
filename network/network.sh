@@ -447,8 +447,6 @@ COMPOSE_FILE_ORG3_BASE=compose-org3.yaml
 # use this as the docker compose couch file for org3
 COMPOSE_FILE_ORG3_COUCH=compose-couch-org3.yaml
 # certificate authorities compose file
-COMPOSE_FILE_ORG3_CA=compose-ca-org3.yaml
-#
 
 # Get docker sock path from environment variable
 SOCK="${DOCKER_HOST:-/var/run/docker.sock}"
