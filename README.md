@@ -25,15 +25,15 @@ Instance 1:
 Instance 2:
 
 ```bash
-./run.sh up -host ca2 # init fabric ca container
-./run.sh up -host h2 # run peer, couchdb
+./run.sh -host ca2 # init fabric ca container
+./run.sh -host h2 # run peer, couchdb
 ./copy-material.sh h2
 ```
 
 Instance 3:
 
 ```bash
-./run.sh up -host h3 # run peer, couchdb
+./run.sh -host h3 # run peer, couchdb
 ```
 
 ---

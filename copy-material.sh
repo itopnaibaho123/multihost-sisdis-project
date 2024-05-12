@@ -6,10 +6,10 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
-export PATH_KEMENTRIAN='/home/multihost/network/organizations/peerOrganizations/kementrian.example.com'
-export PATH_SUPPLY_CHAIN='/home/multihost/network/organizations/peerOrganizations/supplychain.example.com'
-export PATH_PEER_ORGANIZATIONS='/home/multihost/network/organizations/peerOrganizations'
-export PATH_ORDERER='/home/multihost/network/organizations/ordererOrganizations'
+export PATH_KEMENTRIAN='/home/backend/network/organizations/peerOrganizations/kementrian.example.com'
+export PATH_SUPPLY_CHAIN='/home/backend/network/organizations/peerOrganizations/supplychain.example.com'
+export PATH_PEER_ORGANIZATIONS='/home/backend/network/organizations/peerOrganizations'
+export PATH_ORDERER='/home/backend/network/organizations/ordererOrganizations'
 
 ARG=$1
 
