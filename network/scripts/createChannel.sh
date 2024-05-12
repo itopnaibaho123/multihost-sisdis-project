@@ -99,10 +99,7 @@ BLOCKFILE="./channel-artifacts/${CHANNEL_NAME}.block"
 joinChannelH1() {
   # Join the peers to the channel
   infoln "Generating channel genesis block '${CHANNEL_NAME}.block'"
-  infoln "hello?"
   createChannelGenesisBlock
-
-  infoln "check"
 
   successln "Genesis block created"
 

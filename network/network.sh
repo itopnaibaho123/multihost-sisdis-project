@@ -140,17 +140,7 @@ function checkPrereqs() {
 
 # Create Organization crypto material using cryptogen or CAs
 function createOrgs() {
-  
-
-  # Create crypto material using Fabric CA
-  # if [ "$CRYPTO" == "Certificate Authorities" ]; then
-    # infoln "Generating certificates using Fabric CA"
-    # ${CONTAINER_CLI_COMPOSE} -f compose/$COMPOSE_FILE_CA -f compose/$CONTAINER_CLI/${CONTAINER_CLI}-$COMPOSE_FILE_CA up -d 2>&1
-
-    # . organizations/fabric-ca/registerEnroll.sh
-
     if [ "$HOST" == "h1" ]; then
-      echo $HOST
       networkUpHost1
     elif [ "$HOST" == "h2" ]; then
       networkUpHost2
@@ -163,11 +153,6 @@ function createOrgs() {
     elif [ "$HOST" == "ca3"]; then
       networkCAUpHost3
     fi
-
-  # fi
-
-  # infoln "Generating CCP files for Kementrian and SupplyChain"
-  # ./organizations/ccp-generate.sh
 }
 
 function networkCAUpHost1() {
@@ -291,37 +276,9 @@ function networkUpHost3() {
 # folder. This file defines the environment variables and file mounts that
 # point the crypto material and genesis block that were created in earlier.
 
-# Bring up the peer and orderer nodes using docker compose.
-function networkUp() {
-
-  checkPrereqs
-
-  # generate artifacts if they don't exist
-  createOrgs
-  
-
-  # COMPOSE_FILES="-f compose/${COMPOSE_FILE_BASE} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
-
-  # if [ "${DATABASE}" == "couchdb" ]; then
-  #   COMPOSE_FILES="${COMPOSE_FILES} -f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
-  # fi
-
-  # DOCKER_SOCK="${DOCKER_SOCK}" ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} up -d 2>&1
-
-  $CONTAINER_CLI ps -a
-  if [ $? -ne 0 ]; then
-    fatalln "Unable to start network"
-  fi
-}
-
 # call the script to create the channel, join the peers of kementrian and supplychain,
 # and then update the anchor peers for each organization
 function createChannel() {
-  # Bring up the network if it is not already up.
-  bringUpNetwork="false"
-
-  local bft_true=$1
-
   if ! $CONTAINER_CLI info > /dev/null 2>&1 ; then
     fatalln "$CONTAINER_CLI network is required to be running to create a channel"
   fi
@@ -330,23 +287,14 @@ function createChannel() {
   CONTAINERS=($($CONTAINER_CLI ps | grep hyperledger/ | awk '{print $2}'))
   len=$(echo ${#CONTAINERS[@]})
 
-  # if [[ $len -ge 4 ]] && [[ ! -d "organizations/peerOrganizations" ]]; then
-  #   echo "Bringing network down to sync certs with containers"
-  #   networkDown
-  # fi
-
-
-  # [[ $len -lt 4 ]] || [[ ! -d "organizations/peerOrganizations" ]] && bringUpNetwork="true" || echo "Network Running Already"
-
-  if [ $bringUpNetwork == "true"  ]; then
-    infoln "Bringing up network"
-    networkUp
-  fi
 
   # now run the script that creates a channel. This script uses configtxgen once
   # to create the channel creation transaction and the anchor peer updates.
   # scripts/createChannel.sh $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE $bft_true
-  . scripts/createChannel.sh 
+  . scripts/createChannel.sh
+
+  echo "CHANNELSTEP: $CHANNELSTEP"
+
   if [ "$CHANNELSTEP" == "joinh1" ]; then
     joinChannelH1 $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE $bft_true
     println ""
@@ -685,8 +633,7 @@ elif [ "$MODE" == "up" ]; then
   networkUp
 elif [ "$MODE" == "createChannel" ]; then
   infoln "Creating channel '${CHANNEL_NAME}'."
-  infoln "If network is not up, starting nodes with CLI timeout of '${MAX_RETRY}' tries and CLI delay of '${CLI_DELAY}' seconds and using database '${DATABASE} ${CRYPTO_MODE}"
-  createChannel $BFT
+  createChannel
 elif [ "$MODE" == "down" ]; then
   infoln "Stopping network"
   networkDown
