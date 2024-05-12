@@ -276,6 +276,17 @@ function networkUpHost3() {
 # folder. This file defines the environment variables and file mounts that
 # point the crypto material and genesis block that were created in earlier.
 
+function networkUp() {
+  checkPrereqs
+
+  createOrgs
+
+  $CONTAINER_CLI ps -a
+  if [ $? -ne 0 ]; then
+    fatalln "Unable to start network"
+  fi
+}
+
 # call the script to create the channel, join the peers of kementrian and supplychain,
 # and then update the anchor peers for each organization
 function createChannel() {
