@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 volumes:
   peer1.supplychain.example.com:
@@ -9,7 +9,6 @@ networks:
     external: true
 
 services:
-
   couchdb2:
     container_name: couchdb2
     extends:
@@ -34,7 +33,7 @@ services:
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.supplychain.example.com:9051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.supplychain.example.com:9051
-      - CORE_PEER_LOCALMSPID=supplychainMSP
+      - CORE_PEER_LOCALMSPID=SupplyChainMSP
       - CORE_OPERATIONS_LISTENADDRESS=peer1.supplychain.example.com:9445
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer1supplychain"}

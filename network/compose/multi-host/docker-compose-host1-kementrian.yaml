@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 volumes:
   peer0.kementrian.example.com:
@@ -9,7 +9,6 @@ networks:
     external: true
 
 services:
-
   couchdb0:
     container_name: couchdb0
     extends:
@@ -34,7 +33,7 @@ services:
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.kementrian.example.com:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.kementrian.example.com:7051
-      - CORE_PEER_LOCALMSPID=kementrianMSP
+      - CORE_PEER_LOCALMSPID=KementrianMSP
       - CORE_OPERATIONS_LISTENADDRESS=peer0.kementrian.example.com:9444
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0kementrian"}
