@@ -573,10 +573,14 @@ while [[ $# -ge 1 ]] ; do
     CHANNELSTEP="$2"
     shift
     ;;
-  -ccstep|-ccsteptest)
+  -ccstep)
     DEPLOYCCSTEP="$2"
     shift
     ;;    
+  -ccsteptest)
+    DEPLOYCCSTEP="$2"
+    shift
+    ;; 
   -ccic )
     CC_INVOKE_CONSTRUCTOR="$2"
     shift
