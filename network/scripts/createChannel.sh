@@ -25,7 +25,7 @@ if [ ! -d "channel-artifacts" ]; then
 fi
 
 createChannelGenesisBlock() {
-  setGlobals 'kementrian'
+  setGlobals 'kementrianp0'
 	which configtxgen
 	if [ "$?" -ne 0 ]; then
 		fatalln "configtxgen tool not found."
@@ -113,7 +113,7 @@ joinChannelH1() {
   successln "Genesis block created"
 
   infoln "Creating channel ${CHANNEL_NAME}"
-  createChannel 
+  createChannel $BFT
   successln "Channel '$CHANNEL_NAME' created"
 
   infoln "Joining Kementrian peer to the channel..."

@@ -131,41 +131,6 @@ elif [ "$DEPLOYCCSTEP" == "h32" ]; then
   queryCommitted "supplychainp1"
 fi
 
-
-## Install chaincode on peer0.kementrian and peer0.supplychain
-# infoln "Installing chaincode on peer0.kementrian..."
-# installChaincode 'kementrian'
-# infoln "Install chaincode on peer0.supplychain..."
-# installChaincode 'supplychain'
-
-
-
-## query whether the chaincode is installed
-# queryInstalled 'kementrian'
-
-## approve the definition for kementrian
-# approveForMyOrg 'kementrian'
-
-## check whether the chaincode definition is ready to be committed
-## expect kementrian to have approved and supplychain not to
-# checkCommitReadiness 'kementrian' "\"KementrianMSP\": true" "\"SupplyChainMSP\": false"
-# checkCommitReadiness 'supplychain' "\"KementrianMSP\": true" "\"SupplyChainMSP\": false"
-
-## now approve also for supplychain
-# approveForMyOrg 'supplychain'
-
-## check whether the chaincode definition is ready to be committed
-## expect them both to have approved
-# checkCommitReadiness 'kementrian' "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
-# checkCommitReadiness 'supplychain' "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
-
-## now that we know for sure both orgs have approved, commit the definition
-# commitChaincodeDefinition 'kementrian' 'supplychain'
-
-## query on both orgs to see that the definition committed successfully
-# queryCommitted 'kementrian'
-# queryCommitted 'supplychain'
-
 ## Invoke the chaincode - this does require that the chaincode have the 'initLedger'
 ## method defined
 if [ "$CC_INIT_FCN" = "NA" ]; then
