@@ -36,16 +36,18 @@ const GetCEByCompany = async (user, args) => {
       'shcontract',
       user.username
     )
+    
     const listPerjalanan = []
     for (let i = 0; i < result[0].perjalanan.length; i++) {
-      const perjalanan = JSON.parse(
-        await shNetwork.contract.submitTransaction(
-          'GetShipmentByIdNotFull',
-          result[0].perjalanan[i]
-        )
+      const perjalananResult = await shNetwork.contract.submitTransaction(
+        'GetShipmentByIdNotFull',
+        result[0].perjalanan[i]
       )
 
-      listPerjalanan.push(perjalanan)
+      if (perjalananResult) {
+        const perjalanan = JSON.parse(perjalananResult)
+        listPerjalanan.push(perjalanan)
+      }
     }
 
     result[0].perjalanan = listPerjalanan
