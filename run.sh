@@ -15,9 +15,6 @@ while [[ $# -ge 2 ]]; do
         -ccstep)
             DEPLOYCCSTEP="$2"
             ;;
-        --ccsteptest)
-            DEPLOYCCSTEPTEST="$2"
-            ;;
         *)
             echo "Unknown option: $2"
             exit 1
@@ -44,9 +41,5 @@ if [ "$DEPLOYCCSTEP" != "NA" ]; then
     ./network.sh deployCC -ccn vecontract   -ccp ../chaincode/vecontract   -ccl go -ccstep $DEPLOYCCSTEP
     ./network.sh deployCC -ccn usercontract -ccp ../chaincode/usercontract -ccl go -ccstep $DEPLOYCCSTEP
     ./network.sh deployCC -ccn sccontract   -ccp ../chaincode/sccontract   -ccl go -ccstep $DEPLOYCCSTEP
-fi
-
-if [ "$DEPLOYCCSTEPTEST" != "NA" ]; then
-    ./network.sh deployCC -ccn atcontract   -ccp ../chaincode/atcontract   -ccl go -ccstep $DEPLOYCCSTEPTEST
 fi
 

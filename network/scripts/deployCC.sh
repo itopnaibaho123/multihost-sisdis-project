@@ -79,7 +79,6 @@ if [ "$DEPLOYCCSTEP" == "h11" ]; then
   ## Install chaincode on peer0.kementrian
   infoln "Installing chaincode on peer0.kementrian..."
   installChaincode "kementrianp0"
-  resolveSequence "kementrianp0"
   ## query whether the chaincode is installed
   queryInstalled "kementrianp0"
 
@@ -97,7 +96,6 @@ elif [ "$DEPLOYCCSTEP" == "h21" ]; then
   ## Install chaincode on peer0.supplychain
   infoln "Install chaincode on peer0.supplychain..."
   installChaincode "supplychainp0"
-  resolveSequence "supplychainp0"
   ## query whether the chaincode is installed
   queryInstalled "supplychainp0"
 
@@ -112,7 +110,6 @@ elif [ "$DEPLOYCCSTEP" == "h31" ]; then
   ## Install chaincode on peer1.supplychain
   infoln "Install chaincode on peer1.supplychain..."
   installChaincode "supplychainp1"
-  resolveSequence "supplychainp1"
 
   ## query whether the chaincode is installed
   queryInstalled "supplychainp1"

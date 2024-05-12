@@ -577,10 +577,6 @@ while [[ $# -ge 1 ]] ; do
     DEPLOYCCSTEP="$2"
     shift
     ;;    
-  -ccsteptest)
-    DEPLOYCCSTEP="$2"
-    shift
-    ;; 
   -ccic )
     CC_INVOKE_CONSTRUCTOR="$2"
     shift

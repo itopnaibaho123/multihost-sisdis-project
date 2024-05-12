@@ -174,57 +174,6 @@ function chaincodeQuery() {
   fi
 }
 
-function resolveSequence() {
-  ORG=$1
-  setGlobals $ORG
-
-  #if the sequence is not "auto", then use the provided sequence
-  if [[ "${CC_SEQUENCE}" != "auto" ]]; then
-    return 0
-  fi
-
-  local rc=1
-  local COUNTER=1
-  # first, find the sequence number of the committed chaincode
-  # we either get a successful response, or reach MAX RETRY
-  while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ]; do
-    set -x
-    COMMITTED_CC_SEQUENCE=$(peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name ${CC_NAME} | sed -n "/Version:/{s/.*Sequence: //; s/, Endorsement Plugin:.*$//; p;}")
-    res=$?
-    { set +x; } 2>/dev/null
-    let rc=$res
-    COUNTER=$(expr $COUNTER + 1)
-  done
-
-  # if there are no committed versions, then set the sequence to 1
-  if [ -z $COMMITTED_CC_SEQUENCE ]; then
-    CC_SEQUENCE=1
-    return 0
-  fi
-
-  rc=1
-  COUNTER=1
-  # next, find the sequence number of the approved chaincode
-  # we either get a successful response, or reach MAX RETRY
-  while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ]; do
-    set -x
-    APPROVED_CC_SEQUENCE=$(peer lifecycle chaincode queryapproved --channelID $CHANNEL_NAME --name ${CC_NAME} | sed -n "/sequence:/{s/^sequence: //; s/, version:.*$//; p;}")
-    res=$?
-    { set +x; } 2>/dev/null
-    let rc=$res
-    COUNTER=$(expr $COUNTER + 1)
-  done
-
-  # if the committed sequence and the approved sequence match, then increment the sequence
-  # otherwise, use the approved sequence
-  if [ $COMMITTED_CC_SEQUENCE == $APPROVED_CC_SEQUENCE ]; then
-    CC_SEQUENCE=$((COMMITTED_CC_SEQUENCE+1))
-  else
-    CC_SEQUENCE=$APPROVED_CC_SEQUENCE
-  fi
-
-}
-
 #. scripts/envVar.sh
 
 queryInstalledOnPeer() {
