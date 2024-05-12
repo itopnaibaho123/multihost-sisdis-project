@@ -33,11 +33,8 @@ createChannelGenesisBlock() {
 	local bft_true=$1
 	set -x
 
-	if [ $bft_true -eq 1 ]; then
-		configtxgen -profile ChannelUsingBFT -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
-	else
-		configtxgen -profile CarbonChannelUsingRaft -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
-	fi
+	configtxgen -profile CarbonChannelUsingRaft -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
+  
 	res=$?
 	{ set +x; } 2>/dev/null
   verifyResult $res "Failed to generate channel configuration transaction..."
@@ -99,14 +96,8 @@ fi
 FABRIC_CFG_PATH=$PWD/config/
 BLOCKFILE="./channel-artifacts/${CHANNEL_NAME}.block"
 
-infoln "Generating channel genesis block '${CHANNEL_NAME}.block'"
-if [ $BFT -eq 1 ]; then
-  FABRIC_CFG_PATH=${PWD}/bft-config
-fi
-
 joinChannelH1() {
   # Join the peers to the channel
-
   infoln "Generating channel genesis block '${CHANNEL_NAME}.block'"
   createChannelGenesisBlock $BFT
 
