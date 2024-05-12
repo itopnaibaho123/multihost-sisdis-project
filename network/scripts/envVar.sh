@@ -25,42 +25,25 @@ setGlobals() {
     USING_ORG="${OVERRIDE_ORG}"
   fi
   infoln "Using organization ${USING_ORG}"
-  if [ $USING_ORG = 'kementrian' ]; then
-    export CORE_PEER_LOCALMSPID="KementrianMSP"
-    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_KEMENTRIAN_CA
-    export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/kementrian.example.com/users/Admin@kementrian.example.com/msp
-    export CORE_PEER_ADDRESS=localhost:7051
-  elif [ $USING_ORG = 'kementrianp0' ]; then
+
+  if [ $USING_ORG = 'kementrianp0' ]; then
     export CORE_PEER_LOCALMSPID="KementrianMSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_KEMENTRIAN_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/kementrian.example.com/users/Admin@kementrian.example.com/msp
     export CORE_PEER_ADDRESS="10.184.0.5:7051"
-    export PEER_NUMBER="0"
     export PEER_NAME="peer0.kementrian.example.com"
-  elif [ $USING_ORG = 'supplychain' ]; then
-    export CORE_PEER_LOCALMSPID="SupplyChainMSP"
-    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_SUPPLYCHAIN_CA
-    export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/supplychain.example.com/users/Admin@supplychain.example.com/msp
-    export CORE_PEER_ADDRESS=localhost:9051
   elif [ $USING_ORG = 'supplychainp0' ]; then
     export CORE_PEER_LOCALMSPID="SupplyChainMSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_SUPPLYCHAIN_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/supplychain.example.com/users/Admin@supplychain.example.com/msp
     export CORE_PEER_ADDRESS="10.184.0.6:9051"
-    export PEER_NUMBER="0"
     export PEER_NAME="peer0.supplychain.example.com"
   elif [ $USING_ORG = 'supplychainp1' ]; then
     export CORE_PEER_LOCALMSPID="SupplyChainMSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER1_SUPPLYCHAIN_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/supplychain.example.com/users/Admin@supplychain.example.com/msp
     export CORE_PEER_ADDRESS="10.184.0.7:9051"
-    export PEER_NUMBER="1"
     export PEER_NAME="peer1.supplychain.example.com"
-  elif [ $USING_ORG -eq 3 ]; then
-    export CORE_PEER_LOCALMSPID="Org3MSP"
-    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG3_CA
-    export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org3.example.com/users/Admin@org3.example.com/msp
-    export CORE_PEER_ADDRESS=localhost:11051
   else
     echo $USING_ORG
     errorln "ORG Unknown"

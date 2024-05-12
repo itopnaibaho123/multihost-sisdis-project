@@ -11,7 +11,7 @@ echo $FABRIC_CFG_PATH
 ORG_NAME_1="kementrian"
 ORG_NAME_2="supplychain"
 
-CC_NAME="pecontract"
+CC_NAME="atcontract"
 INVOKE_FUNCTION_NAME="InitLedger"
 QUERY_FUNCTION_NAME="GetAllAssets"
 
@@ -19,8 +19,8 @@ export CORE_PEER_TLS_ENABLED=true
 export CORE_PEER_LOCALMSPID="KementrianMSP"
 export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/$ORG_NAME_1.example.com/peers/peer0.$ORG_NAME_1.example.com/tls/ca.crt
 export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/$ORG_NAME_1.example.com/users/Admin@$ORG_NAME_1.example.com/msp
-export CORE_PEER_ADDRESS=localhost:7051
+export CORE_PEER_ADDRESS=10.184.0.5:7051
 
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C ${CHANNEL_NAME} -n $CC_NAME --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/$ORG_NAME_1.example.com/peers/peer0.$ORG_NAME_1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/$ORG_NAME_2.example.com/peers/peer0.$ORG_NAME_2.example.com/tls/ca.crt" -c '{"function":"'$INVOKE_FUNCTION_NAME'","Args":[]}'
+peer chaincode invoke -o 10.184.0.5:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C ${CHANNEL_NAME} -n $CC_NAME --peerAddresses $CORE_PEER_ADDRESS --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/$ORG_NAME_1.example.com/peers/peer0.$ORG_NAME_1.example.com/tls/ca.crt" --peerAddresses 10.184.0.6:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/$ORG_NAME_2.example.com/peers/peer0.$ORG_NAME_2.example.com/tls/ca.crt" -c '{"function":"'$INVOKE_FUNCTION_NAME'","Args":[]}'
 
 peer chaincode query -C ${CHANNEL_NAME} -n $CC_NAME -c '{"Args":["'$QUERY_FUNCTION_NAME'"]}' | jq '.'

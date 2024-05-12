@@ -104,10 +104,6 @@ if [ $BFT -eq 1 ]; then
   FABRIC_CFG_PATH=${PWD}/bft-config
 fi
 
-
-
-
-
 joinChannelH1() {
   # Join the peers to the channel
 
@@ -155,22 +151,3 @@ joinChannelH3() {
 
   successln "Success Set Anchor Peer"
 }
-
-# ## Create channel
-# infoln "Creating channel ${CHANNEL_NAME}"
-# createChannel $BFT
-# successln "Channel '$CHANNEL_NAME' created"
-
-# ## Join all the peers to the channel
-# infoln "Joining kementrian peer to the channel..."
-# joinChannel 'kementrian'
-# infoln "Joining supplychain peer to the channel..."
-# joinChannel 'supplychain'
-
-# ## Set the anchor peers for each org in the channel
-# infoln "Setting anchor peer for kementrian..."
-# setAnchorPeer 'kementrian'
-# infoln "Setting anchor peer for supplychain..."
-# setAnchorPeer 'supplychain'
-
-# successln "Channel '$CHANNEL_NAME' joined"

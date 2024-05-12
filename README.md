@@ -1,4 +1,5 @@
 ## Install fabric binaries
+
 ```bash
 ./install-requirements.sh
 ```
@@ -9,30 +10,94 @@
 ./install-fabric.sh
 ```
 
-## Run the network
+## Deploy Steps
+
+**1. Run All Containers**
+
+Instance 1:
 
 ```bash
-./run.sh
+./run.sh -host ca1 # init fabric ca container
+./run.sh -host h1 # run peer, couchdb, orderer
+./copy-material.sh h1
 ```
 
-## Invoking the chaincode
+Instance 2:
 
 ```bash
-./invoke.sh
+./run.sh up -host ca2 # init fabric ca container
+./run.sh up -host h2 # run peer, couchdb
+./copy-material.sh h2
 ```
 
-## Redeploy the chaincode after editing
+Instance 3:
 
 ```bash
-./deploy.sh chaincode_folder_name
+./run.sh up -host h3 # run peer, couchdb
 ```
 
-Replace `chaincode_folder_name` with actual folder name, for example:
+---
+
+**2. Join Channel**
+
+Instance 1:
 
 ```bash
-./deploy.sh atcontract
+./run.sh -chstep joinh1 # instance 1 init channel + join channel
+./copy-block.sh # copy block to instance 2 and 3
 ```
 
+Instance2:
+
+```bash
+./run.sh -chstep joinh2 # join channel
+```
+
+Instance3:
+
+```bash
+./run.sh -chstep joinh3 # join channel
+```
+
+---
+
+**3. Deploy All Chaincode**
+
+Instance 1:
+
+```bash
+./run.sh -ccstep h11 # install on peer0.kementrian
+```
+
+Instance 2:
+
+```bash
+./run.sh -ccstep h21 # install on peer0.supplychain
+```
+
+Instance 3:
+
+```bash
+./run.sh -ccstep h31 # install on peer1.supplychain
+```
+
+Instance 1:
+
+```bash
+./run.sh -ccstep h12 # commit on peer0.kementrian
+```
+
+Instance 2:
+
+```bash
+./run.sh -ccstep h22 # commit on peer0.supplychain
+```
+
+Instance 3:
+
+```bash
+./run.sh -ccstep h32 # commit on peer1.supplychain
+```
 
 ## Bring down the network
 
