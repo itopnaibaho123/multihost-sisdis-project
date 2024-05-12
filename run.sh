@@ -47,6 +47,6 @@ if [ "$DEPLOYCCSTEP" != "NA" ]; then
 fi
 
 if [ "$DEPLOYCCSTEPTEST" != "NA" ]; then
-    ./network.sh deployCC -ccn atcontract   -ccp ../chaincode/atcontract   -ccl go -ccstep $DEPLOYCCSTEP
+    ./network.sh deployCC -ccn atcontract   -ccp ../chaincode/atcontract   -ccl go -ccstep $DEPLOYCCSTEPTEST
 fi
 
