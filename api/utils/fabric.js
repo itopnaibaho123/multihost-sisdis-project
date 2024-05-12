@@ -67,7 +67,7 @@ const getUserAttrs = async (username, organizationName) => {
   // Create a new CA client for interacting with the CA.
   const caURL =
     ccp.certificateAuthorities[`ca.${organizationName}.example.com`].url
-  const ca = new FabricCAServices(caURL, undefined, `ca-${organizationName}`)
+  const ca = new FabricCAServices(caURL, undefined, `ca.${organizationName}.example.com`)
 
   // Check to see if we've already enrolled the admin user.
   const adminIdentity = await wallet.get('admin')

@@ -284,7 +284,7 @@ const editPassword = async (user, data) => {
     const ca = new FabricCAServices(
       caURL,
       undefined,
-      `ca-${user.organizationName.toLowerCase()}`
+      `ca.${user.organizationName.toLowerCase()}.example.com`
     )
 
     // Check to see if we've already enrolled the admin user.
@@ -372,7 +372,7 @@ const forgotPassword = async (email) => {
     const ca = new FabricCAServices(
       caURL,
       undefined,
-      `ca-${'supplychain'.toLowerCase()}`
+      `ca.${'supplychain'.toLowerCase()}.example.com`
     )
 
     // Check to see if we've already enrolled the admin user.
