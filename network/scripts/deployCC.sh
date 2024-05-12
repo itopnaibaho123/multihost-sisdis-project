@@ -79,7 +79,7 @@ if [ "$DEPLOYCCSTEP" == "h11" ]; then
   ## Install chaincode on peer0.kementrian
   infoln "Installing chaincode on peer0.kementrian..."
   installChaincode "kementrianp0"
-  resolveSequence
+  resolveSequence "kementrianp0"
   ## query whether the chaincode is installed
   queryInstalled "kementrianp0"
 
@@ -97,7 +97,7 @@ elif [ "$DEPLOYCCSTEP" == "h21" ]; then
   ## Install chaincode on peer0.supplychain
   infoln "Install chaincode on peer0.supplychain..."
   installChaincode "supplychainp0"
-  resolveSequence
+  resolveSequence "supplychainp0"
   ## query whether the chaincode is installed
   queryInstalled "supplychainp0"
 
@@ -112,16 +112,16 @@ elif [ "$DEPLOYCCSTEP" == "h31" ]; then
   ## Install chaincode on peer1.supplychain
   infoln "Install chaincode on peer1.supplychain..."
   installChaincode "supplychainp1"
-  resolveSequence
+  resolveSequence "supplychainp1"
 
   ## query whether the chaincode is installed
   queryInstalled "supplychainp1"
 
 
 elif [ "$DEPLOYCCSTEP" == "h12" ]; then
-  resolveSequence
+  resolveSequence "kementrianp0"
 
-  checkCommitReadiness 'kementrianp0' "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
+  checkCommitReadiness "kementrianp0" "\"KementrianMSP\": true" "\"SupplyChainMSP\": true"
 
   ## now that we know for sure both orgs have approved, commit the definition
   commitChaincodeDefinition "kementrianp0" "supplychainp0" "supplychainp1"
@@ -130,13 +130,13 @@ elif [ "$DEPLOYCCSTEP" == "h12" ]; then
   queryCommitted "kementrianp0"
 
 elif [ "$DEPLOYCCSTEP" == "h22" ]; then
-  resolveSequence
+  resolveSequence "supplychainp0"
 
   ## query on both orgs to see that the definition committed successfully
   queryCommitted "supplychainp0"
 
 elif [ "$DEPLOYCCSTEP" == "h32" ]; then
-  resolveSequence
+  resolveSequence "supplychainp1"
 
   ## query on both orgs to see that the definition committed successfully
   queryCommitted "supplychainp1"

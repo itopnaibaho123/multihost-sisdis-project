@@ -175,6 +175,8 @@ function chaincodeQuery() {
 }
 
 function resolveSequence() {
+  ORG=$1
+  setGlobals $ORG
 
   #if the sequence is not "auto", then use the provided sequence
   if [[ "${CC_SEQUENCE}" != "auto" ]]; then
