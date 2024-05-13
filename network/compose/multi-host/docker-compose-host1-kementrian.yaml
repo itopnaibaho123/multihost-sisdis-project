@@ -1,7 +1,7 @@
 version: "3.7"
 
 volumes:
-  peer0.kementrian.example.com:
+  peer0.badanpertanahannasional.example.com:
 
 networks:
   supply_chain_carbon:
@@ -19,33 +19,33 @@ services:
     networks:
       - supply_chain_carbon
 
-  peer0.kementrian.example.com:
-    container_name: peer0.kementrian.example.com
+  peer0.badanpertanahannasional.example.com:
+    container_name: peer0.badanpertanahannasional.example.com
     extends:
       file: docker-compose-base.yaml
       service: peer-base
     environment:
       # Peer specific variables
-      - CORE_PEER_ID=peer0.kementrian.example.com
-      - CORE_PEER_ADDRESS=peer0.kementrian.example.com:7051
+      - CORE_PEER_ID=peer0.badanpertanahannasional.example.com
+      - CORE_PEER_ADDRESS=peer0.badanpertanahannasional.example.com:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.kementrian.example.com:7052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.badanpertanahannasional.example.com:7052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.kementrian.example.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.kementrian.example.com:7051
-      - CORE_PEER_LOCALMSPID=KementrianMSP
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.kementrian.example.com:9444
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.badanpertanahannasional.example.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.badanpertanahannasional.example.com:7051
+      - CORE_PEER_LOCALMSPID=badanpertanahannasionalMSP
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.badanpertanahannasional.example.com:9444
       - CORE_METRICS_PROVIDER=prometheus
-      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0kementrian"}
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0badanpertanahannasional"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
     depends_on:
       - couchdb0
     volumes:
-      - ../../organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com:/etc/hyperledger/fabric
-      - ../../organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com/msp:/etc/hyperledger/fabric/msp
-      - ../../organizations/peerOrganizations/kementrian.example.com/peers/peer0.kementrian.example.com/tls:/etc/hyperledger/fabric/tls
-      - peer0.kementrian.example.com:/var/hyperledger/production
+      - ../../organizations/peerOrganizations/badanpertanahannasional.example.com/peers/peer0.badanpertanahannasional.example.com:/etc/hyperledger/fabric
+      - ../../organizations/peerOrganizations/badanpertanahannasional.example.com/peers/peer0.badanpertanahannasional.example.com/msp:/etc/hyperledger/fabric/msp
+      - ../../organizations/peerOrganizations/badanpertanahannasional.example.com/peers/peer0.badanpertanahannasional.example.com/tls:/etc/hyperledger/fabric/tls
+      - peer0.badanpertanahannasional.example.com:/var/hyperledger/production
     command: peer node start
     ports:
       - 7051:7051
@@ -72,6 +72,6 @@ services:
       - ../../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
       - ../../config:/etc/hyperledger/config
     depends_on:
-      - peer0.kementrian.example.com
+      - peer0.badanpertanahannasional.example.com
     networks:
       - supply_chain_carbon

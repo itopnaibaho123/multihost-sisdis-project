@@ -44,10 +44,7 @@ const connectToNetwork = async (organizationName, chaincodeName, user) => {
   await gateway.connect(ccp, {
     wallet,
     identity: user,
-    discovery: { 
-      enabled: true,
-      asLocalhost: false
-     },
+    discovery: { enabled: true, asLocalhost: true },
     // https://stackoverflow.com/questions/56936560/why-do-i-take-more-than-2-seconds-to-just-do-a-transaction
     eventHandlerOptions: {
       strategy: null,
@@ -70,7 +67,7 @@ const getUserAttrs = async (username, organizationName) => {
   // Create a new CA client for interacting with the CA.
   const caURL =
     ccp.certificateAuthorities[`ca.${organizationName}.example.com`].url
-  const ca = new FabricCAServices(caURL, undefined, `ca.${organizationName}.example.com`)
+  const ca = new FabricCAServices(caURL, undefined, `ca-${organizationName}`)
 
   // Check to see if we've already enrolled the admin user.
   const adminIdentity = await wallet.get('admin')
@@ -113,7 +110,7 @@ const calculateBlockHash = function (header) {
 }
 
 const getSignature = async (txId) => {
-  const network = await connectToNetwork('SupplyChain', 'qscc', 'admin')
+  const network = await connectToNetwork('BadanPertanahanNasional', 'qscc', 'admin')
   const transaction = await network.contract.evaluateTransaction(
     'GetTransactionByID',
     channelName,

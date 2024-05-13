@@ -1,19 +1,13 @@
 const router = require('express').Router()
 
 const userRouter = require('./user.js')
-const exampleRouter = require('./example.js')
-
-const companyRouter = require('./company.js')
-const salesProposalRouter = require('./carbonTrading/carbonSalesProposal.js')
-const transactionRouter = require('./carbonTrading/carbonTransaction.js')
-const notificationRouter = require('./notification.js')
+const dokumenRouter = require('./dokumen.js')
+const aktaRouter = require('./akta.js')
+const sertifikatRouter = require('./sertifikat.js')
 
 router.use('/auth', userRouter)
-router.use('/example', exampleRouter)
-
-router.use('/company', companyRouter)
-router.use('/carbon_trading/sales-proposal', salesProposalRouter)
-router.use('/carbon_trading/transactions', transactionRouter)
-router.use('/notifications', notificationRouter)
+router.use('/dokumen', dokumenRouter)
+router.use('/akta', aktaRouter)
+router.use('/sertifikat', sertifikatRouter)
 
 module.exports = router

@@ -19,13 +19,13 @@ type SCContract struct {
 
 // var logger = flogging.MustGetLogger("SCCContract")
 
-type SupplyChain struct {
-	ID                  string                `json:"id"`
-	ListPerusahaan      []string              `json:"listPerusahaan"`
-	Status              string                `json:"status"`
-	ProposalSupplyChain []ProposalSupplyChain `json:"proposalSupplyChain"`
+type user struct {
+	ID             string         `json:"id"`
+	ListPerusahaan []string       `json:"listPerusahaan"`
+	Status         string         `json:"status"`
+	Proposaluser   []Proposaluser `json:"proposaluser"`
 }
-type ProposalSupplyChain struct {
+type Proposaluser struct {
 	IdPerusahaan string `json:"id"`
 	Status       string `json:"status"`
 }
@@ -87,36 +87,36 @@ type KelembabanUdara struct {
 }
 
 // Pembuatan Supply Chain
-// 1. Admin perusahaan request ke admin Kementrian (admin perusahaan membuat object supplychain)
-// 2. status SupplyChain Pending
+// 1. Admin perusahaan request ke admin badanpertanahannasional (admin perusahaan membuat object user)
+// 2. status user Pending
 // 3. Admin kementerian Review, kalo setuju approved kalo ga setuju reject
 // 4. Kalo Setuju ngebuat semua proposal supply chain dengan yang isinya list perusahaan
-// 5. Admin Kementerian membuat object proposalSupplyChain untuk semua perusahaan yang ada di ListPerusahaaanm, sehingga proposal menjadi pending status
+// 5. Admin Kementerian membuat object proposaluser untuk semua perusahaan yang ada di ListPerusahaaanm, sehingga proposal menjadi pending status
 // 6. Admin Perusahaan approved, mereject,
-// 7. Supply Chain berjalan jikalau looping dari proposalSUpplychain Approved semua
-// 8. Kalo ternyata salah satu dicancel status dari SupplyChain jadi Reject
+// 7. Supply Chain berjalan jikalau looping dari proposaluser Approved semua
+// 8. Kalo ternyata salah satu dicancel status dari user jadi Reject
 // CreateAsset issues a new asset to the world state with given details.
 func (s *SCContract) CreateCERT(ctx contractapi.TransactionContextInterface, args string) error {
 
 	var cert BMKGCertificateResult
 	err := json.Unmarshal([]byte(args), &cert)
-   
+
 	if err != nil {
-	 return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
+		return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
 	}
-   
+
 	certJSON, err := json.Marshal(cert)
 	if err != nil {
-	 return err
+		return err
 	}
-   
+
 	err = ctx.GetStub().PutState(cert.NoCertificate, certJSON)
 	if err != nil {
-	 fmt.Errorf(err.Error())
+		fmt.Errorf(err.Error())
 	}
-   
+
 	return err
-   }
+}
 func isScExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 
 	cspJSON, err := ctx.GetStub().GetState(id)
@@ -126,17 +126,17 @@ func isScExists(ctx contractapi.TransactionContextInterface, id string) (bool, e
 
 	return cspJSON != nil, nil
 }
-func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*SupplyChain, error) {
+func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorInterface) ([]*user, error) {
 	// logger.Infof("Run constructQueryResponseFromIterator function.")
 
-	var scList []*SupplyChain
+	var scList []*user
 
 	for resultsIterator.HasNext() {
 		queryResult, err := resultsIterator.Next()
 		if err != nil {
 		}
 
-		var sc SupplyChain
+		var sc user
 		err = json.Unmarshal(queryResult.Value, &sc)
 		if err != nil {
 		}
@@ -147,7 +147,7 @@ func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorI
 }
 
 // ReadAsset returns the asset stored in the world state with given id.
-func (s *SCContract) ReadAllSC(ctx contractapi.TransactionContextInterface) ([]*SupplyChain, error) {
+func (s *SCContract) ReadAllSC(ctx contractapi.TransactionContextInterface) ([]*user, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 0 {
@@ -163,7 +163,7 @@ func (s *SCContract) ReadAllSC(ctx contractapi.TransactionContextInterface) ([]*
 	return constructQueryResponseFromIterator(resultsIterator)
 }
 
-func (s *SCContract) GetSCById(ctx contractapi.TransactionContextInterface) (*SupplyChain, error) {
+func (s *SCContract) GetSCById(ctx contractapi.TransactionContextInterface) (*user, error) {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
 	if len(args) != 1 {
@@ -176,19 +176,19 @@ func (s *SCContract) GetSCById(ctx contractapi.TransactionContextInterface) (*Su
 
 	return csp, nil
 }
-func getCompleteDataSupplyChain(ctx contractapi.TransactionContextInterface, sc *SupplyChain) (*SupplyChain, error) {
+func getCompleteDatauser(ctx contractapi.TransactionContextInterface, sc *user) (*user, error) {
 	// logger.Infof("Run getCompleteDataKls function with kls id: '%s'.", perusahaan.ID)
 
-	var scr SupplyChain
+	var scr user
 
 	scr.ID = sc.ID
 	scr.ListPerusahaan = nil
 	scr.Status = sc.Status
-	scr.ProposalSupplyChain = nil
+	scr.Proposaluser = nil
 
 	return &scr, nil
 }
-func getSCStateById(ctx contractapi.TransactionContextInterface, id string) (*SupplyChain, error) {
+func getSCStateById(ctx contractapi.TransactionContextInterface, id string) (*user, error) {
 
 	scJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
@@ -196,7 +196,7 @@ func getSCStateById(ctx contractapi.TransactionContextInterface, id string) (*Su
 	if scJSON == nil {
 	}
 
-	var sc SupplyChain
+	var sc user
 	err = json.Unmarshal(scJSON, &sc)
 	if err != nil {
 	}
@@ -206,18 +206,18 @@ func getSCStateById(ctx contractapi.TransactionContextInterface, id string) (*Su
 
 // UpdateAsset updates an existing asset in the world state with provided parameters.
 func (s *SCContract) UpdateSC(ctx contractapi.TransactionContextInterface, args string) error {
-	var supplyChain SupplyChain
-	err := json.Unmarshal([]byte(args), &supplyChain)
+	var user user
+	err := json.Unmarshal([]byte(args), &user)
 
 	if err != nil {
 		return fmt.Errorf("Failed to Unmarshal input JSON: %v", err)
 	}
-	supplyChainJSON, err := json.Marshal(supplyChain)
+	userJSON, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
 
-	err = ctx.GetStub().PutState(supplyChain.ID, supplyChainJSON)
+	err = ctx.GetStub().PutState(user.ID, userJSON)
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}

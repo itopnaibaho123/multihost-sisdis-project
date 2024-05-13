@@ -11,22 +11,16 @@ const enrollAdmin = async (req, res) => {
   res.status(result.code).send(result)
 }
 
-const getById = async (req, res) => {
-  const result = await userService.getById(req.user, req.params.idUser)
-
-  res.status(result.code).send(result)
-}
-
-const registerAdminKementrian = async (req, res) => {
+const registerAdminBPN = async (req, res) => {
   const data = req.body
   const username = data.username
   const email = data.email
 
-  const result = await userService.registerAdminKementrian(
+  const result = await userService.registerAdminBpn(
     username,
     email,
-    'Kementrian',
-    'admin-kementerian'
+    'BadanPertanahanNasional',
+    'admin-bpn'
   )
   res.status(result.code).send(result)
 }
@@ -38,8 +32,7 @@ const registerUser = async (req, res) => {
     data.username,
     data.email,
     data.organizationName,
-    data.role,
-    data.idDivision
+    data.role
   )
   res.status(result.code).send(result)
 }
@@ -53,22 +46,8 @@ const loginUser = async (req, res) => {
   res.status(result.code).send(result)
 }
 
-const editUser = async (req, res) => {
-  const data = req.body
-  const username = data.username
-  const password = data.password
-  const organizationName = data.organizationName
-  const dataUser = data.dataUser
-  const role = data.role
-
-  const result = await userService.updateUser(
-    organizationName,
-    username,
-    password,
-    role,
-    dataUser
-  )
-
+const editEmail = async (req, res) => {
+  const result = await userService.editEmail(req.user, req.body)
   res.status(result.code).send(result)
 }
 
@@ -76,47 +55,24 @@ const editPassword = async (req, res) => {
   const result = await userService.editPassword(req.user, req.body)
   res.status(result.code).send(result)
 }
-const forgotPassword = async (req, res) => {
-  const result = await userService.forgotPassword(req.body.email)
+
+const getAllUsers = async (req, res) => {
+  const result = await userService.getAllUsers(req.user)
   res.status(result.code).send(result)
 }
 
-const editEmail = async (req, res) => {
-  const result = await userService.editEmail(req.user, req.body)
-  res.status(result.code).send(result)
-}
-
-const getAllManagerByIdPerusahaan = async (req, res) => {
-  const result = await userService.getAllManagerByIdPerusahaan(req.user)
-
-  res.status(result.code).send(result)
-}
-
-const getAllStafKementerian = async (req, res) => {
-  const result = await userService.getAllStafKementerian(req.user)
-
-  res.status(result.code).send(result)
-}
-
-const deleteUser = async (req, res) => {
-  const data = req.body
-  const result = await userService.deleteUser(
-    data.username,
-    data.organizationName
-  )
+const getAllRoles = async (req, res) => {
+  const result = await userService.getAllRoles(req.user)
   res.status(result.code).send(result)
 }
 
 module.exports = {
   enrollAdmin,
-  registerAdminKementrian,
+  registerAdminBPN,
   registerUser,
   loginUser,
-  editPassword,
-  forgotPassword,
+  getAllUsers,
+  getAllRoles,
   editEmail,
-  getAllManagerByIdPerusahaan,
-  getAllStafKementerian,
-  deleteUser,
-  getById,
+  editPassword,
 }

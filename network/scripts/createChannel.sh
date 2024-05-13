@@ -25,7 +25,7 @@ if [ ! -d "channel-artifacts" ]; then
 fi
 
 createChannelGenesisBlock() {
-  setGlobals 'kementrianp0'
+  setGlobals 'badanpertanahannasionalp0'
 	which configtxgen
 	if [ "$?" -ne 0 ]; then
 		fatalln "configtxgen tool not found."
@@ -107,13 +107,13 @@ joinChannelH1() {
   createChannel
   successln "Channel '$CHANNEL_NAME' created"
 
-  infoln "Joining Kementrian peer to the channel..."
-  joinChannel 'kementrianp0'
+  infoln "Joining badanpertanahannasional peer to the channel..."
+  joinChannel 'badanpertanahannasionalp0'
 
   successln "Success Join Channel '$CHANNEL_NAME'"
 
   infoln "Setting anchor peer"
-  setAnchorPeer 'kementrianp0'
+  setAnchorPeer 'badanpertanahannasionalp0'
 
   successln "Success Set Anchor Peer"
 }
@@ -121,12 +121,12 @@ joinChannelH1() {
 joinChannelH2() {
   # Join the peers to the channel
   infoln "Joining Supply Chain peer0 to the channel..."
-  joinChannel 'supplychainp0'
+  joinChannel 'userp0'
 
   successln "Success Join Channel '$CHANNEL_NAME'"
 
   infoln "Setting anchor peer"
-  setAnchorPeer 'supplychainp0'
+  setAnchorPeer 'userp0'
 
   successln "Success Set Anchor Peer"
 }
@@ -134,11 +134,11 @@ joinChannelH2() {
 joinChannelH3() {
   # Join the peers to the channel
   infoln "Joining Supply Chain peer1 to the channel..."
-  joinChannel 'supplychainp1'
+  joinChannel 'userp1'
 
   successln "Success Join Channel '$CHANNEL_NAME'"
   infoln "Setting anchor peer"
-  setAnchorPeer 'supplychainp1'
+  setAnchorPeer 'userp1'
 
   successln "Success Set Anchor Peer"
 }

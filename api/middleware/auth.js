@@ -26,7 +26,7 @@ const verifyToken = (req, res, next) => {
   return next()
 }
 
-const onlyKementerian = (req, res, next) => {
+const onlyNotaris = (req, res, next) => {
   if (!req.headers.authorization) {
     return res
       .status(403)
@@ -41,13 +41,13 @@ const onlyKementerian = (req, res, next) => {
   try {
     const token = req.headers.authorization
     const decoded = jwt.verify(token, 'secret_key')
-    if (decoded.userType.split('-')[1] !== 'kementerian') {
+    if (decoded.userType !== 'notaris') {
       return res
         .status(401)
         .send(
           iResp.buildErrorResponse(
             403,
-            'Only person from kementerian who can access this',
+            'Only person from Notaris who can access this',
             null
           )
         )
@@ -62,7 +62,7 @@ const onlyKementerian = (req, res, next) => {
   return next()
 }
 
-const onlyAdminKementerian = (req, res, next) => {
+const onlyBank = (req, res, next) => {
   if (!req.headers.authorization) {
     return res
       .status(403)
@@ -77,13 +77,13 @@ const onlyAdminKementerian = (req, res, next) => {
   try {
     const token = req.headers.authorization
     const decoded = jwt.verify(token, 'secret_key')
-    if (decoded.userType !== 'admin-kementerian') {
+    if (decoded.userType !== 'bank') {
       return res
         .status(401)
         .send(
           iResp.buildErrorResponse(
             403,
-            'Only Admin of kementerian can access this',
+            'Only person from bank who can access this',
             null
           )
         )
@@ -98,7 +98,7 @@ const onlyAdminKementerian = (req, res, next) => {
   return next()
 }
 
-const onlyStafKementerian = (req, res, next) => {
+const onlyBankAndNotaris = (req, res, next) => {
   if (!req.headers.authorization) {
     return res
       .status(403)
@@ -113,13 +113,13 @@ const onlyStafKementerian = (req, res, next) => {
   try {
     const token = req.headers.authorization
     const decoded = jwt.verify(token, 'secret_key')
-    if (decoded.userType !== 'staf-kementerian') {
+    if (!['bank', 'notaris'].includes(decoded.userType)) {
       return res
         .status(401)
         .send(
           iResp.buildErrorResponse(
             403,
-            'Only Staf kementerian can access this',
+            'Only person from bank/notaris who can access this',
             null
           )
         )
@@ -134,7 +134,7 @@ const onlyStafKementerian = (req, res, next) => {
   return next()
 }
 
-const onlyPerusahaan = (req, res, next) => {
+const onlyAdminBPN = (req, res, next) => {
   if (!req.headers.authorization) {
     return res
       .status(403)
@@ -149,13 +149,13 @@ const onlyPerusahaan = (req, res, next) => {
   try {
     const token = req.headers.authorization
     const decoded = jwt.verify(token, 'secret_key')
-    if (decoded.userType.split('-')[1] !== 'perusahaan') {
+    if (decoded.userType !== 'admin-bpn') {
       return res
         .status(401)
         .send(
           iResp.buildErrorResponse(
             403,
-            'Only person from perusahaan who can access this',
+            'Only Admin of BPN can access this',
             null
           )
         )
@@ -170,7 +170,7 @@ const onlyPerusahaan = (req, res, next) => {
   return next()
 }
 
-const onlyAdminPerusahaan = (req, res, next) => {
+const onlyUser = (req, res, next) => {
   if (!req.headers.authorization) {
     return res
       .status(403)
@@ -185,49 +185,13 @@ const onlyAdminPerusahaan = (req, res, next) => {
   try {
     const token = req.headers.authorization
     const decoded = jwt.verify(token, 'secret_key')
-    if (decoded.userType !== 'admin-perusahaan') {
+    if (decoded.userType !== 'user') {
       return res
         .status(401)
         .send(
           iResp.buildErrorResponse(
             403,
-            'Only Admin of supply chain can access this',
-            null
-          )
-        )
-    } else {
-      req.user = decoded
-    }
-  } catch (err) {
-    return res
-      .status(401)
-      .send(iResp.buildErrorResponse(401, 'Invalid token', null))
-  }
-  return next()
-}
-
-const onlyManagerPerusahaan = (req, res, next) => {
-  if (!req.headers.authorization) {
-    return res
-      .status(403)
-      .send(
-        iResp.buildErrorResponse(
-          403,
-          'A token is required for authentication',
-          null
-        )
-      )
-  }
-  try {
-    const token = req.headers.authorization
-    const decoded = jwt.verify(token, 'secret_key')
-    if (decoded.userType !== 'manager-perusahaan') {
-      return res
-        .status(401)
-        .send(
-          iResp.buildErrorResponse(
-            403,
-            'Only Manager of supply chain can access this',
+            'Only person penjual/pembeli can access this',
             null
           )
         )
@@ -244,10 +208,9 @@ const onlyManagerPerusahaan = (req, res, next) => {
 
 module.exports = {
   verifyToken,
-  onlyPerusahaan,
-  onlyAdminPerusahaan,
-  onlyManagerPerusahaan,
-  onlyKementerian,
-  onlyAdminKementerian,
-  onlyStafKementerian,
+  onlyAdminBPN,
+  onlyBank,
+  onlyUser,
+  onlyNotaris,
+  onlyBankAndNotaris,
 }

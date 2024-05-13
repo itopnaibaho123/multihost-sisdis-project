@@ -23,23 +23,9 @@ type User struct {
 	Name   			string   `json:"name"`
 	Email 	 		string   `json:"email"`
 	Role 			string 	 `json:"role"`
-	
-	ManagerPerusahaan   *ManagerPerusahaan 	`json:"data-manager"`
-	AdminPerusahaan		*AdminPerusahaan 	`json:"data-admin"`
 }
 
-type ManagerPerusahaan struct {
-	IdPerusahaan   string 	`json:"idPerusahaan"`
-	IdDivisi 	   string 	`json:"idDivisi"`
-	IdPerjalanan   []string `json:"idPerjalanan"`
-	NIK 		   string 	`json:"nik"`
-}
 
-type AdminPerusahaan struct {
-	IdPerusahaan   string `json:"idPerusahaan"`
-}
-// Create Manajer dibuat oleh AdminPerusahaan
-// Admin Perusahana dibuat oleh Admin Kementrian melalui request
 // ============================================================================================================================
 // Error Messages
 // ============================================================================================================================
@@ -68,16 +54,15 @@ var logger = flogging.MustGetLogger("UserContract")
 func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface) error {
 	args := ctx.GetStub().GetStringArgs()[1:]
 
-	if len(args) != 5 {
-		logger.Errorf(ER11, 5, len(args))
-		return fmt.Errorf(ER11, 5, len(args))
+	if len(args) != 4 {
+		logger.Errorf(ER11, 4, len(args))
+		return fmt.Errorf(ER11, 4, len(args))
 	}
 
 	id := args[0]
 	name := args[1]
 	email := args[2]
 	role := args[3]
-	idPerusahaan := args[4]
 
 	exists, err := isUserExists(ctx, id)
 	if err != nil {
@@ -94,21 +79,8 @@ func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface)
 		Role:  role,
 	}
 
-	// Set ManagerPerusahaan or AdminPerusahaan based on role
 	switch role {
-	case "manager-perusahaan":
-		managerPerusahaan := ManagerPerusahaan{
-			IdPerusahaan: idPerusahaan, // Initialize with appropriate values
-			IdDivisi:     "", // Initialize with appropriate values
-			IdPerjalanan: make([]string, 0), // Initialize as empty slice
-			NIK:          "", // Initialize with appropriate values
-		}
-		user.ManagerPerusahaan = &managerPerusahaan
-	case "admin-perusahaan":
-		user.AdminPerusahaan = &AdminPerusahaan{
-			IdPerusahaan: idPerusahaan,
-		}
-	case "staf-kementerian", "admin-kementerian":
+	case "admin-bpn", "bank", "user", "notaris":
 	default:
 		return fmt.Errorf("unsupported role: %s", role)
 	}
@@ -124,112 +96,6 @@ func (s *UserContract) RegisterUser(ctx contractapi.TransactionContextInterface)
 	}
 
 	return nil
-}
-
-// ReadAsset returns the asset stored in the world state with given id.
-func (s *UserContract) ReadAllUser(ctx contractapi.TransactionContextInterface) ([]*User, error) {
-	args := ctx.GetStub().GetStringArgs()[1:]
-
-	if len(args) != 0 {
-		logger.Errorf(ER11, 0, len(args))
-		return nil, fmt.Errorf(ER11, 0, len(args))
-	}
-
-	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
-	if err != nil {
-		return nil, fmt.Errorf(err.Error())
-	}
-	defer resultsIterator.Close()
-
-	return constructQueryResponseFromUserIterator(resultsIterator)
-}
-
-// GetManagersByCompanyId retrieves all users with role "manager-perusahaan" and matching idPerusahaan
-func (s *UserContract) GetManagersByCompanyId(ctx contractapi.TransactionContextInterface, idPerusahaan string) ([]*User, error) {
-    queryString := fmt.Sprintf(`{"selector":{"role":"manager-perusahaan", "data-manager.idPerusahaan":"%s"}}`, idPerusahaan)
-    return getQueryResultForQueryStringUser(ctx, queryString)
-}
-
-func (s *UserContract) GetStafKementerian(ctx contractapi.TransactionContextInterface) ([]*User, error) {
-    queryString := fmt.Sprintf(`{"selector":{"role":"staf-kementerian"}}`)
-    return getQueryResultForQueryStringUser(ctx, queryString)
-}
-
-
-func (s *UserContract) GetUserById(ctx contractapi.TransactionContextInterface) (*User, error) {
-	args := ctx.GetStub().GetStringArgs()[1:]
-
-	logger.Infof("Run GetSmsById function with args: %+q.", args)
-
-	if len(args) != 1 {
-		logger.Errorf(ER11, 1, len(args))
-		return nil, fmt.Errorf(ER11, 1, len(args))
-	}
-	id := args[0]
-	user, err := getUserStateById(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-
-// GetUserByUsername used by Login method
-func (s *UserContract) GetUserByUsername(ctx contractapi.TransactionContextInterface) (*User, error) {
-	args := ctx.GetStub().GetStringArgs()[1:]
-
-	logger.Infof("Run GetSmsById function with args: %+q.", args)
-
-	if len(args) != 1 {
-		logger.Errorf(ER11, 1, len(args))
-		return nil, fmt.Errorf(ER11, 1, len(args))
-	}
-	username := args[0]
-	queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, username)
-
-	var user User
-	queryResult, err := getQueryResultForQueryStringUser(ctx, queryString)
-	if err != nil {
-		return nil, err
-	}
-
-	user.ID = queryResult[0].ID
-	user.Name = queryResult[0].Name
-	user.Email = queryResult[0].Email
-	user.Role = queryResult[0].Role
-	user.ManagerPerusahaan = queryResult[0].ManagerPerusahaan
-	user.AdminPerusahaan = queryResult[0].AdminPerusahaan
-
-	return &user, nil
-}
-
-// GetUserByEmail used by Forget Password method
-func (s *UserContract) GetUserByEmail(ctx contractapi.TransactionContextInterface) (*User, error) {
-	args := ctx.GetStub().GetStringArgs()[1:]
-
-	logger.Infof("Run GetSmsById function with args: %+q.", args)
-
-	if len(args) != 1 {
-		logger.Errorf(ER11, 1, len(args))
-		return nil, fmt.Errorf(ER11, 1, len(args))
-	}
-	username := args[0]
-	queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, username)
-
-	var user User
-	queryResult, err := getQueryResultForQueryStringUser(ctx, queryString)
-	if err != nil {
-		return nil, err
-	}
-
-	user.ID = queryResult[0].ID
-	user.Name = queryResult[0].Name
-	user.Email = queryResult[0].Email
-	user.Role = queryResult[0].Role
-	user.ManagerPerusahaan = queryResult[0].ManagerPerusahaan
-	user.AdminPerusahaan = queryResult[0].AdminPerusahaan
-
-	return &user, nil
 }
 
 // UpdateUserData updates the general user data (excluding ManagerPerusahaan and AdminPerusahaan) for a user
@@ -274,197 +140,81 @@ func (s *UserContract) UpdateUserData(ctx contractapi.TransactionContextInterfac
 	return nil
 }
 
-// UpdateManagerData updates the manager data of a user
-func (s *UserContract) UpdateManagerData(ctx contractapi.TransactionContextInterface) error {
-	args := ctx.GetStub().GetStringArgs()[1:]
-
-	if len(args) != 4 {
-		logger.Errorf(ER11, 4, len(args))
-		return fmt.Errorf(ER11, 4, len(args))
-	}
-
-	userId := args[0]
-	idPerusahaan := args[1]
-	idDivisi := args[2]
-	nik := args[3]
-
-	// Retrieve the user from the ledger
-	user, err := getUserStateById(ctx, userId)
-	if err != nil {
-		return err
-	}
-
-	// Check if user is a manager
-	if user.ManagerPerusahaan == nil {
-		return fmt.Errorf("user with ID %s is not a manager", userId)
-	}
-
-	// Update field of ManagerPerusahaan
-	user.ManagerPerusahaan.IdPerusahaan = idPerusahaan
-	user.ManagerPerusahaan.IdDivisi = idDivisi
-	user.ManagerPerusahaan.NIK = nik
-
-	// Marshal the updated user object
-	updatedUserJSON, err := json.Marshal(user)
-	if err != nil {
-		return fmt.Errorf(ER34, err.Error())
-	}
-
-	// Update the user data in the ledger
-	err = ctx.GetStub().PutState(userId, updatedUserJSON)
-	if err != nil {
-		return fmt.Errorf(ER31, err.Error())
-	}
-
-	return nil
+func (s *UserContract) GetUsers(ctx contractapi.TransactionContextInterface) ([]*User, error) {
+    queryString := fmt.Sprintf(`{"selector":{"role":"user"}}`)
+    return getQueryResultForQueryStringUser(ctx, queryString)
 }
 
-// AddManagerPerjalanan appends a new idPerjalanan value to the idPerjalanan field of ManagerPerusahaan for a user
-func (s *UserContract) AddPerjalananToManager(ctx contractapi.TransactionContextInterface) error {
-	args := ctx.GetStub().GetStringArgs()[1:]
-
-	if len(args) != 2 {
-		logger.Errorf(ER11, 2, len(args))
-		return fmt.Errorf(ER11, 2, len(args))
-	}
-
-	userId := args[0]
-	newPerjalananId := args[1]
-	
-	// Retrieve the user from the ledger
-	user, err := getUserStateById(ctx, userId)
+func (s *UserContract) GetAllRoles(ctx contractapi.TransactionContextInterface) ([]*User, error) {
+	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
 	if err != nil {
-		return err
-	}
-	// Check if user is a manager
-	if user.ManagerPerusahaan == nil {
-		return fmt.Errorf("user with ID %s is not a manager", userId)
-	}
-
-	// Append newPerjalananId to idPerjalanan field
-	user.ManagerPerusahaan.IdPerjalanan = append(user.ManagerPerusahaan.IdPerjalanan, newPerjalananId)
-
-	// Marshal the updated user object
-	updatedUserJSON, err := json.Marshal(user)
-	if err != nil {
-		return fmt.Errorf(ER34, err.Error())
-	}
-
-	// Update the user data in the ledger
-	err = ctx.GetStub().PutState(userId, updatedUserJSON)
-	if err != nil {
-		return fmt.Errorf(ER31, err.Error())
-	}
-
-	return nil
-}
-
-// UpdateAdminData updates the admin data of a user
-func (s *UserContract) UpdateAdminData(ctx contractapi.TransactionContextInterface) error {
-	args := ctx.GetStub().GetStringArgs()[1:]
-
-	if len(args) != 2 {
-		logger.Errorf(ER11, 2, len(args))
-		return fmt.Errorf(ER11, 2, len(args))
-	}
-
-	userId := args[0]
-	idPerusahaan := args[1]
-
-	// Retrieve the user from the ledger
-	user, err := getUserStateById(ctx, userId)
-	if err != nil {
-		return err
-	}
-
-	// Check if user is a manager
-	if user.AdminPerusahaan == nil {
-		return fmt.Errorf("user with ID %s is not a manager", userId)
-	}
-
-	// Update field of ManagerPerusahaan
-	user.AdminPerusahaan.IdPerusahaan = idPerusahaan
-
-	// Marshal the updated user object
-	updatedUserJSON, err := json.Marshal(user)
-	if err != nil {
-		return fmt.Errorf(ER34, err.Error())
-	}
-
-	// Update the user data in the ledger
-	err = ctx.GetStub().PutState(userId, updatedUserJSON)
-	if err != nil {
-		return fmt.Errorf(ER31, err.Error())
-	}
-
-	return nil
-}
-// DeleteUser deletes an given asset from the world state.
-func (s *UserContract) DeleteUser(ctx contractapi.TransactionContextInterface) error {
-	args := ctx.GetStub().GetStringArgs()[1:]
-
-	if len(args) != 1 {
-		logger.Errorf(ER11, 1, len(args))
-		return fmt.Errorf(ER11, 1, len(args))
-	}
-
-	id := args[0]
-
-	exists, err := isUserExists(ctx, id)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		return fmt.Errorf(ER13, id)
-	}
-
-	err = ctx.GetStub().DelState(id)
-	if err != nil {
-		logger.Errorf(ER31, err)
-	}
-
-	return err
-}
-
-// DeleteUserByUsername deletes a user from the ledger using their username.
-func (s *UserContract) DeleteUserByUsername(ctx contractapi.TransactionContextInterface) error {
-	args := ctx.GetStub().GetStringArgs()[1:]
-
-	if len(args) != 1 {
-		logger.Errorf(ER11, 1, len(args))
-		return fmt.Errorf(ER11, 1, len(args))
-	}
-
-	username := args[0]
-
-	// Query the ledger to find the user by their username
-	queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, username)
-	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
-	if err != nil {
-		return fmt.Errorf(ER32, err)
+		return nil, err
 	}
 	defer resultsIterator.Close()
 
-	// Check if the user exists
-	if !resultsIterator.HasNext() {
-		return fmt.Errorf(ER15, username)
-	}
-
-	// Iterate through the query results (should be only one) and delete the user
+	var assets []*User
 	for resultsIterator.HasNext() {
-		queryResult, err := resultsIterator.Next()
+		queryResponse, err := resultsIterator.Next()
 		if err != nil {
-			return fmt.Errorf(ER33, err)
+			return nil, err
 		}
 
-		err = ctx.GetStub().DelState(queryResult.Key)
+		var asset User
+		err = json.Unmarshal(queryResponse.Value, &asset)
 		if err != nil {
-			logger.Errorf(ER31, err)
-			return err
+			return nil, err
 		}
+		assets = append(assets, &asset)
 	}
 
-	return nil
+
+	return assets, nil
+}
+
+
+func (s *UserContract) GetUserById(ctx contractapi.TransactionContextInterface) (*User, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	logger.Infof("Run GetSmsById function with args: %+q.", args)
+
+	if len(args) != 1 {
+		logger.Errorf(ER11, 1, len(args))
+		return nil, fmt.Errorf(ER11, 1, len(args))
+	}
+	id := args[0]
+	user, err := getUserStateById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+// GetUserByUsername used by Login method
+func (s *UserContract) GetUserByUsername(ctx contractapi.TransactionContextInterface) (*User, error) {
+	args := ctx.GetStub().GetStringArgs()[1:]
+
+	logger.Infof("Run GetSmsById function with args: %+q.", args)
+
+	if len(args) != 1 {
+		logger.Errorf(ER11, 1, len(args))
+		return nil, fmt.Errorf(ER11, 1, len(args))
+	}
+	username := args[0]
+	queryString := fmt.Sprintf(`{"selector":{"name":"%s"}}`, username)
+
+	var user User
+	queryResult, err := getQueryResultForQueryStringUser(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+
+	user.ID = queryResult[0].ID
+	user.Name = queryResult[0].Name
+	user.Email = queryResult[0].Email
+	user.Role = queryResult[0].Role
+
+	return &user, nil
 }
 
 func isUserExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
